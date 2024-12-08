@@ -1,0 +1,96 @@
+{
+  "preamble": {
+    "title": "quan0204/charity-foundation",
+    "description": "Aiken contracts for project 'quan0204/charity-foundation'",
+    "version": "0.0.0",
+    "plutusVersion": "v2",
+    "compiler": {
+      "name": "Aiken",
+      "version": "v1.0.29-alpha+16fb02e"
+    },
+    "license": "Apache-2.0"
+  },
+  "validators": [
+    {
+      "title": "contract.fund",
+      "datum": {
+        "title": "fund",
+        "schema": {
+          "$ref": "#/definitions/contract~1Fund"
+        }
+      },
+      "redeemer": {
+        "title": "redeemer",
+        "schema": {
+          "$ref": "#/definitions/contract~1FundAction"
+        }
+      },
+      "compiledCode": "5901a4010000323232323232232322322533300732323232533300b3009300c375400e2a66601666e212000375a601e6020601a6ea802854ccc02ccdc41bad300f30103010300d37540146eb4c03cc040c040c040c034dd50050a99980599980599b8f375c601e6020602060206020601a6ea8029221004a09444cc004dd6180118069baa3003300d375400a6eb8c010c034dd50050a5014a029404cc004dd6180118069baa3003300d375400a6eb8c010c034dd50051119198008008019129998088008a50132533300f3371e6eb8c04c008010528899801801800980980091807180798079807980798079807980798078009180680091806180698069806980698068008a4c26cac64a66600c60080022a66601260106ea800852616153330063370e90010008a99980498041baa00214985858c018dd5000a999801980098021baa002132323232323232323232323253330123014002149858dd7180900098090011bae30100013010002375a601c002601c0046eb4c030004c030008dd6980500098050011b99375c6010002600a6ea800858dc3a4000ae6955ceaab9e5573eae855d101",
+      "hash": "24f04308ea92a42cb9b7fccbfc18c62cd73097c32347df319235e670"
+    }
+  ],
+  "definitions": {
+    "ByteArray": {
+      "dataType": "bytes"
+    },
+    "Int": {
+      "dataType": "integer"
+    },
+    "String": {
+      "dataType": "#string"
+    },
+    "contract/Fund": {
+      "title": "Fund",
+      "anyOf": [
+        {
+          "title": "Fund",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "name",
+              "$ref": "#/definitions/String"
+            },
+            {
+              "title": "total_expected",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "start_time",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "end_time",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "wallet_address",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "creator",
+              "$ref": "#/definitions/ByteArray"
+            }
+          ]
+        }
+      ]
+    },
+    "contract/FundAction": {
+      "title": "FundAction",
+      "anyOf": [
+        {
+          "title": "Create",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": []
+        },
+        {
+          "title": "Cancel",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": []
+        }
+      ]
+    }
+  }
+}
