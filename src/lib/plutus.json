@@ -20,13 +20,13 @@
         }
       },
       "redeemer": {
-        "title": "redeemer",
+        "title": "_redeemer",
         "schema": {
-          "$ref": "#/definitions/contract~1FundAction"
+          "$ref": "#/definitions/Void"
         }
       },
-      "compiledCode": "5901a4010000323232323232232322322533300732323232533300b3009300c375400e2a66601666e212000375a601e6020601a6ea802854ccc02ccdc41bad300f30103010300d37540146eb4c03cc040c040c040c034dd50050a99980599980599b8f375c601e6020602060206020601a6ea8029221004a09444cc004dd6180118069baa3003300d375400a6eb8c010c034dd50050a5014a029404cc004dd6180118069baa3003300d375400a6eb8c010c034dd50051119198008008019129998088008a50132533300f3371e6eb8c04c008010528899801801800980980091807180798079807980798079807980798078009180680091806180698069806980698068008a4c26cac64a66600c60080022a66601260106ea800852616153330063370e90010008a99980498041baa00214985858c018dd5000a999801980098021baa002132323232323232323232323253330123014002149858dd7180900098090011bae30100013010002375a601c002601c0046eb4c030004c030008dd6980500098050011b99375c6010002600a6ea800858dc3a4000ae6955ceaab9e5573eae855d101",
-      "hash": "24f04308ea92a42cb9b7fccbfc18c62cd73097c32347df319235e670"
+      "compiledCode": "590131010000323232323232232232253330063253330073370e900118041baa300b300c3009375400426644646600200200644a66601c00229404c94ccc030cdc79bae301000200414a226600600600260200026eb0c02cc030c030c030c030c030c030c030c030c024dd5180598049baa002375c6016601860186018601860186018601860126ea8018528180518041baa00114984d958c94ccc014cdc3a4000600c0022a666010600e0022930b0b1baa00153330023370e900018019baa00113232323232323232323232323232323253330153017002149858dd7180a800980a8011bae30130013013002375a602200260220046eb4c03c004c03c008dd6980680098068011b99375c601600260160046eb8c024004c024008dd7180380098021baa001165734aae7555cf2ab9f5742ae881",
+      "hash": "feb2df679b3e3a7223c45163eb5e02d3f4fb7b0cfae2e1c95278e61f"
     }
   ],
   "definitions": {
@@ -39,6 +39,17 @@
     "String": {
       "dataType": "#string"
     },
+    "Void": {
+      "title": "Unit",
+      "description": "The nullary constructor.",
+      "anyOf": [
+        {
+          "dataType": "constructor",
+          "index": 0,
+          "fields": []
+        }
+      ]
+    },
     "contract/Fund": {
       "title": "Fund",
       "anyOf": [
@@ -47,6 +58,14 @@
           "dataType": "constructor",
           "index": 0,
           "fields": [
+            {
+              "title": "policyId",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "assetName",
+              "$ref": "#/definitions/ByteArray"
+            },
             {
               "title": "name",
               "$ref": "#/definitions/String"
@@ -72,23 +91,6 @@
               "$ref": "#/definitions/ByteArray"
             }
           ]
-        }
-      ]
-    },
-    "contract/FundAction": {
-      "title": "FundAction",
-      "anyOf": [
-        {
-          "title": "Create",
-          "dataType": "constructor",
-          "index": 0,
-          "fields": []
-        },
-        {
-          "title": "Cancel",
-          "dataType": "constructor",
-          "index": 1,
-          "fields": []
         }
       ]
     }
