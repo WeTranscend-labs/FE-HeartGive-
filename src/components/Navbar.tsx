@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils';
 import {
   Bars3Icon,
   XMarkIcon,
   ChevronDownIcon,
 } from '@heroicons/react/24/outline';
+import ConnectWallet from './ConnectWallet';
 
 const mainNavItems = [
   { path: '/funds', label: 'Browse Funds' },
@@ -41,19 +42,16 @@ export function Navbar() {
   return (
     <nav
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         shouldUseTransparentBg
-          ? "bg-transparent"
-          : "bg-white/95 backdrop-blur-sm shadow-sm"
+          ? 'bg-transparent'
+          : 'bg-white/95 backdrop-blur-sm shadow-sm'
       )}
     >
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link
-            to="/"
-            className="flex items-center space-x-3 group"
-          >
+          <Link to="/" className="flex items-center space-x-3 group">
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -61,10 +59,12 @@ export function Navbar() {
             >
               <span className="text-white font-bold text-xl">VF</span>
             </motion.div>
-            <span className={cn(
-              "text-xl font-bold transition-colors duration-300",
-              shouldUseTransparentBg ? "text-white" : "text-gray-900"
-            )}>
+            <span
+              className={cn(
+                'text-xl font-bold transition-colors duration-300',
+                shouldUseTransparentBg ? 'text-white' : 'text-gray-900'
+              )}
+            >
               VolunteerFund
             </span>
           </Link>
@@ -76,10 +76,10 @@ export function Navbar() {
                 key={link.path}
                 to={link.path}
                 className={cn(
-                  "relative text-sm font-medium transition-colors duration-300",
+                  'relative text-sm font-medium transition-colors duration-300',
                   shouldUseTransparentBg
-                    ? "text-white/90 hover:text-white"
-                    : "text-gray-600 hover:text-primary-600"
+                    ? 'text-white/90 hover:text-white'
+                    : 'text-gray-600 hover:text-primary-600'
                 )}
               >
                 {link.label}
@@ -87,11 +87,11 @@ export function Navbar() {
                   <motion.div
                     layoutId="navbar-indicator"
                     className={cn(
-                      "absolute -bottom-1 left-0 right-0 h-0.5",
-                      shouldUseTransparentBg ? "bg-white" : "bg-primary-500"
+                      'absolute -bottom-1 left-0 right-0 h-0.5',
+                      shouldUseTransparentBg ? 'bg-white' : 'bg-primary-500'
                     )}
                     initial={false}
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                   />
                 )}
               </Link>
@@ -102,10 +102,10 @@ export function Navbar() {
               <button
                 onClick={() => setIsResourcesOpen(!isResourcesOpen)}
                 className={cn(
-                  "flex items-center space-x-1 text-sm font-medium transition-colors duration-300",
+                  'flex items-center space-x-1 text-sm font-medium transition-colors duration-300',
                   shouldUseTransparentBg
-                    ? "text-white/90 hover:text-white"
-                    : "text-gray-600 hover:text-primary-600"
+                    ? 'text-white/90 hover:text-white'
+                    : 'text-gray-600 hover:text-primary-600'
                 )}
               >
                 <span>Resources</span>
@@ -138,14 +138,16 @@ export function Navbar() {
             <Link
               to="/register"
               className={cn(
-                "inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300",
+                'inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300',
                 shouldUseTransparentBg
-                  ? "bg-white text-primary-600 hover:bg-white/90"
-                  : "bg-primary-600 text-white hover:bg-primary-700"
+                  ? 'bg-white text-primary-600 hover:bg-white/90'
+                  : 'bg-primary-600 text-white hover:bg-primary-700'
               )}
             >
               Start Fundraising
             </Link>
+
+            <ConnectWallet />
           </div>
 
           {/* Mobile Menu Button */}
@@ -154,15 +156,19 @@ export function Navbar() {
             className="md:hidden p-2 rounded-lg"
           >
             {isMobileMenuOpen ? (
-              <XMarkIcon className={cn(
-                "w-6 h-6",
-                shouldUseTransparentBg ? "text-white" : "text-gray-900"
-              )} />
+              <XMarkIcon
+                className={cn(
+                  'w-6 h-6',
+                  shouldUseTransparentBg ? 'text-white' : 'text-gray-900'
+                )}
+              />
             ) : (
-              <Bars3Icon className={cn(
-                "w-6 h-6",
-                shouldUseTransparentBg ? "text-white" : "text-gray-900"
-              )} />
+              <Bars3Icon
+                className={cn(
+                  'w-6 h-6',
+                  shouldUseTransparentBg ? 'text-white' : 'text-gray-900'
+                )}
+              />
             )}
           </button>
         </div>
