@@ -3,7 +3,7 @@ import React, { ReactNode, useContext, useState, useEffect } from 'react';
 import LucidContext from '../components/LucidContext';
 import { ModalContextType } from '@/types/contexts/ModalContextType';
 import ModalContext from '../components/ModalContext';
-import { WalletType } from '@/types/GenericType';
+import { NetworkType, WalletType } from '@/types/GenericType';
 import { NetworkContextType } from '@/types/contexts/NetworkContextType';
 import NetworkContext from '../components/NetworkContext';
 import { Blockfrost, Lucid, Network, UTxO } from 'lucid-cardano';
@@ -62,20 +62,24 @@ const WalletProvider = function ({ children }: Props) {
     // react-hooks/exhaustive-deps
   }, [wallet]);
 
-  const connect = async function ({ name, api, image }: WalletType) {
+  const connect = async function ({ name, api, image, checkApi }: WalletType) {
     try {
       setLoading(true);
       const currentNetwork = networks.find(function ({ networkName }) {
         return networkName === network;
       });
 
+      console.log(currentNetwork);
+
       const lucid = await Lucid.new(
         new Blockfrost(
-          currentNetwork?.url as string,
-          currentNetwork?.apiKey as string
+          'https://cardano-preview.blockfrost.io/api/v0',
+          'previewOUGYFtFqq5PnuAhyTBqea5P5Czm5f0oG'
         ),
-        currentNetwork?.networkName as Network
+        'Preview'
       );
+
+      console.log(lucid);
 
       lucid.selectWallet(await api());
       const address: string = (await lucid.wallet.address()) as string;
@@ -116,7 +120,7 @@ const WalletProvider = function ({ children }: Props) {
       });
       setLucid(lucid);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
