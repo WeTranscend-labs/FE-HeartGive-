@@ -1,9 +1,9 @@
-import React, { ReactNode, useState } from 'react';
-import { Lucid, Data, Script } from 'lucid-cardano';
-import SmartContractContext from '../components/SmartContractContext';
-import { SmartContractContextType } from '@/types/contexts/SmartContractContextType';
-import readValidators from '@/utils/readValidators';
 import { FundDatum } from '@/constants/datum';
+import { create } from '@/types/contexts/SmartContractContextType';
+import readValidators from '@/utils/readValidators';
+import { Data, Lucid, Script } from 'lucid-cardano';
+import { ReactNode } from 'react';
+import SmartContractContext from '../components/SmartContractContext';
 
 type Props = {
   children: ReactNode;
@@ -12,7 +12,7 @@ type Props = {
 
 const SmartContractProvider = function ({ children, lucid }: Props) {
   // Hàm tạo quỹ từ thiện
-  const create = async ({
+  const create: create = async ({
     policyId,
     assetName,
     totalExpected,
@@ -70,7 +70,7 @@ const SmartContractProvider = function ({ children, lucid }: Props) {
   };
 
   return (
-    <SmartContractContext.Provider value={}>
+    <SmartContractContext.Provider value={{ create }}>
       {children}
     </SmartContractContext.Provider>
   );

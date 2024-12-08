@@ -1,13 +1,16 @@
+export type create = ({
+  policyId: string,
+  assetName: string,
+  totalExpected: bigint,
+  startTime: bigint,
+  endTime: bigint,
+  walletAddress: string,
+  creator: string,
+  lucid: Lucid,
+}) => Promise<void>;
+
 export type SmartContractContextType = {
-  create: ({
-    name: string,
-    totalExpected: bigint,
-    startTime: bigint,
-    endTime: bigint,
-    walletAddress: string,
-    creator: string,
-    lucid: Lucid,
-  }) => Promise<void>;
+  create: create;
 
   // cancel: ({
   //   fundId: string,
@@ -22,3 +25,5 @@ export type SmartContractContextType = {
   //   lucid: Lucid,
   // }) => Promise<boolean>;
 };
+
+export type { create, SmartContractContextType };
