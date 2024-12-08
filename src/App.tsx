@@ -7,28 +7,29 @@ import { LandingPage } from './pages/LandingPage';
 import { AboutPage } from './pages/AboutPage';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
+import ContextProvider from './contexts';
 
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <Toaster position="top-right" />
-        <Navbar />
-        <div className="h-20">
-          {/* Spacer for fixed navbar */}
+    <ContextProvider>
+      <Router>
+        <div className="min-h-screen bg-gray-50 flex flex-col">
+          <Toaster position="top-right" />
+          <Navbar />
+          <div className="h-20">{/* Spacer for fixed navbar */}</div>
+          <main className="flex-grow">
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/funds" element={<HomePage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/fund/:id" element={<FundDetailsPage />} />
+              <Route path="/about" element={<AboutPage />} />
+            </Routes>
+          </main>
+          <Footer />
         </div>
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/funds" element={<HomePage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/fund/:id" element={<FundDetailsPage />} />
-            <Route path="/about" element={<AboutPage />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </Router>
+      </Router>
+    </ContextProvider>
   );
 }
 
