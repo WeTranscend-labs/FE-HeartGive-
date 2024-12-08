@@ -51,7 +51,7 @@ const WalletItem = function ({ wallet, accept }: Props) {
         {!isDownload && (
           <div className="text-[var(--text-color)] text-[14px] font-normal opacity-100 z-10">
             <Link
-              className="text-[var(--text-color)] text-[1.4rem] font-normal no-underline"
+              className="text-[var(--text-color)] text-[1.4rem] font-normal no-underline flex "
               to={wallet.downloadApi as string}
               target="_blank"
             >

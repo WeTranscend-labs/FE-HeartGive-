@@ -48,7 +48,7 @@ const ConnectWallet = function ({ className }: Props) {
         onHide={() => setIsShowTippy(false)}
         onShow={() => setIsShowTippy(lucid ? true : false)}
         offset={[0, 0]}
-        className="p-0 m-0 w-full bg-transparent border-none"
+        className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300"
         trigger="click"
         interactive
         placement="bottom-start"
@@ -162,7 +162,7 @@ const ConnectWallet = function ({ className }: Props) {
               />
             </div>
           ) : (
-            <span>
+            <span className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300">
               {isShowingErrorNetwork ? 'Wrong Network' : 'Connect Wallet'}
             </span>
           )}
@@ -171,7 +171,7 @@ const ConnectWallet = function ({ className }: Props) {
 
       {!lucid && (
         <Modal isShowing={isShowingWallet} toggle={toggleShowingWallet}>
-          <div className="bg-white rounded-lg p-8 max-w-[57rem] max-h-[80vh]">
+          <div className="bg-white rounded-lg p-8 max-w-[57rem] max-h-[80vh] overflow-y-auto">
             <section
               onClick={toggleShowingWallet}
               className="absolute top-4 right-4 p-2 cursor-pointer rounded-full hover:bg-gray-100"
@@ -199,7 +199,7 @@ const ConnectWallet = function ({ className }: Props) {
                 </label>
               </div>
             </section>
-            <section className="space-y-4">
+            <section className="">
               {wallets.map(function (wallet: WalletType, index: number) {
                 return (
                   <WalletItem wallet={wallet} key={index} accept={accept} />
