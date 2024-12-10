@@ -1,16 +1,23 @@
 import { FundDatum, FundManagementDatum } from '@/constants/datum';
 import { createFund } from '@/types/contexts/SmartContractContextType';
 import readValidators, { Validators } from '@/utils/readValidators';
-import { Data, Lucid, Script, SpendingValidator } from 'lucid-cardano';
+import {
+  Data,
+  fromText,
+  Lucid,
+  Script,
+  SpendingValidator,
+  toText,
+} from 'lucid-cardano';
 import { ReactNode, useContext, useEffect, useState } from 'react';
 import SmartContractContext from '../components/SmartContractContext';
 import { applyParams } from '@/utils/applyParams';
 import { LucidContextType } from '@/types/contexts/LucidContextType';
 import LucidContext from '../components/LucidContext';
+import { decode, encode } from 'cbor-x';
 
 type Props = {
   children: ReactNode;
-  lucid: Lucid; // Lucid được truyền từ ngoài
 };
 
 const SmartContractProvider = function ({ children }: Props) {
@@ -21,12 +28,13 @@ const SmartContractProvider = function ({ children }: Props) {
 
   useEffect(() => {
     const validators = readValidators();
-    setFundManagementAddress(
-      lucid.utils.validatorToAddress(validators.fundManagement)
-    );
-  }, []);
 
-  const createFund: createFund = async ({ fundOwner }) => {
+    setFundManagementAddress(
+      lucid?.utils.validatorToAddress(validators.fundManagement)
+    );
+  }, [lucid]);
+
+  const createFund: createFund = async ({ fundOwner, fundMetadata }) => {
     const validators: Validators = readValidators();
     const fundAppliedParams = applyParams({ validators, fundOwner, lucid });
     const fundAddress = fundAppliedParams.fundAddress;
@@ -40,22 +48,31 @@ const SmartContractProvider = function ({ children }: Props) {
 
     const fundManagementDatum = Data.to(
       {
-        fundAddress: fundAddress,
+        fundAddress: fromText(fundAddress),
       },
       FundManagementDatum
     );
+
+    console.log(toText(fromText(fundAddress)));
+
+    console.log(fromText(fundAddress));
 
     const tx = await lucid
       .newTx()
       .payToContract(
         fundAddress,
         { inline: fundDatum },
-        { lovalace: 1_000_000n }
+        { lovelace: 1_000_000n }
       )
+      .attachMetadata(1, {
+        2: {
+          data: encode(JSON.stringify(fundMetadata)),
+        },
+      })
       .payToContract(
         fundManagementAddress,
         { inline: fundManagementDatum },
-        { lovalace: 5_000_000n }
+        { lovelace: 5_000_000n }
       )
       .complete();
 
@@ -67,6 +84,8 @@ const SmartContractProvider = function ({ children }: Props) {
     if (success) {
       console.log(txHash);
     }
+
+    // return txHash;
   };
 
   return (

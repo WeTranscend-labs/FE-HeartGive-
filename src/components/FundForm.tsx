@@ -1,6 +1,5 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { useFundStore } from '../store/useFundStore';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -18,6 +17,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useContext } from 'react';
+import { SmartContractContextType } from '@/types/contexts/SmartContractContextType';
+import SmartContractContext from '@/contexts/components/SmartContractContext';
+import { LucidContextType } from '@/types/contexts/LucidContextType';
+import LucidContext from '@/contexts/components/LucidContext';
+import { WalletContextType } from '@/types/contexts/WalletContextType';
+import WalletContext from '@/contexts/components/WalletContext';
+import * as z from 'zod';
 
 const formSchema = z.object({
   organizationName: z
@@ -66,7 +73,7 @@ const formSchema = z.object({
     .max(1000000, 'Maximum amount is $1,000,000'),
   walletAddress: z
     .string()
-    .regex(/^0x[a-fA-F0-9]{40}$/, 'Invalid Ethereum wallet address'),
+    .regex(/^addr_test1[a-z0-9]+$/, 'Invalid Cardano wallet address'),
   category: z.enum(
     [
       'Education',
@@ -87,11 +94,16 @@ const formSchema = z.object({
   tags: z.array(z.string()).optional(),
 });
 
-type FormData = z.infer<typeof formSchema>;
+export type FundFormData = z.infer<typeof formSchema>;
 
 export function FundForm() {
   const { toast } = useToast();
-  const form = useForm<FormData>({
+  const { createFund } =
+    useContext<SmartContractContextType>(SmartContractContext);
+  const { lucidPlatform } = useContext<LucidContextType>(LucidContext);
+  const { wallet } = useContext<WalletContextType>(WalletContext);
+
+  const form = useForm<FundFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       organizationName: '',
@@ -117,7 +129,6 @@ export function FundForm() {
   });
 
   const data = localStorage.setItem('data', JSON.stringify(form.getValues()));
-  console.log(form.getValues());
 
   const addFund = useFundStore((state) => state.addFund);
   const navigate = useNavigate();
@@ -143,6 +154,13 @@ export function FundForm() {
     }
   };
 
+  const handleCreateFund = async () => {
+    await createFund({
+      fundOwner: wallet.publicKeyHash,
+      fundMetadata: form.getValues(),
+    });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -151,7 +169,10 @@ export function FundForm() {
       className="space-y-8"
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form
+          onSubmit={form.handleSubmit(handleCreateFund)}
+          className="space-y-8"
+        >
           {/* Organization Information */}
           <Card>
             <CardHeader>
