@@ -1,76 +1,76 @@
-import { FundDatum } from '@/constants/datum';
-import { create } from '@/types/contexts/SmartContractContextType';
-import readValidators from '@/utils/readValidators';
-import { Data, Lucid, Script } from 'lucid-cardano';
-import { ReactNode } from 'react';
+import { FundDatum, FundManagementDatum } from '@/constants/datum';
+import { createFund } from '@/types/contexts/SmartContractContextType';
+import readValidators, { Validators } from '@/utils/readValidators';
+import { Data, Lucid, Script, SpendingValidator } from 'lucid-cardano';
+import { ReactNode, useContext, useEffect, useState } from 'react';
 import SmartContractContext from '../components/SmartContractContext';
+import { applyParams } from '@/utils/applyParams';
+import { LucidContextType } from '@/types/contexts/LucidContextType';
+import LucidContext from '../components/LucidContext';
 
 type Props = {
   children: ReactNode;
   lucid: Lucid; // Lucid được truyền từ ngoài
 };
 
-const SmartContractProvider = function ({ children, lucid }: Props) {
-  // Hàm tạo quỹ từ thiện
-  const create: create = async ({
-    policyId,
-    assetName,
-    totalExpected,
-    startTime,
-    endTime,
-    walletAddress,
-    creator,
-    lucid,
-  }: {
-    policyId: string;
-    assetName: string;
-    totalExpected: bigint;
-    startTime: bigint;
-    endTime: bigint;
-    walletAddress: string;
-    creator: string;
-    lucid: Lucid;
-  }): Promise<void> => {
-    const validator: Script = readValidators();
-    const contractAddress: string = lucid.utils.validatorToAddress(validator);
+const SmartContractProvider = function ({ children }: Props) {
+  const { lucid } = useContext<LucidContextType>(LucidContext);
+  const [fundManagementAddress, setFundManagementAddress] = useState<string>(
+    null!
+  );
 
-    const creatorPublicKey: string = lucid.utils.getAddressDetails(
-      await lucid.wallet.address()
-    ).paymentCredential?.hash as string;
+  useEffect(() => {
+    const validators = readValidators();
+    setFundManagementAddress(
+      lucid.utils.validatorToAddress(validators.fundManagement)
+    );
+  }, []);
 
-    const datum = Data.to(
+  const createFund: createFund = async ({ fundOwner }) => {
+    const validators: Validators = readValidators();
+    const fundAppliedParams = applyParams({ validators, fundOwner, lucid });
+    const fundAddress = fundAppliedParams.fundAddress;
+
+    const fundDatum = Data.to(
       {
-        policyId: policyId,
-        assetName: assetName,
-        totalExpected: totalExpected,
-        startTime: startTime,
-        endTime: endTime,
-        walletAddress: walletAddress,
-        creator: creator,
+        fundOwner: fundOwner,
       },
       FundDatum
+    );
+
+    const fundManagementDatum = Data.to(
+      {
+        fundAddress: fundAddress,
+      },
+      FundManagementDatum
     );
 
     const tx = await lucid
       .newTx()
       .payToContract(
-        contractAddress,
-        { inline: datum },
-        {
-          lovelace: 1000000n,
-        }
+        fundAddress,
+        { inline: fundDatum },
+        { lovalace: 1_000_000n }
+      )
+      .payToContract(
+        fundManagementAddress,
+        { inline: fundManagementDatum },
+        { lovalace: 5_000_000n }
       )
       .complete();
 
-    const signedTx = await tx.sign().complete();
+    const txSigned = await tx.sign().complete();
+    const txHash = await txSigned.submit();
 
-    const txHash = await signedTx.submit();
+    const success = await lucid.awaitTx(txHash);
 
-    console.log(txHash);
+    if (success) {
+      console.log(txHash);
+    }
   };
 
   return (
-    <SmartContractContext.Provider value={{ create }}>
+    <SmartContractContext.Provider value={{ createFund }}>
       {children}
     </SmartContractContext.Provider>
   );
