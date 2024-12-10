@@ -19,14 +19,6 @@ const images = {
   emailLink: new URL('./social-media/email.svg', import.meta.url).href,
   // social media image end
 
-  /* founder-image-begin */
-  khanh: new URL('./founders/khanh.jpg', import.meta.url).href,
-  /* founder-image-end */
-
-  banner: new URL('./banner.jpg', import.meta.url).href,
-  logo: new URL('./logo.jpg', import.meta.url).href,
-  user: new URL('./user.jpg', import.meta.url).href,
-
   noImage: new URL('./no-image.webp', import.meta.url).href,
 };
 

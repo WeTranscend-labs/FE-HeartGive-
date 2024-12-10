@@ -1,7 +1,7 @@
 {
   "preamble": {
-    "title": "quan0204/charity-foundation",
-    "description": "Aiken contracts for project 'quan0204/charity-foundation'",
+    "title": "quan0204/test",
+    "description": "Aiken contracts for project 'quan0204/test'",
     "version": "0.0.0",
     "plutusVersion": "v2",
     "compiler": {
@@ -12,21 +12,52 @@
   },
   "validators": [
     {
-      "title": "contract.fund",
+      "title": "fund.contract",
       "datum": {
-        "title": "fund",
+        "title": "datum",
         "schema": {
-          "$ref": "#/definitions/contract~1Fund"
+          "$ref": "#/definitions/fund~1Datum"
         }
       },
       "redeemer": {
         "title": "redeemer",
         "schema": {
-          "$ref": "#/definitions/contract~1FundAction"
+          "$ref": "#/definitions/fund~1Redeemer"
         }
       },
-      "compiledCode": "5901a4010000323232323232232322322533300732323232533300b3009300c375400e2a66601666e212000375a601e6020601a6ea802854ccc02ccdc41bad300f30103010300d37540146eb4c03cc040c040c040c034dd50050a99980599980599b8f375c601e6020602060206020601a6ea8029221004a09444cc004dd6180118069baa3003300d375400a6eb8c010c034dd50050a5014a029404cc004dd6180118069baa3003300d375400a6eb8c010c034dd50051119198008008019129998088008a50132533300f3371e6eb8c04c008010528899801801800980980091807180798079807980798079807980798078009180680091806180698069806980698068008a4c26cac64a66600c60080022a66601260106ea800852616153330063370e90010008a99980498041baa00214985858c018dd5000a999801980098021baa002132323232323232323232323253330123014002149858dd7180900098090011bae30100013010002375a601c002601c0046eb4c030004c030008dd6980500098050011b99375c6010002600a6ea800858dc3a4000ae6955ceaab9e5573eae855d101",
-      "hash": "24f04308ea92a42cb9b7fccbfc18c62cd73097c32347df319235e670"
+      "parameters": [
+        {
+          "title": "fundOwner",
+          "schema": {
+            "$ref": "#/definitions/ByteArray"
+          }
+        },
+        {
+          "title": "uniqueId",
+          "schema": {
+            "$ref": "#/definitions/ByteArray"
+          }
+        }
+      ],
+      "compiledCode": "590110010000323232323232232232232322322533300b533300b3370e900118061baa300f3010300d375400226464a66601a600e0022664464660020026eb0c050c054c054c054c054c054c054c054c054c048dd500191299980a0008a5013253330123371e6eb8c058008010528899801801800980b000980118079baa003375c6004601e6ea802054ccc034cdc3a400400229445281bad3001300e37540084602000229405261365653330093003300a3754002264646464a66602060240042930b1bae30100013010002375a601c00260166ea8004594ccc01cc004c020dd500109919299980618070010a4c2c6eb8c030004c024dd50010b1b8748000dd70009bae0015734aae7555cf2ab9f5742ae881",
+      "hash": "c2d2c2e49e7d5145aa5af2a423f08394ede38ac70484d7150dce4844"
+    },
+    {
+      "title": "manage_fund.contract",
+      "datum": {
+        "title": "datum",
+        "schema": {
+          "$ref": "#/definitions/manage_fund~1Datum"
+        }
+      },
+      "redeemer": {
+        "title": "_redeemer",
+        "schema": {
+          "$ref": "#/definitions/Void"
+        }
+      },
+      "compiledCode": "587b0100003232323232322322322533300653330063370e900118039baa300a300b3008375400229445280a4c26cac64a66600a66e1d2000300600115333008300700114985858dd5000a99980119b8748000c00cdd500089919299980398048010a4c2c6eb8c01c004c010dd50008b2b9a5573aaae7955cfaba15745",
+      "hash": "e912992c38604be64d393969279c2c94e2de842ad5fe584fac6a7ee6"
     }
   ],
   "definitions": {
@@ -36,59 +67,66 @@
     "Int": {
       "dataType": "integer"
     },
-    "String": {
-      "dataType": "#string"
-    },
-    "contract/Fund": {
-      "title": "Fund",
+    "Void": {
+      "title": "Unit",
+      "description": "The nullary constructor.",
       "anyOf": [
         {
-          "title": "Fund",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": []
+        }
+      ]
+    },
+    "fund/Datum": {
+      "title": "Datum",
+      "anyOf": [
+        {
+          "title": "Datum",
           "dataType": "constructor",
           "index": 0,
           "fields": [
             {
-              "title": "name",
-              "$ref": "#/definitions/String"
-            },
-            {
-              "title": "total_expected",
-              "$ref": "#/definitions/Int"
-            },
-            {
-              "title": "start_time",
-              "$ref": "#/definitions/Int"
-            },
-            {
-              "title": "end_time",
-              "$ref": "#/definitions/Int"
-            },
-            {
-              "title": "wallet_address",
-              "$ref": "#/definitions/ByteArray"
-            },
-            {
-              "title": "creator",
+              "title": "fundOwner",
               "$ref": "#/definitions/ByteArray"
             }
           ]
         }
       ]
     },
-    "contract/FundAction": {
-      "title": "FundAction",
+    "fund/Redeemer": {
+      "title": "Redeemer",
       "anyOf": [
         {
-          "title": "Create",
+          "title": "Redeemer",
           "dataType": "constructor",
           "index": 0,
-          "fields": []
-        },
+          "fields": [
+            {
+              "title": "isContribute",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "fundOwner",
+              "$ref": "#/definitions/ByteArray"
+            }
+          ]
+        }
+      ]
+    },
+    "manage_fund/Datum": {
+      "title": "Datum",
+      "anyOf": [
         {
-          "title": "Cancel",
+          "title": "Datum",
           "dataType": "constructor",
-          "index": 1,
-          "fields": []
+          "index": 0,
+          "fields": [
+            {
+              "title": "fundAddress",
+              "$ref": "#/definitions/ByteArray"
+            }
+          ]
         }
       ]
     }
