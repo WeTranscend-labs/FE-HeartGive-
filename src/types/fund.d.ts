@@ -14,7 +14,7 @@ export interface OrganizationInfo {
   };
 }
 
-export type FundCategory = 
+export type FundCategory =
   | 'Education'
   | 'Healthcare'
   | 'Environment'
@@ -26,20 +26,36 @@ export type FundCategory =
   | 'Children & Youth'
   | 'Elderly Care';
 
-export interface Fund {
-  id: string;
+export type Fund = {
   organizationName: string;
-  organizationInfo: OrganizationInfo;
+  startDate: string;
+  endDate: string;
+  image: string;
+  organizationInfo: {
+    website?: string | '';
+    socialInfo: {
+      facebook?: string | '';
+      twitter?: string | '';
+      phone?: string | '';
+      email?: string | '';
+    };
+  };
   purpose: string;
   targetAmount: number;
-  currentAmount: number;
   walletAddress: string;
-  createdAt: Date;
-  imageUrl: string;
-  supporterCount: number;
-  category: FundCategory;
-  tags: string[];
-}
+  category:
+    | 'Education'
+    | 'Healthcare'
+    | 'Environment'
+    | 'Poverty'
+    | 'Disaster Relief'
+    | 'Animal Welfare'
+    | 'Arts & Culture'
+    | 'Community Development'
+    | 'Children & Youth'
+    | 'Elderly Care';
+  tags?: string[];
+};
 
 export interface Transaction {
   id: string;
