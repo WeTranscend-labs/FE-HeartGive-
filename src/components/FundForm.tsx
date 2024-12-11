@@ -1,10 +1,9 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { useFundStore } from '../store/useFundStore';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useToast } from '@/components/ui/use-toast';
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useFundStore } from "../store/useFundStore"
+import { useNavigate } from "react-router-dom"
+import { motion } from "framer-motion"
+import { useToast } from "@/components/ui/use-toast"
 import {
   Form,
   FormControl,
@@ -13,153 +12,63 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useContext } from 'react';
-import { SmartContractContextType } from '@/types/contexts/SmartContractContextType';
-import SmartContractContext from '@/contexts/components/SmartContractContext';
-import { LucidContextType } from '@/types/contexts/LucidContextType';
-import LucidContext from '@/contexts/components/LucidContext';
-import { WalletContextType } from '@/types/contexts/WalletContextType';
-import WalletContext from '@/contexts/components/WalletContext';
-
-const formSchema = z.object({
-  organizationName: z
-    .string()
-    .min(3, 'Organization name must be at least 3 characters')
-    .max(100, 'Organization name must be less than 100 characters'),
-  organizationInfo: z.object({
-    description: z
-      .string()
-      .min(100, 'Description must be at least 100 characters')
-      .max(1000, 'Description must be less than 1000 characters'),
-    website: z.string().url('Invalid website URL').optional().or(z.literal('')),
-    email: z.string().email('Invalid email address'),
-    phone: z.string().optional(),
-    address: z.string().optional(),
-    socialLinks: z.object({
-      facebook: z
-        .string()
-        .url('Invalid Facebook URL')
-        .optional()
-        .or(z.literal('')),
-      twitter: z
-        .string()
-        .url('Invalid Twitter URL')
-        .optional()
-        .or(z.literal('')),
-      instagram: z
-        .string()
-        .url('Invalid Instagram URL')
-        .optional()
-        .or(z.literal('')),
-      linkedin: z
-        .string()
-        .url('Invalid LinkedIn URL')
-        .optional()
-        .or(z.literal('')),
-    }),
-  }),
-  purpose: z
-    .string()
-    .min(50, 'Purpose must be at least 50 characters')
-    .max(1000, 'Purpose must be less than 1000 characters'),
-  targetAmount: z
-    .number()
-    .min(100, 'Minimum amount is 100 ADA')
-    .max(1000000, 'Maximum amount is 1,000,000 ADA'),
-  walletAddress: z
-    .string()
-    .regex(/^addr1[a-zA-Z0-9]{98}$/, 'Invalid Cardano wallet address'),
-  category: z.enum(
-    [
-      'Education',
-      'Healthcare',
-      'Environment',
-      'Poverty',
-      'Disaster Relief',
-      'Animal Welfare',
-      'Arts & Culture',
-      'Community Development',
-      'Children & Youth',
-      'Elderly Care',
-    ],
-    {
-      required_error: 'Please select a category',
-    }
-  ),
-  tags: z.array(z.string()).optional(),
-});
-
-export type FundFormData = z.infer<typeof formSchema>;
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { fundFormSchema, type FundFormData } from "../schemas/fundFormSchema"
 
 export function FundForm() {
-  const { toast } = useToast();
-  const { createFund } =
-    useContext<SmartContractContextType>(SmartContractContext);
-  const { lucidPlatform } = useContext<LucidContextType>(LucidContext);
-  const { wallet } = useContext<WalletContextType>(WalletContext);
-
+  const { toast } = useToast()
   const form = useForm<FundFormData>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(fundFormSchema),
     defaultValues: {
-      organizationName: '',
+      organizationName: "",
       organizationInfo: {
-        description: '',
-        website: '',
-        email: '',
-        phone: '',
-        address: '',
+        description: "",
+        website: "",
+        email: "",
+        phone: "",
+        address: "",
         socialLinks: {
-          facebook: '',
-          twitter: '',
-          instagram: '',
-          linkedin: '',
-        },
+          facebook: "",
+          twitter: "",
+          instagram: "",
+          linkedin: ""
+        }
       },
-      purpose: '',
+      purpose: "",
       targetAmount: 100,
-      walletAddress: '',
-      category: 'Education',
+      walletAddress: "",
+      category: "Education",
       tags: [],
     },
-  });
+  })
 
-  const data = localStorage.setItem('data', JSON.stringify(form.getValues()));
+  const addFund = useFundStore((state) => state.addFund)
+  const navigate = useNavigate()
 
-  const addFund = useFundStore((state) => state.addFund);
-  const navigate = useNavigate();
-
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: FundFormData) => {
     try {
       const fund = addFund({
         ...data,
         currentAmount: 0,
-      });
+      })
       toast({
-        variant: 'success',
-        title: 'Success',
-        description: 'Fund registered successfully!',
-      });
-      navigate(`/fund/${fund.id}`);
+        variant: "success",
+        title: "Success",
+        description: "Fund registered successfully!",
+      })
+      navigate(`/fund/${fund.id}`)
     } catch (error) {
       toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to register fund. Please try again.',
-      });
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to register fund. Please try again.",
+      })
     }
-  };
-
-  const handleCreateFund = async () => {
-    await createFund({
-      fundOwner: wallet.publicKeyHash,
-      fundMetadata: form.getValues(),
-    });
-  };
+  }
 
   return (
     <motion.div
@@ -169,10 +78,7 @@ export function FundForm() {
       className="space-y-8"
     >
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(handleCreateFund)}
-          className="space-y-8"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {/* Organization Information */}
           <Card>
             <CardHeader>
@@ -225,10 +131,7 @@ export function FundForm() {
                     <FormItem>
                       <FormLabel>Website</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="https://www.example.org"
-                          {...field}
-                        />
+                        <Input placeholder="https://www.example.org" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -242,10 +145,7 @@ export function FundForm() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="contact@organization.org"
-                          {...field}
-                        />
+                        <Input placeholder="contact@organization.org" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -273,10 +173,7 @@ export function FundForm() {
                     <FormItem>
                       <FormLabel>Address</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="123 Main St, City, Country"
-                          {...field}
-                        />
+                        <Input placeholder="123 Main St, City, Country" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -382,9 +279,7 @@ export function FundForm() {
                         min={100}
                         step="0.01"
                         {...field}
-                        onChange={(event) =>
-                          field.onChange(+event.target.value)
-                        }
+                        onChange={event => field.onChange(+event.target.value)}
                       />
                     </FormControl>
                     <FormDescription>
@@ -413,12 +308,8 @@ export function FundForm() {
                         <option value="Disaster Relief">Disaster Relief</option>
                         <option value="Animal Welfare">Animal Welfare</option>
                         <option value="Arts & Culture">Arts & Culture</option>
-                        <option value="Community Development">
-                          Community Development
-                        </option>
-                        <option value="Children & Youth">
-                          Children & Youth
-                        </option>
+                        <option value="Community Development">Community Development</option>
+                        <option value="Children & Youth">Children & Youth</option>
                         <option value="Elderly Care">Elderly Care</option>
                       </select>
                     </FormControl>
@@ -479,11 +370,11 @@ export function FundForm() {
                 Processing...
               </div>
             ) : (
-              'Register Fund'
+              "Register Fund"
             )}
           </Button>
         </form>
       </Form>
     </motion.div>
-  );
+  )
 }
