@@ -1,6 +1,5 @@
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
 import { useFundStore } from "../store/useFundStore"
 import { motion } from "framer-motion"
 import { useToast } from "@/components/ui/use-toast"
@@ -16,16 +15,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-
-const formSchema = z.object({
-  amount: z.number()
-    .min(5, "Minimum amount is 5 ADA")
-    .max(1000000, "Maximum amount is 1,000,000 ADA"),
-  fromWallet: z.string()
-    .regex(/^addr1[a-zA-Z0-9]{98}$/, "Invalid Cardano wallet address"),
-})
-
-type FormData = z.infer<typeof formSchema>
+import { transactionFormSchema, type TransactionFormData } from "../schemas/transactionFormSchema"
 
 interface TransactionFormProps {
   fundId: string;
@@ -33,17 +23,17 @@ interface TransactionFormProps {
 
 export function TransactionForm({ fundId }: TransactionFormProps) {
   const { toast } = useToast()
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<TransactionFormData>({
+    resolver: zodResolver(transactionFormSchema),
     defaultValues: {
-      amount: 5,
+      amount: 1,
       fromWallet: "",
     },
   })
 
   const addTransaction = useFundStore((state) => state.addTransaction)
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: TransactionFormData) => {
     try {
       addTransaction({
         ...data,
@@ -82,16 +72,16 @@ export function TransactionForm({ fundId }: TransactionFormProps) {
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Amount (ADA)</FormLabel>
+                    <FormLabel>Amount (USD)</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <span className="text-gray-500 sm:text-sm">₳</span>
+                          <span className="text-gray-500 sm:text-sm">$</span>
                         </div>
                         <Input
                           type="number"
-                          min={5}
-                          step="1"
+                          min={1}
+                          step="0.01"
                           className="pl-7"
                           {...field}
                           onChange={event => field.onChange(+event.target.value)}
@@ -99,7 +89,7 @@ export function TransactionForm({ fundId }: TransactionFormProps) {
                       </div>
                     </FormControl>
                     <FormDescription>
-                      Enter the amount you wish to contribute in ADA
+                      Enter the amount you wish to contribute
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -113,10 +103,10 @@ export function TransactionForm({ fundId }: TransactionFormProps) {
                   <FormItem>
                     <FormLabel>From Wallet</FormLabel>
                     <FormControl>
-                      <Input placeholder="addr1..." {...field} />
+                      <Input placeholder="0x..." {...field} />
                     </FormControl>
                     <FormDescription>
-                      Your Cardano wallet address
+                      Your Ethereum wallet address
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
