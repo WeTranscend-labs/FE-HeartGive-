@@ -149,7 +149,7 @@ export function Navbar() {
               Start Fundraising
             </Link>
 
-            <ConnectWallet />
+              
           </div>
 
           {/* Mobile Menu Button */}
