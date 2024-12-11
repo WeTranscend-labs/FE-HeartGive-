@@ -6,16 +6,11 @@ export const fundFormSchema = z.object({
     .string()
     .min(3, "Organization name must be at least 3 characters")
     .max(100, "Organization name must be less than 100 characters"),
+  startDate: z.string().min(1, "Start date is required"),
+  endDate: z.string().min(1, "End date is required"),
+  image: z.string().min(1, "Image is required"),
   organizationInfo: z.object({
-    description: z
-      .string()
-      .min(100, "Description must be at least 100 characters")
-      .max(1000, "Description must be less than 1000 characters"),
-    website: z.string().url("Invalid website URL").optional().or(z.literal("")),
-    email: z.string().email("Invalid email address"),
-    phone: z.string().optional(),
-    address: z.string().optional(),
-    socialLinks: z.object({
+    socialInfo: z.object({
       facebook: z
         .string()
         .url("Invalid Facebook URL")
@@ -26,16 +21,8 @@ export const fundFormSchema = z.object({
         .url("Invalid Twitter URL")
         .optional()
         .or(z.literal("")),
-      instagram: z
-        .string()
-        .url("Invalid Instagram URL")
-        .optional()
-        .or(z.literal("")),
-      linkedin: z
-        .string()
-        .url("Invalid LinkedIn URL")
-        .optional()
-        .or(z.literal("")),
+      phone: z.string().optional(),
+      email: z.string().email("Invalid email address"),
     }),
   }),
   purpose: z
@@ -48,7 +35,7 @@ export const fundFormSchema = z.object({
     .max(1000000, "Maximum amount is $1,000,000"),
   walletAddress: z
     .string()
-    .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum wallet address"),
+    .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Cardano wallet address"),
   category: z.enum(
     [
       "Education",
@@ -66,7 +53,6 @@ export const fundFormSchema = z.object({
       required_error: "Please select a category",
     }
   ),
-  tags: z.array(z.string()).optional(),
 });
 
 export type FundFormData = z.infer<typeof fundFormSchema>;
