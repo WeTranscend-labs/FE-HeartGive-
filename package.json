@@ -19,6 +19,7 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-toast": "^1.1.5",
     "@tippyjs/react": "^4.2.6",
+    "axios": "^1.7.9",
     "cbor-x": "^1.6.0",
     "class-variance-authority": "^0.7.1",
     "classnames": "^2.5.1",
