@@ -8,6 +8,9 @@ const ModalProvider = lazy(() => import('@/contexts/providers/ModalProvider'));
 const NetworkProvider = lazy(
   () => import('@/contexts/providers/NetworkProvider')
 );
+const SmartContractProvider = lazy(
+  () => import('@/contexts/providers/SmartContractProvider')
+);
 
 type Props = {
   children: ReactNode;
@@ -18,7 +21,9 @@ const ContextProvider = function ({ children }: Props) {
     <ModalProvider>
       <NetworkProvider>
         <LucidProvider>
-          <WalletProvider>{children}</WalletProvider>
+          <WalletProvider>
+            <SmartContractProvider>{children}</SmartContractProvider>
+          </WalletProvider>
         </LucidProvider>
       </NetworkProvider>
     </ModalProvider>

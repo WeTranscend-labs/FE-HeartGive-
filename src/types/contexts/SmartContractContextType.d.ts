@@ -1,7 +1,11 @@
+import { FundFormData } from '@/components/FundForm';
+
 export type createFund = ({
   fundOwner,
+  fundMetadata,
 }: {
   fundOwner: string;
+  fundMetadata: FundFormData;
 }) => Promise<void>;
 
 export type SmartContractContextType = {
