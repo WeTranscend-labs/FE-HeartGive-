@@ -2,9 +2,16 @@ import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { ParallaxSection } from '../components/ParallaxSection';
-import { HeartIcon, ShieldCheckIcon, UserGroupIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import {
+  HeartIcon,
+  ShieldCheckIcon,
+  UserGroupIcon,
+  GlobeAltIcon,
+} from '@heroicons/react/24/outline';
 import { useFundStore } from '../store/useFundStore';
 import { FundCard } from '../components/FundCard';
+import { useEffect } from 'react';
+import { getFunds } from '@/services/blockfrost.service';
 
 export function LandingPage() {
   const { scrollY } = useScroll();
@@ -12,14 +19,24 @@ export function LandingPage() {
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
   const funds = useFundStore((state) => state.funds);
 
+  useEffect(() => {
+    fetchFunds();
+  }, []);
+
+  const fetchFunds = async () => {
+    const funds = await getFunds({ page: 1, pageSize: 1 });
+
+    console.log(funds);
+  };
+
   const [featuresRef, featuresInView] = useInView({
     threshold: 0.2,
-    triggerOnce: true
+    triggerOnce: true,
   });
 
   const [campaignsRef, campaignsInView] = useInView({
     threshold: 0.1,
-    triggerOnce: true
+    triggerOnce: true,
   });
 
   return (
@@ -27,17 +44,14 @@ export function LandingPage() {
       {/* Hero Section */}
       <section className="relative h-screen">
         <div className="relative h-full overflow-hidden">
-          <motion.div
-            style={{ y }}
-            className="absolute inset-0"
-          >
+          <motion.div style={{ y }} className="absolute inset-0">
             <img
               src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=80"
               alt="Hero"
               className="w-full h-full object-cover"
             />
           </motion.div>
-          <motion.div 
+          <motion.div
             style={{ opacity }}
             className="absolute inset-0 flex items-center bg-gradient-to-r from-black/70 to-transparent"
           >
@@ -87,7 +101,8 @@ export function LandingPage() {
               Các chiến dịch nổi bật
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Khám phá và hỗ trợ những dự án đang tạo nên sự thay đổi tích cực trong cộng đồng
+              Khám phá và hỗ trợ những dự án đang tạo nên sự thay đổi tích cực
+              trong cộng đồng
             </p>
           </motion.div>
 
@@ -134,28 +149,31 @@ export function LandingPage() {
             </p>
           </div>
 
-          <div ref={featuresRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div
+            ref={featuresRef}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+          >
             {[
               {
                 icon: HeartIcon,
                 title: 'Đáng tin cậy',
-                description: 'Các tổ chức được xác minh và cấp phép'
+                description: 'Các tổ chức được xác minh và cấp phép',
               },
               {
                 icon: ShieldCheckIcon,
                 title: 'An toàn',
-                description: 'Bảo mật thông tin và giao dịch'
+                description: 'Bảo mật thông tin và giao dịch',
               },
               {
                 icon: UserGroupIcon,
                 title: 'Cộng đồng',
-                description: 'Kết nối nhà hảo tâm với tổ chức'
+                description: 'Kết nối nhà hảo tâm với tổ chức',
               },
               {
                 icon: GlobeAltIcon,
                 title: 'Minh bạch',
-                description: 'Theo dõi quỹ theo thời gian thực'
-              }
+                description: 'Theo dõi quỹ theo thời gian thực',
+              },
             ].map((feature, index) => (
               <motion.div
                 key={index}
@@ -170,9 +188,7 @@ export function LandingPage() {
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600">
-                  {feature.description}
-                </p>
+                <p className="text-gray-600">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -200,7 +216,7 @@ export function LandingPage() {
             {[
               { number: '50K+', label: 'Nhà hảo tâm' },
               { number: '$1.2M+', label: 'Đã quyên góp' },
-              { number: '100+', label: 'Dự án thành công' }
+              { number: '100+', label: 'Dự án thành công' },
             ].map((stat, index) => (
               <motion.div
                 key={index}
@@ -213,9 +229,7 @@ export function LandingPage() {
                 <div className="text-4xl font-bold text-primary-600 mb-2">
                   {stat.number}
                 </div>
-                <div className="text-gray-600">
-                  {stat.label}
-                </div>
+                <div className="text-gray-600">{stat.label}</div>
               </motion.div>
             ))}
           </div>
@@ -246,7 +260,7 @@ export function LandingPage() {
             <p className="text-xl text-white/90 mb-12">
               Bắt đầu chiến dịch gây quỹ của bạn ngay hôm nay
             </p>
-            
+
             <Link
               to="/register"
               className="inline-flex items-center px-8 py-4 rounded-xl text-lg font-semibold bg-white text-primary-600 hover:bg-primary-50 transition-colors"

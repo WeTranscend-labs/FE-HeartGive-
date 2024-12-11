@@ -1,100 +1,24 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { useFundStore } from '../store/useFundStore';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useToast } from '@/components/ui/use-toast';
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { SmartContractContextType } from '@/types/contexts/SmartContractContextType';
 import SmartContractContext from '@/contexts/components/SmartContractContext';
 import { LucidContextType } from '@/types/contexts/LucidContextType';
 import LucidContext from '@/contexts/components/LucidContext';
 import { WalletContextType } from '@/types/contexts/WalletContextType';
 import WalletContext from '@/contexts/components/WalletContext';
-
-const formSchema = z.object({
-  organizationName: z
-    .string()
-    .min(3, 'Organization name must be at least 3 characters')
-    .max(100, 'Organization name must be less than 100 characters'),
-  organizationInfo: z.object({
-    description: z
-      .string()
-      .min(100, 'Description must be at least 100 characters')
-      .max(1000, 'Description must be less than 1000 characters'),
-    website: z.string().url('Invalid website URL').optional().or(z.literal('')),
-    email: z.string().email('Invalid email address'),
-    phone: z.string().optional(),
-    address: z.string().optional(),
-    socialLinks: z.object({
-      facebook: z
-        .string()
-        .url('Invalid Facebook URL')
-        .optional()
-        .or(z.literal('')),
-      twitter: z
-        .string()
-        .url('Invalid Twitter URL')
-        .optional()
-        .or(z.literal('')),
-      instagram: z
-        .string()
-        .url('Invalid Instagram URL')
-        .optional()
-        .or(z.literal('')),
-      linkedin: z
-        .string()
-        .url('Invalid LinkedIn URL')
-        .optional()
-        .or(z.literal('')),
-    }),
-  }),
-  purpose: z
-    .string()
-    .min(50, 'Purpose must be at least 50 characters')
-    .max(1000, 'Purpose must be less than 1000 characters'),
-  targetAmount: z
-    .number()
-    .min(100, 'Minimum amount is 100 ADA')
-    .max(1000000, 'Maximum amount is 1,000,000 ADA'),
-  walletAddress: z
-    .string()
-    .regex(/^addr1[a-zA-Z0-9]{98}$/, 'Invalid Cardano wallet address'),
-  category: z.enum(
-    [
-      'Education',
-      'Healthcare',
-      'Environment',
-      'Poverty',
-      'Disaster Relief',
-      'Animal Welfare',
-      'Arts & Culture',
-      'Community Development',
-      'Children & Youth',
-      'Elderly Care',
-    ],
-    {
-      required_error: 'Please select a category',
-    }
-  ),
-  tags: z.array(z.string()).optional(),
-});
-
-export type FundFormData = z.infer<typeof formSchema>;
+import { fundFormSchema, type FundFormData } from '@/schemas/fundFormSchema';
+import { ImageUpload } from './FundForm/ImageUpload';
+import { SocialLinks } from './FundForm/SocialLinks';
+import { DateFields } from './FundForm/DateFields';
+import { OrganizationFields } from './FundForm/OrganizationFields';
+import { CampaignFields } from './FundForm/CampaignFields';
 
 export function FundForm() {
   const { toast } = useToast();
@@ -102,63 +26,71 @@ export function FundForm() {
     useContext<SmartContractContextType>(SmartContractContext);
   const { lucidPlatform } = useContext<LucidContextType>(LucidContext);
   const { wallet } = useContext<WalletContextType>(WalletContext);
+  const navigate = useNavigate();
+
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const form = useForm<FundFormData>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(fundFormSchema),
     defaultValues: {
       organizationName: '',
+      startDate: '',
+      endDate: '',
+      image: '',
       organizationInfo: {
-        description: '',
-        website: '',
-        email: '',
-        phone: '',
-        address: '',
-        socialLinks: {
+        socialInfo: {
           facebook: '',
           twitter: '',
-          instagram: '',
-          linkedin: '',
+          phone: '',
+          email: '',
         },
       },
       purpose: '',
       targetAmount: 100,
       walletAddress: '',
       category: 'Education',
-      tags: [],
     },
   });
 
-  const data = localStorage.setItem('data', JSON.stringify(form.getValues()));
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const preview = URL.createObjectURL(file);
+      setImagePreview(preview);
+      form.setValue('image', preview);
+    }
+  };
 
-  const addFund = useFundStore((state) => state.addFund);
-  const navigate = useNavigate();
-
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: FundFormData) => {
     try {
-      const fund = addFund({
-        ...data,
-        currentAmount: 0,
+      console.log('Form Data:', data);
+      await createFund({
+        fundOwner: wallet.publicKeyHash,
+        fundMetadata: data,
       });
+
       toast({
         variant: 'success',
         title: 'Success',
         description: 'Fund registered successfully!',
       });
-      navigate(`/fund/${fund.id}`);
+
+      // Clean up the object URL
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+
+      // navigate(`/fund/${fund.id}`);
     } catch (error) {
+      console.error('Create Fund Error:', error);
       toast({
         variant: 'destructive',
         title: 'Error',
         description: 'Failed to register fund. Please try again.',
       });
     }
-  };
-
-  const handleCreateFund = async () => {
-    await createFund({
-      fundOwner: wallet.publicKeyHash,
-      fundMetadata: form.getValues(),
-    });
   };
 
   return (
@@ -169,177 +101,21 @@ export function FundForm() {
       className="space-y-8"
     >
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(handleCreateFund)}
-          className="space-y-8"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {/* Organization Information */}
           <Card>
             <CardHeader>
               <CardTitle>Organization Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <FormField
-                control={form.control}
-                name="organizationName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Organization Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter organization name" {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      The official name of your organization
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
+              <OrganizationFields form={form} />
+              <DateFields form={form} />
+              <ImageUpload
+                form={form}
+                imagePreview={imagePreview}
+                onImageChange={handleImageChange}
               />
-
-              <FormField
-                control={form.control}
-                name="organizationInfo.description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Organization Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Tell us about your organization..."
-                        className="min-h-[120px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Describe your organization's mission and history
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="organizationInfo.website"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Website</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="https://www.example.org"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="organizationInfo.email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="contact@organization.org"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="organizationInfo.phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone</FormLabel>
-                      <FormControl>
-                        <Input placeholder="+1 (555) 123-4567" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="organizationInfo.address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Address</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="123 Main St, City, Country"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-sm font-medium">Social Links</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="organizationInfo.socialLinks.facebook"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input placeholder="Facebook URL" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="organizationInfo.socialLinks.twitter"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input placeholder="Twitter URL" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="organizationInfo.socialLinks.instagram"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input placeholder="Instagram URL" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="organizationInfo.socialLinks.linkedin"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input placeholder="LinkedIn URL" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
+              <SocialLinks form={form} />
             </CardContent>
           </Card>
 
@@ -349,103 +125,7 @@ export function FundForm() {
               <CardTitle>Campaign Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <FormField
-                control={form.control}
-                name="purpose"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Campaign Purpose</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Describe the purpose of your campaign..."
-                        className="min-h-[120px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Explain how the funds will be used
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="targetAmount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Target Amount (USD)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={100}
-                        step="0.01"
-                        {...field}
-                        onChange={(event) =>
-                          field.onChange(+event.target.value)
-                        }
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Minimum $100, maximum $1,000,000
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <FormControl>
-                      <select
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        {...field}
-                      >
-                        <option value="Education">Education</option>
-                        <option value="Healthcare">Healthcare</option>
-                        <option value="Environment">Environment</option>
-                        <option value="Poverty">Poverty</option>
-                        <option value="Disaster Relief">Disaster Relief</option>
-                        <option value="Animal Welfare">Animal Welfare</option>
-                        <option value="Arts & Culture">Arts & Culture</option>
-                        <option value="Community Development">
-                          Community Development
-                        </option>
-                        <option value="Children & Youth">
-                          Children & Youth
-                        </option>
-                        <option value="Elderly Care">Elderly Care</option>
-                      </select>
-                    </FormControl>
-                    <FormDescription>
-                      Select the category that best fits your campaign
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="walletAddress"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Wallet Address</FormLabel>
-                    <FormControl>
-                      <Input placeholder="0x..." {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Your Ethereum wallet address for receiving funds
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <CampaignFields form={form} />
             </CardContent>
           </Card>
 

@@ -1,19 +1,16 @@
 import * as z from 'zod';
+import { FundCategory } from '../types/fund';
 
-export const formSchema = z.object({
+export const fundFormSchema = z.object({
   organizationName: z
     .string()
     .min(3, 'Organization name must be at least 3 characters')
     .max(100, 'Organization name must be less than 100 characters'),
-  startDate: z.date('Invalid start date'),
-  endDate: z.date('Invalid end date'),
-  image: z.string().url('Invalid image URL'),
+  startDate: z.string().min(1, 'Start date is required'),
+  endDate: z.string().min(1, 'End date is required'),
+  image: z.string().min(1, 'Image is required'),
   organizationInfo: z.object({
-    website: z.string().url('Invalid website URL').optional().or(z.literal('')),
-    email: z.string().email('Invalid email address'),
-    phone: z.string().optional(),
-    address: z.string().optional(),
-    socialLinks: z.object({
+    socialInfo: z.object({
       facebook: z
         .string()
         .url('Invalid Facebook URL')
@@ -24,16 +21,8 @@ export const formSchema = z.object({
         .url('Invalid Twitter URL')
         .optional()
         .or(z.literal('')),
-      instagram: z
-        .string()
-        .url('Invalid Instagram URL')
-        .optional()
-        .or(z.literal('')),
-      linkedin: z
-        .string()
-        .url('Invalid LinkedIn URL')
-        .optional()
-        .or(z.literal('')),
+      phone: z.string().optional(),
+      email: z.string().email('Invalid email address'),
     }),
   }),
   purpose: z
@@ -42,11 +31,11 @@ export const formSchema = z.object({
     .max(1000, 'Purpose must be less than 1000 characters'),
   targetAmount: z
     .number()
-    .min(100, 'Minimum amount is 100 ADA')
-    .max(1000000, 'Maximum amount is 1,000,000 ADA'),
+    .min(100, 'Minimum amount is $100')
+    .max(1000000, 'Maximum amount is $1,000,000'),
   walletAddress: z
     .string()
-    .regex(/^addr1[a-zA-Z0-9]{98}$/, 'Invalid Cardano wallet address'),
+    .regex(/^addr_test1[a-z0-9]+$/, 'Invalid Cardano wallet address'),
   category: z.enum(
     [
       'Education',
@@ -64,7 +53,6 @@ export const formSchema = z.object({
       required_error: 'Please select a category',
     }
   ),
-  tags: z.array(z.string()).optional(),
 });
 
-export type FundFormData = z.infer<typeof formSchema>;
+export type FundFormData = z.infer<typeof fundFormSchema>;
