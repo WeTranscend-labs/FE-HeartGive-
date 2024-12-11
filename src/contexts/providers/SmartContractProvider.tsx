@@ -59,21 +59,21 @@ const SmartContractProvider = function ({ children }: Props) {
 
     const tx = await lucid
       .newTx()
+      // .payToContract(
+      //   fundAddress,
+      //   { inline: fundDatum },
+      //   { lovelace: 1_000_000n }
+      // )
       .payToContract(
-        fundAddress,
-        { inline: fundDatum },
-        { lovelace: 1_000_000n }
+        fundManagementAddress,
+        { inline: fundManagementDatum },
+        { lovelace: 5_000_000n }
       )
       .attachMetadata(1, {
         2: {
           data: encode(JSON.stringify(fundMetadata)),
         },
       })
-      .payToContract(
-        fundManagementAddress,
-        { inline: fundManagementDatum },
-        { lovelace: 5_000_000n }
-      )
       .complete();
 
     const txSigned = await tx.sign().complete();
