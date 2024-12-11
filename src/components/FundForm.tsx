@@ -22,7 +22,8 @@ import { CampaignFields } from './FundForm/CampaignFields';
 
 export function FundForm() {
   const { toast } = useToast();
-  const { createFund } = useContext<SmartContractContextType>(SmartContractContext);
+  const { createFund } =
+    useContext<SmartContractContextType>(SmartContractContext);
   const { lucidPlatform } = useContext<LucidContextType>(LucidContext);
   const { wallet } = useContext<WalletContextType>(WalletContext);
   const navigate = useNavigate();
@@ -33,23 +34,23 @@ export function FundForm() {
   const form = useForm<FundFormData>({
     resolver: zodResolver(fundFormSchema),
     defaultValues: {
-      organizationName: "",
-      startDate: "",
-      endDate: "",
-      image: "",
+      organizationName: '',
+      startDate: '',
+      endDate: '',
+      image: '',
       organizationInfo: {
         socialInfo: {
-          facebook: "",
-          twitter: "",
-          phone: "",
-          email: ""
-        }
+          facebook: '',
+          twitter: '',
+          phone: '',
+          email: '',
+        },
       },
-      purpose: "",
+      purpose: '',
       targetAmount: 100,
-      walletAddress: "",
-      category: "Education"
-    }
+      walletAddress: '',
+      category: 'Education',
+    },
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,9 +86,9 @@ export function FundForm() {
     } catch (error) {
       console.error('Create Fund Error:', error);
       toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to register fund. Please try again.",
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to register fund. Please try again.',
       });
     }
   };
@@ -158,7 +159,7 @@ export function FundForm() {
                 Processing...
               </div>
             ) : (
-              "Register Fund"
+              'Register Fund'
             )}
           </Button>
         </form>
