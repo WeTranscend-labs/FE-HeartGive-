@@ -1,10 +1,10 @@
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { useFundStore } from "../store/useFundStore"
-import { useNavigate } from "react-router-dom"
-import { motion } from "framer-motion"
-import { useToast } from "@/components/ui/use-toast"
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useFundStore } from '../store/useFundStore';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useToast } from '@/components/ui/use-toast';
 import {
   Form,
   FormControl,
@@ -13,61 +13,97 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useContext } from 'react';
+import { SmartContractContextType } from '@/types/contexts/SmartContractContextType';
+import SmartContractContext from '@/contexts/components/SmartContractContext';
+import { LucidContextType } from '@/types/contexts/LucidContextType';
+import LucidContext from '@/contexts/components/LucidContext';
+import { WalletContextType } from '@/types/contexts/WalletContextType';
+import WalletContext from '@/contexts/components/WalletContext';
 
 const formSchema = z.object({
-  organizationName: z.string()
-    .min(3, "Organization name must be at least 3 characters")
-    .max(100, "Organization name must be less than 100 characters"),
+  organizationName: z
+    .string()
+    .min(3, 'Organization name must be at least 3 characters')
+    .max(100, 'Organization name must be less than 100 characters'),
   organizationInfo: z.object({
-    description: z.string()
-      .min(100, "Description must be at least 100 characters")
-      .max(1000, "Description must be less than 1000 characters"),
-    website: z.string().url("Invalid website URL").optional().or(z.literal("")),
-    email: z.string().email("Invalid email address"),
+    description: z
+      .string()
+      .min(100, 'Description must be at least 100 characters')
+      .max(1000, 'Description must be less than 1000 characters'),
+    website: z.string().url('Invalid website URL').optional().or(z.literal('')),
+    email: z.string().email('Invalid email address'),
     phone: z.string().optional(),
     address: z.string().optional(),
     socialLinks: z.object({
-      facebook: z.string().url("Invalid Facebook URL").optional().or(z.literal("")),
-      twitter: z.string().url("Invalid Twitter URL").optional().or(z.literal("")),
-      instagram: z.string().url("Invalid Instagram URL").optional().or(z.literal("")),
-      linkedin: z.string().url("Invalid LinkedIn URL").optional().or(z.literal(""))
-    })
+      facebook: z
+        .string()
+        .url('Invalid Facebook URL')
+        .optional()
+        .or(z.literal('')),
+      twitter: z
+        .string()
+        .url('Invalid Twitter URL')
+        .optional()
+        .or(z.literal('')),
+      instagram: z
+        .string()
+        .url('Invalid Instagram URL')
+        .optional()
+        .or(z.literal('')),
+      linkedin: z
+        .string()
+        .url('Invalid LinkedIn URL')
+        .optional()
+        .or(z.literal('')),
+    }),
   }),
-  purpose: z.string()
-    .min(50, "Purpose must be at least 50 characters")
-    .max(1000, "Purpose must be less than 1000 characters"),
-  targetAmount: z.number()
-    .min(100, "Minimum amount is 100 ADA")
-    .max(1000000, "Maximum amount is 1,000,000 ADA"),
-  walletAddress: z.string()
-    .regex(/^addr1[a-zA-Z0-9]{98}$/, "Invalid Cardano wallet address"),
-  category: z.enum([
-    "Education",
-    "Healthcare",
-    "Environment",
-    "Poverty",
-    "Disaster Relief",
-    "Animal Welfare",
-    "Arts & Culture",
-    "Community Development",
-    "Children & Youth",
-    "Elderly Care"
-  ], {
-    required_error: "Please select a category",
-  }),
+  purpose: z
+    .string()
+    .min(50, 'Purpose must be at least 50 characters')
+    .max(1000, 'Purpose must be less than 1000 characters'),
+  targetAmount: z
+    .number()
+    .min(100, 'Minimum amount is 100 ADA')
+    .max(1000000, 'Maximum amount is 1,000,000 ADA'),
+  walletAddress: z
+    .string()
+    .regex(/^addr1[a-zA-Z0-9]{98}$/, 'Invalid Cardano wallet address'),
+  category: z.enum(
+    [
+      'Education',
+      'Healthcare',
+      'Environment',
+      'Poverty',
+      'Disaster Relief',
+      'Animal Welfare',
+      'Arts & Culture',
+      'Community Development',
+      'Children & Youth',
+      'Elderly Care',
+    ],
+    {
+      required_error: 'Please select a category',
+    }
+  ),
   tags: z.array(z.string()).optional(),
-})
+});
 
-type FormData = z.infer<typeof formSchema>
+export type FundFormData = z.infer<typeof formSchema>;
 
 export function FundForm() {
   const { toast } = useToast();
-  const form = useForm<FormData>({
+  const { createFund } =
+    useContext<SmartContractContextType>(SmartContractContext);
+  const { lucidPlatform } = useContext<LucidContextType>(LucidContext);
+  const { wallet } = useContext<WalletContextType>(WalletContext);
+
+  const form = useForm<FundFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       organizationName: '',
@@ -93,7 +129,6 @@ export function FundForm() {
   });
 
   const data = localStorage.setItem('data', JSON.stringify(form.getValues()));
-  console.log(form.getValues());
 
   const addFund = useFundStore((state) => state.addFund);
   const navigate = useNavigate();
@@ -119,6 +154,13 @@ export function FundForm() {
     }
   };
 
+  const handleCreateFund = async () => {
+    await createFund({
+      fundOwner: wallet.publicKeyHash,
+      fundMetadata: form.getValues(),
+    });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -127,7 +169,10 @@ export function FundForm() {
       className="space-y-8"
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form
+          onSubmit={form.handleSubmit(handleCreateFund)}
+          className="space-y-8"
+        >
           {/* Organization Information */}
           <Card>
             <CardHeader>

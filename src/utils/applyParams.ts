@@ -35,6 +35,8 @@ export const applyParams = ({
     script: fund,
   });
 
+  console.log(fundAddress);
+
   return {
     fund: { type: 'PlutusV2', script: applyDoubleCborEncoding(fund) },
     fundManagement: {

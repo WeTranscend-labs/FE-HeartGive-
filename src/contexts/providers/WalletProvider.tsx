@@ -11,6 +11,7 @@ import WalletContext from '../components/WalletContext';
 import { networks } from '@/constants/networks';
 import wallets from '@/constants/wallets';
 import checkNetwork from '@/helpers/check-network';
+import fetchPublicKeyHash from '@/utils/fetchPublicKeyHash';
 
 type Props = {
   children: ReactNode;
@@ -34,13 +35,17 @@ const WalletProvider = function ({ children }: Props) {
     const walletConnecttion = localStorage.getItem('wallet');
     if (walletConnecttion) {
       const walletConnected = JSON.parse(walletConnecttion);
+
       wallets.forEach(async function (wallet: WalletType) {
+        const publicKeyHash = await fetchPublicKeyHash(lucid);
+
         if (wallet.name.toLowerCase() === walletConnected.name) {
           await connect({
             name: wallet.name,
             api: wallet.api,
             checkApi: wallet.checkApi,
             image: wallet.image,
+            publicKeyHash: publicKeyHash,
           });
           return;
         }
@@ -79,9 +84,8 @@ const WalletProvider = function ({ children }: Props) {
         'Preview'
       );
 
-      console.log(lucid);
-
       lucid.selectWallet(await api());
+
       const address: string = (await lucid.wallet.address()) as string;
       const networkConnection: Network = checkNetwork({
         address: address as string,
@@ -105,7 +109,10 @@ const WalletProvider = function ({ children }: Props) {
         utxo: UTxO
       ) {
         return balance + Number(utxo.assets.lovelace) / 1000000;
-      }, 0);
+      },
+      0);
+
+      const publicKeyHash = await fetchPublicKeyHash(lucid);
 
       setWallet(function (previous: WalletType) {
         return {
@@ -116,6 +123,7 @@ const WalletProvider = function ({ children }: Props) {
           balance: balance,
           stakeKey: stakeKey,
           poolId: poolId,
+          publicKeyHash: publicKeyHash,
         };
       });
       setLucid(lucid);
@@ -150,6 +158,7 @@ const WalletProvider = function ({ children }: Props) {
       const balance: number = utxos.reduce(function (balance, utxo) {
         return balance + Number(utxo.assets.lovelace) / 1000000;
       }, 0);
+      const publicKeyHash = await fetchPublicKeyHash(lucid);
 
       setWallet(function (previous: WalletType) {
         return {
@@ -158,6 +167,7 @@ const WalletProvider = function ({ children }: Props) {
           balance: balance,
           stakeKey: stakeKey,
           poolId: poolId,
+          publicKeyHash: publicKeyHash,
         };
       });
     } catch (error) {
