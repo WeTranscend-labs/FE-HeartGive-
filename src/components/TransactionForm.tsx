@@ -19,10 +19,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const formSchema = z.object({
   amount: z.number()
-    .min(1, "Minimum amount is $1")
-    .max(1000000, "Maximum amount is $1,000,000"),
+    .min(5, "Minimum amount is 5 ADA")
+    .max(1000000, "Maximum amount is 1,000,000 ADA"),
   fromWallet: z.string()
-    .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum wallet address"),
+    .regex(/^addr1[a-zA-Z0-9]{98}$/, "Invalid Cardano wallet address"),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -36,7 +36,7 @@ export function TransactionForm({ fundId }: TransactionFormProps) {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amount: 1,
+      amount: 5,
       fromWallet: "",
     },
   })
@@ -82,16 +82,16 @@ export function TransactionForm({ fundId }: TransactionFormProps) {
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Amount (USD)</FormLabel>
+                    <FormLabel>Amount (ADA)</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <span className="text-gray-500 sm:text-sm">$</span>
+                          <span className="text-gray-500 sm:text-sm">₳</span>
                         </div>
                         <Input
                           type="number"
-                          min={1}
-                          step="0.01"
+                          min={5}
+                          step="1"
                           className="pl-7"
                           {...field}
                           onChange={event => field.onChange(+event.target.value)}
@@ -99,7 +99,7 @@ export function TransactionForm({ fundId }: TransactionFormProps) {
                       </div>
                     </FormControl>
                     <FormDescription>
-                      Enter the amount you wish to contribute
+                      Enter the amount you wish to contribute in ADA
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -113,10 +113,10 @@ export function TransactionForm({ fundId }: TransactionFormProps) {
                   <FormItem>
                     <FormLabel>From Wallet</FormLabel>
                     <FormControl>
-                      <Input placeholder="0x..." {...field} />
+                      <Input placeholder="addr1..." {...field} />
                     </FormControl>
                     <FormDescription>
-                      Your Ethereum wallet address
+                      Your Cardano wallet address
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
