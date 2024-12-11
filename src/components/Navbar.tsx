@@ -71,7 +71,7 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center pr-32 space-x-8">
             {mainNavItems.map((link) => (
               <Link
                 key={link.path}

@@ -4,6 +4,7 @@ import { useFundStore } from '../store/useFundStore';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useToast } from '@/components/ui/use-toast';
+
 import {
   Form,
   FormControl,
@@ -12,6 +13,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+} from "@/components/ui/form"
+import { fundFormSchema, type FundFormData } from "../schemas/fundFormSchema"
+
+export function FundForm() {
+  const { toast } = useToast()
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,71 +32,6 @@ import { WalletContextType } from '@/types/contexts/WalletContextType';
 import WalletContext from '@/contexts/components/WalletContext';
 import * as z from 'zod';
 
-export const formSchema = z.object({
-  organizationName: z
-    .string()
-    .min(3, 'Organization name must be at least 3 characters')
-    .max(100, 'Organization name must be less than 100 characters'),
-  startDate: z.string().date('Invalid start date'),
-  endDate: z.string().date('Invalid end date'),
-  image: z.string().url('Invalid image URL'),
-  organizationInfo: z.object({
-    website: z.string().url('Invalid website URL').optional().or(z.literal('')),
-    socialInfo: z.object({
-      facebook: z
-        .string()
-        .url('Invalid Facebook URL')
-        .optional()
-        .or(z.literal('')),
-      twitter: z
-        .string()
-        .url('Invalid Twitter URL')
-        .optional()
-        .or(z.literal('')),
-      phone: z
-        .string()
-        .min(10, 'Phone number must be at least 10 digits')
-        .max(15, 'Phone number must be less than 15 digits')
-        .optional()
-        .or(z.literal('')),
-      email: z
-        .string()
-        .email('Invalid email address')
-        .optional()
-        .or(z.literal('')),
-    }),
-  }),
-  purpose: z
-    .string()
-    .min(50, 'Purpose must be at least 50 characters')
-    .max(1000, 'Purpose must be less than 1000 characters'),
-  targetAmount: z
-    .number()
-    .min(100, 'Minimum amount is 100 ADA')
-    .max(1000000, 'Maximum amount is 1,000,000 ADA'),
-  walletAddress: z
-    .string()
-    .regex(/^addr_test1[a-z0-9]+$/, 'Invalid Cardano wallet address'),
-  category: z.enum(
-    [
-      'Education',
-      'Healthcare',
-      'Environment',
-      'Poverty',
-      'Disaster Relief',
-      'Animal Welfare',
-      'Arts & Culture',
-      'Community Development',
-      'Children & Youth',
-      'Elderly Care',
-    ],
-    {
-      required_error: 'Please select a category',
-    }
-  ),
-  tags: z.array(z.string()).optional(),
-});
-
 export type FundFormData = z.infer<typeof formSchema>;
 
 export function FundForm() {
@@ -102,51 +43,11 @@ export function FundForm() {
   const [imagePreview, setImagePreview] = useState<string>(''); // State for image preview
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  const form = useForm<FundFormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      organizationName: '',
-      startDate: new Date().toString(),
-      endDate: new Date(
-        new Date().getTime() + 30 * 24 * 60 * 60 * 1000
-      ).toString(), // 30 days from now
-      image: '',
-      organizationInfo: {
-        website: '',
-        socialInfo: {
-          facebook: '',
-          twitter: '',
-          phone: '',
-          email: '',
-        },
-      },
-      purpose: '',
-      targetAmount: 100,
-      walletAddress: '',
-      category: 'Education',
-      tags: [],
-    },
-  });
 
-  const data = localStorage.setItem('data', JSON.stringify(form.getValues()));
 
-  const addFund = useFundStore((state) => state.addFund);
-  const navigate = useNavigate();
 
-  // const onSubmit = async (data: FormData) => {
-  //   try {
-  //     const fund = addFund({
-  //       ...data,
-  //       currentAmount: 0,
-  //     });
-  //   } catch (error) {
-  //     toast({
-  //       variant: 'destructive',
-  //       title: 'Error',
-  //       description: 'Failed to register fund. Please try again.',
-  //     });
-  //   }
-  // };
+  const addFund = useFundStore((state) => state.addFund)
+  const navigate = useNavigate()
 
   const handleCreateFund = async (data: FundFormData) => {
     try {
@@ -161,15 +62,17 @@ export function FundForm() {
         description: 'Fund registered successfully!',
       });
       // navigate(`/fund/${fund.id}`);
+
     } catch (error) {
       console.error('Create Fund Error:', error);
       toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to register fund. Please try again.',
-      });
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to register fund. Please try again.",
+      })
     }
-  };
+  }
+
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -195,6 +98,7 @@ export function FundForm() {
     // form.handleSubmit(handleCreateFund)
   };
 
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -203,10 +107,7 @@ export function FundForm() {
       className="space-y-8"
     >
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(handleCreateFund)}
-          className="space-y-8"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           {/* Organization Information */}
           <Card>
             <CardHeader>
@@ -239,6 +140,7 @@ export function FundForm() {
                       <FormLabel>Start Date</FormLabel>
                       <FormControl className="w-full block">
                         <Input type="date" {...field} />
+
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -253,6 +155,7 @@ export function FundForm() {
                       <FormLabel>End Date</FormLabel>
                       <FormControl className="w-full block">
                         <Input type="date" {...field} />
+
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -267,7 +170,6 @@ export function FundForm() {
                   <FormItem>
                     <FormLabel htmlFor="imagePreview">
                       <p className="mb-4">Image</p>
-
                       <div className="border-dashed border-2 p-2 h-[200px] rounded-md border-muted-foreground h-[200px] flex justify-center items-center cursor-pointer">
                         {!imagePreview ? (
                           <p className="text-sm text-muted-foreground">
@@ -402,9 +304,7 @@ export function FundForm() {
                         min={100}
                         step="0.01"
                         {...field}
-                        onChange={(event) =>
-                          field.onChange(+event.target.value)
-                        }
+                        onChange={event => field.onChange(+event.target.value)}
                       />
                     </FormControl>
                     <FormDescription>
@@ -433,12 +333,8 @@ export function FundForm() {
                         <option value="Disaster Relief">Disaster Relief</option>
                         <option value="Animal Welfare">Animal Welfare</option>
                         <option value="Arts & Culture">Arts & Culture</option>
-                        <option value="Community Development">
-                          Community Development
-                        </option>
-                        <option value="Children & Youth">
-                          Children & Youth
-                        </option>
+                        <option value="Community Development">Community Development</option>
+                        <option value="Children & Youth">Children & Youth</option>
                         <option value="Elderly Care">Elderly Care</option>
                       </select>
                     </FormControl>
@@ -499,11 +395,11 @@ export function FundForm() {
                 Processing...
               </div>
             ) : (
-              'Register Fund'
+              "Register Fund"
             )}
           </Button>
         </form>
       </Form>
     </motion.div>
-  );
+  )
 }
