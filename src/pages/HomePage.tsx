@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useFundStore } from '../store/useFundStore';
@@ -6,8 +6,8 @@ import { FundCard } from '../components/FundCard';
 import { CategoryFilter } from '../components/CategoryFilter';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { FundCategory } from '../types/fund';
-import { 
-  MagnifyingGlassIcon, 
+import {
+  MagnifyingGlassIcon,
   ChartBarIcon,
   ClockIcon,
   CheckCircleIcon,
@@ -18,46 +18,63 @@ type FundStatus = 'active' | 'completed' | 'all';
 
 export function HomePage() {
   const funds = useFundStore((state) => state.funds);
-  const [selectedCategory, setSelectedCategory] = useState<FundCategory | 'All'>('All');
+  const [selectedCategory, setSelectedCategory] = useState<
+    FundCategory | 'All'
+  >('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'recent' | 'progress' | 'amount'>('recent');
+  const [sortBy, setSortBy] = useState<'recent' | 'progress' | 'amount'>(
+    'recent'
+  );
   const [status, setStatus] = useState<FundStatus>('active');
 
-  const filteredFunds = funds.filter(fund => {
-    const matchesCategory = selectedCategory === 'All' || fund.category === selectedCategory;
-    const matchesSearch = 
-      fund.organizationName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      fund.purpose.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      fund.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesStatus = status === 'all' || 
-      (status === 'completed' ? fund.currentAmount >= fund.targetAmount : 
-       status === 'active' ? fund.currentAmount < fund.targetAmount : true);
-    
-    return matchesCategory && matchesSearch && matchesStatus;
-  }).sort((a, b) => {
-    switch (sortBy) {
-      case 'progress':
-        return (b.currentAmount / b.targetAmount) - (a.currentAmount / a.targetAmount);
-      case 'amount':
-        return b.currentAmount - a.currentAmount;
-      default:
-        return b.createdAt.getTime() - a.createdAt.getTime();
-    }
-  });
+  const filteredFunds = funds
+    .filter((fund) => {
+      const matchesCategory =
+        selectedCategory === 'All' || fund.category === selectedCategory;
+      const matchesSearch =
+        fund.organizationName
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        fund.purpose.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        fund.tags.some((tag) =>
+          tag.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      const matchesStatus =
+        status === 'all' ||
+        (status === 'completed'
+          ? fund.currentAmount >= fund.targetAmount
+          : status === 'active'
+          ? fund.currentAmount < fund.targetAmount
+          : true);
+
+      return matchesCategory && matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'progress':
+          return (
+            b.currentAmount / b.targetAmount - a.currentAmount / a.targetAmount
+          );
+        case 'amount':
+          return b.currentAmount - a.currentAmount;
+        default:
+          return b.createdAt.getTime() - a.createdAt.getTime();
+      }
+    });
 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
+    visible: { opacity: 1, y: 0 },
   };
 
   return (
@@ -83,7 +100,8 @@ export function HomePage() {
                 Khám phá các Quỹ Tình nguyện
               </h1>
               <p className="text-xl text-primary-100 mb-8">
-                Tìm kiếm và hỗ trợ các dự án có ý nghĩa, tạo nên sự thay đổi tích cực trong cộng đồng
+                Tìm kiếm và hỗ trợ các dự án có ý nghĩa, tạo nên sự thay đổi
+                tích cực trong cộng đồng
               </p>
               <div className="relative">
                 <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -116,7 +134,11 @@ export function HomePage() {
                   <ChartBarIcon className="w-5 h-5 text-gray-400" />
                   <select
                     value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as 'recent' | 'progress' | 'amount')}
+                    onChange={(e) =>
+                      setSortBy(
+                        e.target.value as 'recent' | 'progress' | 'amount'
+                      )
+                    }
                     className="rounded-lg border-gray-300 focus:border-primary-500 focus:ring-primary-500"
                   >
                     <option value="recent">Mới nhất</option>
@@ -183,7 +205,8 @@ export function HomePage() {
         <div className="mb-12">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-gray-900">
-              {filteredFunds.length} {filteredFunds.length === 1 ? 'Quỹ' : 'Quỹ'} phù hợp
+              {filteredFunds.length}{' '}
+              {filteredFunds.length === 1 ? 'Quỹ' : 'Quỹ'} phù hợp
             </h2>
             <button
               onClick={() => {
@@ -217,7 +240,7 @@ export function HomePage() {
               </motion.div>
             ))}
           </motion.div>
-          
+
           {filteredFunds.length === 0 && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -234,9 +257,9 @@ export function HomePage() {
                   Không tìm thấy quỹ nào
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  {funds.length === 0 
-                    ? "Chưa có quỹ nào được đăng ký. Hãy là người đầu tiên tạo quỹ!"
-                    : "Thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm để tìm thấy quỹ phù hợp."}
+                  {funds.length === 0
+                    ? 'Chưa có quỹ nào được đăng ký. Hãy là người đầu tiên tạo quỹ!'
+                    : 'Thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm để tìm thấy quỹ phù hợp.'}
                 </p>
                 <Link
                   to="/register"

@@ -2,6 +2,7 @@ import { FundDatum, FundManagementDatum } from '@/constants/datum';
 import { createFund } from '@/types/contexts/SmartContractContextType';
 import readValidators, { Validators } from '@/utils/readValidators';
 import {
+  applyDoubleCborEncoding,
   Data,
   fromText,
   Lucid,

@@ -1,6 +1,5 @@
-import { useForm } from 'react-hook-form';
+import { useForm, UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { useFundStore } from '../store/useFundStore';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -18,29 +17,27 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { SmartContractContextType } from '@/types/contexts/SmartContractContextType';
 import SmartContractContext from '@/contexts/components/SmartContractContext';
 import { LucidContextType } from '@/types/contexts/LucidContextType';
 import LucidContext from '@/contexts/components/LucidContext';
 import { WalletContextType } from '@/types/contexts/WalletContextType';
 import WalletContext from '@/contexts/components/WalletContext';
+import * as z from 'zod';
+import fundService from '@/services/fund.service';
 
-const formSchema = z.object({
+export const formSchema = z.object({
   organizationName: z
     .string()
     .min(3, 'Organization name must be at least 3 characters')
     .max(100, 'Organization name must be less than 100 characters'),
+  startDate: z.string().date('Invalid start date'),
+  endDate: z.string().date('Invalid end date'),
+  image: z.string().url('Invalid image URL'),
   organizationInfo: z.object({
-    description: z
-      .string()
-      .min(100, 'Description must be at least 100 characters')
-      .max(1000, 'Description must be less than 1000 characters'),
     website: z.string().url('Invalid website URL').optional().or(z.literal('')),
-    email: z.string().email('Invalid email address'),
-    phone: z.string().optional(),
-    address: z.string().optional(),
-    socialLinks: z.object({
+    socialInfo: z.object({
       facebook: z
         .string()
         .url('Invalid Facebook URL')
@@ -51,14 +48,15 @@ const formSchema = z.object({
         .url('Invalid Twitter URL')
         .optional()
         .or(z.literal('')),
-      instagram: z
+      phone: z
         .string()
-        .url('Invalid Instagram URL')
+        .min(10, 'Phone number must be at least 10 digits')
+        .max(15, 'Phone number must be less than 15 digits')
         .optional()
         .or(z.literal('')),
-      linkedin: z
+      email: z
         .string()
-        .url('Invalid LinkedIn URL')
+        .email('Invalid email address')
         .optional()
         .or(z.literal('')),
     }),
@@ -73,7 +71,7 @@ const formSchema = z.object({
     .max(1000000, 'Maximum amount is 1,000,000 ADA'),
   walletAddress: z
     .string()
-    .regex(/^addr1[a-zA-Z0-9]{98}$/, 'Invalid Cardano wallet address'),
+    .regex(/^addr_test1[a-z0-9]+$/, 'Invalid Cardano wallet address'),
   category: z.enum(
     [
       'Education',
@@ -102,22 +100,25 @@ export function FundForm() {
     useContext<SmartContractContextType>(SmartContractContext);
   const { lucidPlatform } = useContext<LucidContextType>(LucidContext);
   const { wallet } = useContext<WalletContextType>(WalletContext);
+  const [imagePreview, setImagePreview] = useState<string>(''); // State for image preview
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const form = useForm<FundFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       organizationName: '',
+      startDate: new Date().toString(),
+      endDate: new Date(
+        new Date().getTime() + 30 * 24 * 60 * 60 * 1000
+      ).toString(), // 30 days from now
+      image: '',
       organizationInfo: {
-        description: '',
         website: '',
-        email: '',
-        phone: '',
-        address: '',
-        socialLinks: {
+        socialInfo: {
           facebook: '',
           twitter: '',
-          instagram: '',
-          linkedin: '',
+          phone: '',
+          email: '',
         },
       },
       purpose: '',
@@ -139,12 +140,6 @@ export function FundForm() {
         ...data,
         currentAmount: 0,
       });
-      toast({
-        variant: 'success',
-        title: 'Success',
-        description: 'Fund registered successfully!',
-      });
-      navigate(`/fund/${fund.id}`);
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -154,11 +149,51 @@ export function FundForm() {
     }
   };
 
-  const handleCreateFund = async () => {
-    await createFund({
-      fundOwner: wallet.publicKeyHash,
-      fundMetadata: form.getValues(),
-    });
+  const handleCreateFund = async (data: FundFormData) => {
+    try {
+      console.log('Form Data:', data);
+      await createFund({
+        fundOwner: wallet.publicKeyHash,
+        fundMetadata: data,
+      });
+      toast({
+        variant: 'success',
+        title: 'Success',
+        description: 'Fund registered successfully!',
+      });
+      // navigate(`/fund/${fund.id}`);
+    } catch (error) {
+      console.error('Create Fund Error:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to register fund. Please try again.',
+      });
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+
+      const review = URL.createObjectURL(file);
+      setImagePreview(review);
+
+      console.log(review);
+
+      // Cập nhật giá trị của trường 'image' trong form
+      form.setValue('image', review);
+    }
+  };
+
+  const beforeSubmit = (
+    e: React.FormEvent<HTMLFormElement>,
+    form: UseFormReturn<FundFormData>
+  ) => {
+    e.preventDefault();
+    console.log('beforeSubmit: ', form.watch());
+    // form.handleSubmit(handleCreateFund)
   };
 
   return (
@@ -196,39 +231,15 @@ export function FundForm() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="organizationInfo.description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Organization Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Tell us about your organization..."
-                        className="min-h-[120px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Describe your organization's mission and history
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
-                  name="organizationInfo.website"
+                  name="startDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Website</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="https://www.example.org"
-                          {...field}
-                        />
+                      <FormLabel>Start Date</FormLabel>
+                      <FormControl className="w-full block">
+                        <Input type="date" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -237,46 +248,12 @@ export function FundForm() {
 
                 <FormField
                   control={form.control}
-                  name="organizationInfo.email"
+                  name="endDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="contact@organization.org"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="organizationInfo.phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone</FormLabel>
-                      <FormControl>
-                        <Input placeholder="+1 (555) 123-4567" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="organizationInfo.address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Address</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="123 Main St, City, Country"
-                          {...field}
-                        />
+                      <FormLabel>End Date</FormLabel>
+                      <FormControl className="w-full block">
+                        <Input type="date" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -284,12 +261,56 @@ export function FundForm() {
                 />
               </div>
 
+              <FormField
+                control={form.control}
+                name="image"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel htmlFor="imagePreview">
+                      <p className="mb-4">Image</p>
+
+                      <div className="border-dashed border-2 p-2 h-[200px] rounded-md border-muted-foreground h-[200px] flex justify-center items-center cursor-pointer">
+                        {!imagePreview ? (
+                          <p className="text-sm text-muted-foreground">
+                            Click to upload an image
+                          </p>
+                        ) : (
+                          <div className="h-full w-full">
+                            <img
+                              src={imagePreview}
+                              alt="Image Preview"
+                              className="w-full h-full object-cover rounded-md block"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </FormLabel>
+
+                    <FormControl>
+                      <Input
+                        id="imagePreview"
+                        type="file"
+                        // {...field}
+                        accept="image/*"
+                        onChange={(e) => handleImageChange(e)}
+                        className="hidden"
+                      />
+                    </FormControl>
+
+                    <FormDescription>
+                      The image that will be displayed for your campaign
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <div className="space-y-4">
                 <h3 className="text-sm font-medium">Social Links</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="organizationInfo.socialLinks.facebook"
+                    name="organizationInfo.socialInfo.facebook"
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -302,7 +323,7 @@ export function FundForm() {
 
                   <FormField
                     control={form.control}
-                    name="organizationInfo.socialLinks.twitter"
+                    name="organizationInfo.socialInfo.twitter"
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -315,11 +336,11 @@ export function FundForm() {
 
                   <FormField
                     control={form.control}
-                    name="organizationInfo.socialLinks.instagram"
+                    name="organizationInfo.socialInfo.phone"
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Input placeholder="Instagram URL" {...field} />
+                          <Input placeholder="Phone number" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -328,11 +349,11 @@ export function FundForm() {
 
                   <FormField
                     control={form.control}
-                    name="organizationInfo.socialLinks.linkedin"
+                    name="organizationInfo.socialInfo.email"
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <Input placeholder="LinkedIn URL" {...field} />
+                          <Input placeholder="Email" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -440,7 +461,7 @@ export function FundForm() {
                       <Input placeholder="0x..." {...field} />
                     </FormControl>
                     <FormDescription>
-                      Your Ethereum wallet address for receiving funds
+                      Your Cardano wallet address for receiving funds
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

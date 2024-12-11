@@ -1,11 +1,10 @@
-import { BlockFrostAPI } from '@blockfrost/blockfrost-js';
+import axios from 'axios';
 
-class BlockfrostService extends BlockFrostAPI {
-  constructor() {
-    super({
-      projectId: process.env.VITE_BLOCKFROST_PROJECT_API_KEY_PREVIEW!,
-    });
-  }
-}
-
-export default new BlockfrostService();
+// Tạo instance axios với baseURL
+const blockfrostApi = axios.create({
+  baseURL: 'https://cardano-preview.blockfrost.io/api/v0',
+  headers: {
+    'Content-Type': 'application/json',
+    project_id: import.meta.env.VITE_BLOCKFROST_PROJECT_API_KEY_PREVIEW,
+  },
+});
