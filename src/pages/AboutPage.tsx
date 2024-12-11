@@ -1,7 +1,5 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Parallax } from 'react-parallax';
-import { useInView } from 'react-intersection-observer';
 import {
   ShieldCheckIcon,
   CubeTransparentIcon,
@@ -11,88 +9,70 @@ import {
   ServerIcon,
   LockClosedIcon,
   DocumentCheckIcon,
+  ArrowRightIcon,
 } from '@heroicons/react/24/outline';
 
 const features = [
   {
     icon: CubeTransparentIcon,
-    title: 'Blockchain Integration',
-    description: 'Mọi giao dịch được ghi lại trên blockchain, tạo ra một bản ghi bất biến và minh bạch về tất cả các khoản đóng góp.',
+    title: 'Cardano Blockchain',
+    description: 'Built on Cardano for maximum security and transparency. Every transaction is permanently recorded and verifiable.',
     color: 'from-blue-500 to-blue-600'
   },
   {
     icon: ShieldCheckIcon,
-    title: 'Smart Contract',
-    description: 'Nền tảng của chúng tôi sử dụng smart contract để tự động hóa và bảo mật việc phân phối quỹ.',
+    title: 'Smart Contracts',
+    description: 'Automated fund distribution through secure Cardano smart contracts.',
     color: 'from-green-500 to-green-600'
   },
   {
     icon: ChartBarIcon,
-    title: 'Theo dõi thời gian thực',
-    description: 'Theo dõi các khoản đóng góp và sử dụng quỹ trong thời gian thực thông qua bảng điều khiển blockchain.',
+    title: 'Real-time Tracking',
+    description: 'Monitor contributions and fund usage in real-time through our blockchain dashboard.',
     color: 'from-purple-500 to-purple-600'
   },
   {
     icon: UserGroupIcon,
-    title: 'Cộng đồng tin cậy',
-    description: 'Xây dựng niềm tin với nhà tài trợ thông qua tính minh bạch hoàn toàn và hồ sơ tổ chức được xác minh.',
+    title: 'Trusted Community',
+    description: 'Build donor trust through complete transparency and verified organizations.',
     color: 'from-orange-500 to-orange-600'
   }
 ];
 
-const techFeatures = [
-  {
-    icon: ServerIcon,
-    title: 'Hạ tầng bảo mật',
-    description: 'Máy chủ hiệu suất cao với nhiều lớp bảo mật'
-  },
-  {
-    icon: LockClosedIcon,
-    title: 'Mã hóa dữ liệu',
-    description: 'Mã hóa đầu cuối cho mọi giao dịch'
-  },
-  {
-    icon: DocumentCheckIcon,
-    title: 'Kiểm toán độc lập',
-    description: 'Kiểm toán định kỳ bởi đơn vị uy tín'
-  },
-  {
-    icon: GlobeAltIcon,
-    title: 'Kết nối toàn cầu',
-    description: 'Hỗ trợ giao dịch xuyên quốc gia'
-  }
+const stats = [
+  { number: '50K+', label: 'Active Donors' },
+  { number: '₳1.2M+', label: 'Total Contributions' },
+  { number: '100+', label: 'Successful Projects' },
+  { number: '95%', label: 'Success Rate' }
 ];
 
 const partners = [
-  'Trung ương Hội chữ thập đỏ Việt Nam',
-  'Quỹ Bảo Trợ Trẻ Em Việt Nam',
-  'Quỹ Hy vọng',
-  'Quỹ từ thiện Nâng bước tuổi thơ',
-  'Quỹ từ thiện Bông Sen',
-  'Quỹ Trò nghèo Vùng cao',
-  'Quỹ Vì Tầm Vóc Việt',
-  'Quỹ từ tâm Đắk Lắk'
+  'Red Cross Vietnam',
+  'UNICEF Vietnam',
+  'Save the Children',
+  'World Vision',
+  'Habitat for Humanity',
+  'Room to Read',
+  'Operation Smile',
+  'Blue Dragon'
 ];
 
 export function AboutPage() {
-  const [ref, inView] = useInView({
-    threshold: 0.1,
-    triggerOnce: true
-  });
-
   return (
     <div className="bg-white">
-      {/* Hero Section with Parallax */}
-      <Parallax
-        blur={0}
-        bgImage="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80"
-        bgImageAlt="Technology Background"
-        strength={200}
-        className="relative"
-      >
-        <div className="relative h-[60vh] flex items-center">
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent" />
-          <div className="container mx-auto px-4 relative">
+      {/* Hero Section */}
+      <section className="relative h-[70vh] overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&q=80"
+            alt="Hero"
+            className="w-full h-full object-cover"
+          />
+  
+        </div>
+
+        <div className="relative h-full flex items-center">
+          <div className="container mx-auto px-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -100,43 +80,51 @@ export function AboutPage() {
               className="max-w-3xl"
             >
               <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-                Về VolunteerFund
+                Empowering Change Through Technology
               </h1>
-              <p className="text-xl text-white/90 leading-relaxed">
-                Nền tảng gây quỹ cộng đồng tiên phong ứng dụng công nghệ blockchain, 
-                đảm bảo tính minh bạch và an toàn tuyệt đối cho mọi hoạt động từ thiện.
+              <p className="text-xl text-primary-100 leading-relaxed mb-8">
+                VolunteerFund is Vietnam's first blockchain-powered fundraising platform,
+                bringing transparency and trust to charitable giving.
               </p>
+              <Link
+                to="/register"
+                className="inline-flex items-center px-6 py-3 rounded-lg text-primary-900 bg-primary-100 hover:bg-primary-200 transition-colors"
+              >
+                Start Making Impact
+                <ArrowRightIcon className="w-5 h-5 ml-2" />
+              </Link>
             </motion.div>
           </div>
         </div>
-      </Parallax>
+      </section>
 
-      {/* Mission Statement */}
-      <section className="py-24 bg-gradient-to-b from-gray-50 to-white">
+      {/* Stats Section */}
+      <section className="py-16 bg-gradient-to-b from-primary-900 to-primary-800">
         <div className="container mx-auto px-4">
-          <motion.div
-            ref={ref}
-            initial={{ opacity: 0, y: 20 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-            className="max-w-4xl mx-auto text-center"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
-              Sứ mệnh của chúng tôi
-            </h2>
-            <p className="text-xl text-gray-600 leading-relaxed mb-12">
-              VolunteerFund là nền tảng gây quỹ cộng đồng tiên phong kết hợp sức mạnh của 
-              cộng đồng với công nghệ blockchain. Chúng tôi tự hào được công nhận là Top 3 
-              Giải pháp Chuyển đổi số xuất sắc cho các dự án cộng đồng tại Viet Solutions 2022 
-              và nhận giải thưởng Chiến dịch Marketing vì sự phát triển bền vững tại 
-              Marketing for Development Awards 2022.
-            </p>
-          </motion.div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="text-center"
+              >
+                <div className="text-4xl font-bold text-white mb-2">
+                  {stat.number}
+                </div>
+                <div className="text-primary-200">
+                  {stat.label}
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Blockchain Features */}
-      <section className="py-24 bg-gray-50">
+      {/* Features Section */}
+      <section className="py-24">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -144,12 +132,12 @@ export function AboutPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Công nghệ Blockchain
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Why Choose VolunteerFund?
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Ứng dụng công nghệ blockchain tiên tiến để đảm bảo tính minh bạch và 
-              an toàn cho mọi giao dịch
+              We combine the power of Cardano blockchain with a user-friendly platform
+              to create the most transparent and efficient fundraising solution.
             </p>
           </motion.div>
 
@@ -160,69 +148,23 @@ export function AboutPage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white rounded-xl shadow-lg overflow-hidden"
+                transition={{ delay: index * 0.1 }}
+                className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
               >
                 <div className={`h-2 bg-gradient-to-r ${feature.color}`} />
-                <div className="p-6">
-                  <div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center mb-4">
-                    <feature.icon className="w-6 h-6 text-gray-600" />
+                <div className="p-8">
+                  <div className="w-12 h-12 bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl flex items-center justify-center mb-6">
+                    <feature.icon className="w-6 h-6 text-primary-600" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-4">
                     {feature.title}
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 leading-relaxed">
                     {feature.description}
                   </p>
                 </div>
               </motion.div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Technology Stack */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-16"
-            >
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Nền tảng công nghệ
-              </h2>
-              <p className="text-xl text-gray-600">
-                Được hỗ trợ bởi các đối tác công nghệ hàng đầu
-              </p>
-            </motion.div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {techFeatures.map((feature, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="flex items-start space-x-4"
-                >
-                  <div className="flex-shrink-0">
-                    <feature.icon className="w-6 h-6 text-primary-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {feature.title}
-                    </h3>
-                    <p className="text-gray-600">
-                      {feature.description}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
           </div>
         </div>
       </section>
@@ -236,11 +178,11 @@ export function AboutPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Đối tác tin cậy
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Our Partners
             </h2>
-            <p className="text-xl text-gray-600">
-              Được tin tưởng bởi các tổ chức uy tín
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Working with trusted organizations to create lasting impact
             </p>
           </motion.div>
 
@@ -251,8 +193,8 @@ export function AboutPage() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white rounded-lg shadow-sm p-6 text-center hover:shadow-md transition-shadow"
+                transition={{ delay: index * 0.1 }}
+                className="bg-white rounded-xl p-6 text-center shadow-md hover:shadow-lg transition-shadow"
               >
                 <p className="font-medium text-gray-900">{partner}</p>
               </motion.div>
@@ -262,7 +204,7 @@ export function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-r from-primary-600 to-primary-700">
+      <section className="py-24 bg-gradient-to-br from-primary-600 to-primary-700">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -270,24 +212,24 @@ export function AboutPage() {
             viewport={{ once: true }}
             className="max-w-3xl mx-auto text-center"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Sẵn sàng tạo nên sự thay đổi?
+            <h2 className="text-4xl font-bold text-white mb-6">
+              Ready to Make a Difference?
             </h2>
-            <p className="text-xl text-white/90 mb-8">
-              Hãy cùng chúng tôi xây dựng một cộng đồng minh bạch và đáng tin cậy
+            <p className="text-xl text-primary-100 mb-8">
+              Join us in creating positive change through transparent fundraising
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/register"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-primary-600 bg-white hover:bg-primary-50 transition-colors"
+                className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-white text-primary-600 hover:bg-primary-50 transition-colors"
               >
-                Bắt đầu gây quỹ
+                Start a Campaign
               </Link>
               <Link
                 to="/funds"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-white border-2 border-white hover:bg-white/10 transition-colors"
+                className="inline-flex items-center justify-center px-6 py-3 rounded-lg border-2 border-white text-white hover:bg-white/10 transition-colors"
               >
-                Khám phá các quỹ
+                Browse Campaigns
               </Link>
             </div>
           </motion.div>
