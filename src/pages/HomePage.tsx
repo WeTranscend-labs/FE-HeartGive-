@@ -13,6 +13,7 @@ import {
   CheckCircleIcon,
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
+import { getFunds } from '@/services/blockfrost.service';
 
 type FundStatus = 'active' | 'completed' | 'all';
 
@@ -26,6 +27,16 @@ export function HomePage() {
     'recent'
   );
   const [status, setStatus] = useState<FundStatus>('active');
+
+  useEffect(() => {
+    fetchFunds();
+  }, []);
+
+  const fetchFunds = async () => {
+    const funds = await getFunds({ page: 1, pageSize: 1 });
+
+    console.log(funds);
+  };
 
   const filteredFunds = funds
     .filter((fund) => {

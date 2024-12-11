@@ -25,7 +25,6 @@ import LucidContext from '@/contexts/components/LucidContext';
 import { WalletContextType } from '@/types/contexts/WalletContextType';
 import WalletContext from '@/contexts/components/WalletContext';
 import * as z from 'zod';
-import fundService from '@/services/fund.service';
 
 export const formSchema = z.object({
   organizationName: z
@@ -134,20 +133,20 @@ export function FundForm() {
   const addFund = useFundStore((state) => state.addFund);
   const navigate = useNavigate();
 
-  const onSubmit = async (data: FormData) => {
-    try {
-      const fund = addFund({
-        ...data,
-        currentAmount: 0,
-      });
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to register fund. Please try again.',
-      });
-    }
-  };
+  // const onSubmit = async (data: FormData) => {
+  //   try {
+  //     const fund = addFund({
+  //       ...data,
+  //       currentAmount: 0,
+  //     });
+  //   } catch (error) {
+  //     toast({
+  //       variant: 'destructive',
+  //       title: 'Error',
+  //       description: 'Failed to register fund. Please try again.',
+  //     });
+  //   }
+  // };
 
   const handleCreateFund = async (data: FundFormData) => {
     try {
