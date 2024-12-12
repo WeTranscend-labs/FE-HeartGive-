@@ -241,11 +241,11 @@ export function HomePage() {
           >
             {filteredFunds.map((fund) => (
               <motion.div
-                key={fund.id}
+                key={fund?.walletAddress}
                 variants={itemVariants}
                 transition={{ duration: 0.5 }}
               >
-                <Link to={`/fund/${fund.id}`}>
+                <Link to={`/fund/${fund?.walletAddress}`}>
                   <FundCard fund={fund} />
                 </Link>
               </motion.div>
