@@ -50,6 +50,7 @@ export function FundForm() {
       purpose: '',
       targetAmount: 100,
       walletAddress: '',
+      fundAddress: '',
       category: 'Education',
     },
   });
@@ -101,7 +102,6 @@ export function FundForm() {
   const onSubmit = async (data: FundFormData) => {
     try {
       // Upload ảnh trước
-      console.log('File: {}', imageFile);
       let imageUrl = '';
       if (imageFile) {
         console.log(1);
@@ -113,8 +113,6 @@ export function FundForm() {
         ...data,
         image: imageUrl,
       };
-
-      console.log('Form Data:', fundDataWithImage);
 
       await createFund({
         fundOwner: wallet.publicKeyHash,
