@@ -39,6 +39,9 @@ export const getFunds = async ({
       )
       .then((response) => response.data);
 
+    const defaultFundAddress =
+      'addr_test1wr539xfv8psyhejd8yukjfuu9j2w9h5y9t2lukz04348aes7hvm5e';
+
     const funds: Fund[] = await Promise.all(
       utxos.map(async (utxo) => {
         const rootMetadata: rootMetdata[] = await blockfrostApi
@@ -51,25 +54,25 @@ export const getFunds = async ({
         // Giải mã metadata
         const metadataJsonString = decodeMetadata(encodedMetadataJson);
 
-        console.log(metadataJsonString);
-
         // Parse JSON string thành object Fund
         const metadata: Fund = JSON.parse(metadataJsonString);
 
         const totalAda = await getTotalAda({
-          address:
-            metadata.fundAddress ??
-            'addr_test1wr539xfv8psyhejd8yukjfuu9j2w9h5y9t2lukz04348aes7hvm5e',
+          address: metadata.fundAddress || defaultFundAddress,
         });
 
-        metadata.currentAmount = totalAda.totalAda;
-        metadata.targetAmount = BigInt(metadata.targetAmount);
-
-        return metadata;
+        return {
+          ...metadata,
+          fundAddress: metadata.fundAddress || defaultFundAddress, // Đảm bảo luôn có fundAddress
+          txHash: utxo.tx_hash,
+          inlineDatum: utxo.inline_datum,
+          dataHash: utxo.data_hash,
+          blockHash: utxo.block,
+          currentAmount: totalAda.totalAda,
+          targetAmount: BigInt(metadata.targetAmount),
+        };
       })
     );
-
-    console.log(funds);
 
     return funds;
   } catch (error) {
@@ -106,6 +109,8 @@ export const getFundByAddress = async ({
   try {
     const validators: Validators = readValidators();
     const fundManagementValidatorScript = validators.fundManagement;
+    const defaultFundAddress =
+      'addr_test1wr539xfv8psyhejd8yukjfuu9j2w9h5y9t2lukz04348aes7hvm5e';
 
     // Lấy UTXOs từ địa chỉ validator
     const validatorAddress = (await lucidService).utils.validatorToAddress(
@@ -117,26 +122,30 @@ export const getFundByAddress = async ({
       .then((response) => response.data);
 
     // Tìm UTXOs có liên quan đến địa chỉ fund cụ thể
-    const fundUtxo = utxos.find(async (utxo) => {
-      try {
-        const rootMetadata: rootMetdata[] = await blockfrostApi
-          .get(`/txs/${utxo.tx_hash}/metadata`)
-          .then((response) => response.data);
+    const fundUtxo = await (async () => {
+      for (const utxo of utxos) {
+        try {
+          const rootMetadata: rootMetdata[] = await blockfrostApi
+            .get(`/txs/${utxo.tx_hash}/metadata`)
+            .then((response) => response.data);
 
-        const encodedMetadataJson = rootMetadata[0].json_metadata[2].data;
-        const metadataJsonString = decodeMetadata(encodedMetadataJson);
-        const metadata: Fund = JSON.parse(metadataJsonString);
+          const encodedMetadataJson = rootMetadata[0].json_metadata[2].data;
+          const metadataJsonString = decodeMetadata(encodedMetadataJson);
+          const metadata: Fund = JSON.parse(metadataJsonString);
 
-        return (
-          metadata.fundAddress ??
-          'addr_test1wr539xfv8psyhejd8yukjfuu9j2w9h5y9t2lukz04348aes7hvm5e' ===
+          if (
+            (metadata.fundAddress ??
+              'addr_test1wr539xfv8psyhejd8yukjfuu9j2w9h5y9t2lukz04348aes7hvm5e') ===
             address
-        );
-      } catch (error) {
-        console.error('Error processing UTXO:', error);
-        return false;
+          ) {
+            return utxo;
+          }
+        } catch (error) {
+          console.error('Error processing UTXO:', error);
+        }
       }
-    });
+      return null;
+    })();
 
     if (!fundUtxo) {
       console.warn(`No fund found for address: ${address}`);
@@ -159,11 +168,17 @@ export const getFundByAddress = async ({
         'addr_test1wr539xfv8psyhejd8yukjfuu9j2w9h5y9t2lukz04348aes7hvm5e',
     });
 
-    // Cập nhật metadata
-    metadata.currentAmount = totalAda.totalAda;
-    metadata.targetAmount = BigInt(metadata.targetAmount);
-
-    return metadata;
+    // Trả về đầy đủ thông tin như trong getFunds
+    return {
+      ...metadata,
+      fundAddress: metadata.fundAddress || defaultFundAddress, // Đảm bảo luôn có fundAddress
+      txHash: fundUtxo.tx_hash,
+      inlineDatum: fundUtxo.inline_datum,
+      dataHash: fundUtxo.data_hash,
+      block: fundUtxo.block,
+      currentAmount: totalAda.totalAda,
+      targetAmount: BigInt(metadata.targetAmount),
+    };
   } catch (error) {
     console.error('Error fetching fund by address:', error);
     return null;

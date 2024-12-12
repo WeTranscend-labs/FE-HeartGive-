@@ -22,16 +22,20 @@ import {
   TagIcon,
   ArrowLeftIcon,
 } from '@heroicons/react/24/outline';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { getFundByAddress } from '@/services/blockfrost.service';
 import { Fund } from '@/types/fund';
 import { OrganizeStory } from '@/components/OrganizeStory';
+import { CancelDialog } from '@/components/CancelDialog';
+import { WalletContextType } from '@/types/contexts/WalletContextType';
+import WalletContext from '@/contexts/components/WalletContext';
 
 export function FundDetailsPage() {
   const { id } = useParams<string>();
   // const fund = useFundStore((state) => state.getFundById(id!));
   const transactions = useFundStore((state) => state.getFundTransactions(id!));
   const [fund, setFund] = useState<Fund | null>(null!);
+  const { wallet } = useContext<WalletContextType>(WalletContext);
 
   useEffect(() => {
     (async () => {
@@ -103,6 +107,7 @@ export function FundDetailsPage() {
                   <UserGroupIcon className="w-4 h-4 mr-2" />
                   {/* {fund.supporterCount} supporters */}
                 </span>
+
                 <span className="flex items-center">
                   <TagIcon className="w-4 h-4 mr-2" />
                   {fund.category}
@@ -113,24 +118,26 @@ export function FundDetailsPage() {
                 {fund.organizationName}
               </h1>
 
-              <p className="text-xl text-white/90 max-w-3xl leading-relaxed">
-                {fund.purpose.split('\n')[0]}
+              <p className="text-xl text-white/90 max-w-3xl leading-relaxed overflow-hidden text-ellipsis whitespace-nowrap">
+                {fund.purpose.split('\n')[0].length > 100
+                  ? fund.purpose.split('\n')[0].slice(0, 100) + '...'
+                  : fund.purpose.split('\n')[0]}
               </p>
 
               <div className="mt-8 flex gap-5">
                 <div className="w-[80%]">
                   <ContributeDialog
-                    fundId={fund.walletAddress}
+                    fundId={fund.txHash}
                     currentAmount={fund.currentAmount}
                     targetAmount={fund.targetAmount}
                   />
                 </div>
 
                 <div>
-                  <ContributeDialog
-                    fundId={fund.walletAddress}
+                  <CancelDialog
+                    fundId={fund.txHash}
                     currentAmount={fund.currentAmount}
-                    targetAmount={fund.targetAmount}
+                    fundOwner={wallet?.publicKeyHash}
                   />
                 </div>
               </div>

@@ -110,12 +110,12 @@ export function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {funds.slice(0, 3).map((fund, index) => (
               <motion.div
-                key={fund.walletAddress}
+                key={fund.txHash}
                 initial={{ opacity: 0, y: 20 }}
                 animate={campaignsInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Link to={`/fund/${fund.walletAddress}`}>
+                <Link to={`/fund/${fund.fundAddress}`}>
                   <FundCard fund={fund} />
                 </Link>
               </motion.div>

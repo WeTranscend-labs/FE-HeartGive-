@@ -45,6 +45,10 @@ export type Fund = {
   currentAmount: bigint;
   walletAddress: string;
   fundAddress: string;
+  txHash: string;
+  inlineDatum: string | null;
+  dataHash: string | null;
+  block: string | null;
   category:
     | 'Education'
     | 'Healthcare'
