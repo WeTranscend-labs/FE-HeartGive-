@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useFundStore } from "../store/useFundStore"
 import { motion } from "framer-motion"
-import { useToast } from "@/components/ui/use-toast"
+
 import {
   Form,
   FormControl,
@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { transactionFormSchema, type TransactionFormData } from "../schemas/transactionFormSchema"
+import { useToast } from "@/hooks/use-toast"
 
 interface TransactionFormProps {
   fundId: string;
@@ -40,7 +41,7 @@ export function TransactionForm({ fundId }: TransactionFormProps) {
         fundId,
       })
       toast({
-        variant: "success",
+        variant: "default",
         title: "Success",
         description: "Contribution added successfully!",
       })
