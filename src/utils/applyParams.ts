@@ -17,6 +17,7 @@ type Props = {
 export type AppliedValidators = {
   fund: SpendingValidator;
   fundManagement: SpendingValidator;
+  fundVerified: SpendingValidator;
   fundAddress: string;
 };
 
@@ -39,6 +40,7 @@ export const applyParams = ({
 
   return {
     fund: { type: 'PlutusV2', script: applyDoubleCborEncoding(fund) },
+    fundVerified: { type: 'PlutusV2', script: validators.fundVerified.script },
     fundManagement: {
       type: 'PlutusV2',
       script: validators.fundManagement.script,
