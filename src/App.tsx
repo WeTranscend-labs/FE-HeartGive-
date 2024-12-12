@@ -6,11 +6,13 @@ import { FundDetailsPage } from './pages/FundDetailsPage';
 import { LandingPage } from './pages/LandingPage';
 import { AboutPage } from './pages/AboutPage';
 import ContextProvider from './contexts';
+import { Toaster } from './components/ui/toaster';
 
 function App() {
   return (
     <ContextProvider>
       <Router>
+        <Toaster/>
         <MainLayout>
           <Routes>
             <Route path="/" element={<LandingPage />} />
