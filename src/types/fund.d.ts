@@ -44,6 +44,7 @@ export type Fund = {
   targetAmount: bigint;
   currentAmount: bigint;
   walletAddress: string;
+  fundAddress: string;
   category:
     | 'Education'
     | 'Healthcare'

@@ -36,6 +36,7 @@ export const fundFormSchema = z.object({
   walletAddress: z
     .string()
     .regex(/^addr_test1[a-z0-9]+$/, 'Invalid Cardano wallet address'),
+  fundAddress: z.string(),
   category: z.enum(
     [
       'Education',

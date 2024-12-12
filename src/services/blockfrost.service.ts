@@ -57,7 +57,9 @@ export const getFunds = async ({
         const metadata: Fund = JSON.parse(metadataJsonString);
 
         const totalAda = await getTotalAda({
-          address: metadata.walletAddress,
+          address:
+            metadata.fundAddress ??
+            'addr_test1wr539xfv8psyhejd8yukjfuu9j2w9h5y9t2lukz04348aes7hvm5e',
         });
 
         metadata.currentAmount = totalAda.totalAda;
@@ -125,7 +127,11 @@ export const getFundByAddress = async ({
         const metadataJsonString = decodeMetadata(encodedMetadataJson);
         const metadata: Fund = JSON.parse(metadataJsonString);
 
-        return metadata.walletAddress === address;
+        return (
+          metadata.fundAddress ??
+          'addr_test1wr539xfv8psyhejd8yukjfuu9j2w9h5y9t2lukz04348aes7hvm5e' ===
+            address
+        );
       } catch (error) {
         console.error('Error processing UTXO:', error);
         return false;
@@ -148,7 +154,9 @@ export const getFundByAddress = async ({
 
     // Tính toán số tiền hiện tại
     const totalAda = await getTotalAda({
-      address: metadata.walletAddress,
+      address:
+        metadata.fundAddress ??
+        'addr_test1wr539xfv8psyhejd8yukjfuu9j2w9h5y9t2lukz04348aes7hvm5e',
     });
 
     // Cập nhật metadata
@@ -165,13 +173,35 @@ export const getFundByAddress = async ({
 const decodeMetadata = (
   encodedMetadataJson: Record<string, number>
 ): string => {
-  // Loại bỏ các ký tự không mong muốn và trim
-  const cleanedString = Object.values(encodedMetadataJson)
-    .map((num) => String.fromCharCode(num))
-    .join('')
-    .trim()
-    .replace(/^[^\{]*/, '') // Loại bỏ các ký tự trước dấu {
-    .replace(/[^\}]*$/, ''); // Loại bỏ các ký tự sau dấu }
+  try {
+    // Chuyển đổi mảng số thành mảng byte
+    const bytes = Object.values(encodedMetadataJson).map((num) => num);
 
-  return cleanedString;
+    // Sử dụng TextDecoder để giải mã UTF-8
+    const decoder = new TextDecoder('utf-8');
+    const decodedString = decoder.decode(new Uint8Array(bytes));
+
+    // Loại bỏ các ký tự không mong muốn
+    const cleanedString = decodedString
+      .trim()
+      .replace(/^[^\{]*/, '') // Loại bỏ các ký tự trước dấu {
+      .replace(/[^\}]*$/, ''); // Loại bỏ các ký tự sau dấu }
+
+    return cleanedString;
+  } catch (error) {
+    console.error('Metadata decoding error:', error);
+
+    // Fallback method nếu TextDecoder gặp vấn đề
+    try {
+      return Object.values(encodedMetadataJson)
+        .map((num) => String.fromCharCode(num))
+        .join('')
+        .trim()
+        .replace(/^[^\{]*/, '')
+        .replace(/[^\}]*$/, '');
+    } catch (fallbackError) {
+      console.error('Fallback decoding error:', fallbackError);
+      return '';
+    }
+  }
 };

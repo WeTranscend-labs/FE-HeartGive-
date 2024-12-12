@@ -53,6 +53,7 @@ export function FundForm() {
       purpose: '',
       targetAmount: 100,
       walletAddress: '',
+      fundAddress: '',
       category: 'Education',
     },
   });
@@ -100,7 +101,7 @@ export function FundForm() {
     }
 
     try {
-      // Upload image first
+
       let imageUrl = '';
       if (imageFile) {
         imageUrl = await uploadImageToSupabase(imageFile);
@@ -115,7 +116,7 @@ export function FundForm() {
         image: imageUrl,
       };
 
-      // Create fund
+
       await createFund({
         fundOwner: wallet.publicKeyHash,
         fundMetadata: fundDataWithImage,

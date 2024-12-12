@@ -22,19 +22,22 @@ import {
   TagIcon,
   ArrowLeftIcon,
 } from '@heroicons/react/24/outline';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { getFundByAddress } from '@/services/blockfrost.service';
+import { Fund } from '@/types/fund';
+import { OrganizeStory } from '@/components/OrganizeStory';
 
 export function FundDetailsPage() {
   const { id } = useParams<string>();
-  const fund = useFundStore((state) => state.getFundById(id!));
+  // const fund = useFundStore((state) => state.getFundById(id!));
   const transactions = useFundStore((state) => state.getFundTransactions(id!));
+  const [fund, setFund] = useState<Fund | null>(null!);
 
   useEffect(() => {
     (async () => {
-      const temp = await getFundByAddress({ address: id });
+      const result = await getFundByAddress({ address: id });
 
-      console.log(temp);
+      setFund(result);
     })();
   }, []);
 
@@ -94,7 +97,7 @@ export function FundDetailsPage() {
               <div className="flex flex-wrap items-center gap-4 text-white/80 text-sm mb-6">
                 <span className="flex items-center">
                   <ClockIcon className="w-4 h-4 mr-2" />
-                  Started {formatDistanceToNow(fund.startDate)} ago
+                  {/* Started {formatDistanceToNow(fund.startDate)} ago */}
                 </span>
                 <span className="flex items-center">
                   <UserGroupIcon className="w-4 h-4 mr-2" />
@@ -114,12 +117,22 @@ export function FundDetailsPage() {
                 {fund.purpose.split('\n')[0]}
               </p>
 
-              <div className="mt-8">
-                <ContributeDialog
-                  fundId={fund.id}
-                  currentAmount={fund.currentAmount}
-                  targetAmount={fund.targetAmount}
-                />
+              <div className="mt-8 flex gap-5">
+                <div className="w-[80%]">
+                  <ContributeDialog
+                    fundId={fund.walletAddress}
+                    currentAmount={fund.currentAmount}
+                    targetAmount={fund.targetAmount}
+                  />
+                </div>
+
+                <div>
+                  <ContributeDialog
+                    fundId={fund.walletAddress}
+                    currentAmount={fund.currentAmount}
+                    targetAmount={fund.targetAmount}
+                  />
+                </div>
               </div>
             </motion.div>
           </div>
@@ -160,7 +173,7 @@ export function FundDetailsPage() {
                   <div className="prose max-w-none">
                     <CampaignStory
                       content={fund.purpose}
-                      images={[fund.imageUrl]}
+                      images={[fund.image]}
                     />
 
                     {/* Impact Stats */}
@@ -215,9 +228,7 @@ export function FundDetailsPage() {
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="space-y-4">
-                      <p className="text-gray-600 text-sm whitespace-pre-wrap">
-                        {fund.organizationInfo.description}
-                      </p>
+                      <OrganizeStory />
 
                       <div className="pt-4 border-t border-gray-200 space-y-4">
                         {fund.organizationInfo.website && (
@@ -233,31 +244,24 @@ export function FundDetailsPage() {
                         )}
 
                         <a
-                          href={`mailto:${fund.organizationInfo.email}`}
+                          href={`mailto:${fund.organizationInfo.socialInfo?.email}`}
                           className="flex items-center text-sm text-primary-600 hover:text-primary-700"
                         >
                           <EnvelopeIcon className="w-5 h-5 text-gray-400 mr-3" />
-                          {fund.organizationInfo.email}
+                          {fund.organizationInfo.socialInfo?.email}
                         </a>
 
-                        {fund.organizationInfo.phone && (
+                        {fund.organizationInfo.socialInfo?.phone && (
                           <p className="flex items-center text-sm text-gray-600">
                             <PhoneIcon className="w-5 h-5 text-gray-400 mr-3" />
-                            {fund.organizationInfo.phone}
-                          </p>
-                        )}
-
-                        {fund.organizationInfo.address && (
-                          <p className="flex items-center text-sm text-gray-600">
-                            <MapPinIcon className="w-5 h-5 text-gray-400 mr-3" />
-                            {fund.organizationInfo.address}
+                            {fund.organizationInfo.socialInfo?.phone}
                           </p>
                         )}
                       </div>
 
                       {/* Social Links */}
-                      {fund.organizationInfo.socialLinks &&
-                        Object.values(fund.organizationInfo.socialLinks).some(
+                      {fund.organizationInfo.socialInfo &&
+                        Object.values(fund.organizationInfo.socialInfo).some(
                           Boolean
                         ) && (
                           <div className="pt-4 border-t border-gray-200">
@@ -266,7 +270,7 @@ export function FundDetailsPage() {
                             </h4>
                             <div className="flex flex-wrap gap-4">
                               {Object.entries(
-                                fund.organizationInfo.socialLinks
+                                fund.organizationInfo.socialInfo
                               ).map(([platform, url]) => {
                                 if (!url) return null;
                                 return (

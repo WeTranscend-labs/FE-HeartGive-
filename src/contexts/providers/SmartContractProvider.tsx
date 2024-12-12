@@ -54,9 +54,12 @@ const SmartContractProvider = function ({ children }: Props) {
       FundManagementDatum
     );
 
-    console.log(toText(fromText(fundAddress)));
+    fundMetadata = {
+      ...fundMetadata,
+      fundAddress: fundAddress,
+    };
 
-    console.log(fromText(fundAddress));
+    console.log(fundMetadata);
 
     const tx = await lucid
       .newTx()
