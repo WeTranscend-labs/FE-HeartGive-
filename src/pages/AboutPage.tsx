@@ -57,7 +57,7 @@ const partners = [
   'Blue Dragon'
 ];
 
-export function AboutPage() {
+export default function AboutPage() {
   return (
     <div className="bg-white">
       {/* Hero Section */}
