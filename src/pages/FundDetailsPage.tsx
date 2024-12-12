@@ -33,7 +33,7 @@ import { CancelDialog } from '@/components/CancelDialog';
 import { WalletContextType } from '@/types/contexts/WalletContextType';
 import WalletContext from '@/contexts/components/WalletContext';
 
-export function FundDetailsPage() {
+export default function FundDetailsPage() {
   const { id } = useParams<string>();
   const [fund, setFund] = useState<Fund | null>(null!);
   const { wallet } = useContext<WalletContextType>(WalletContext);
