@@ -41,7 +41,8 @@ export type Fund = {
     };
   };
   purpose: string;
-  targetAmount: number;
+  targetAmount: bigint;
+  currentAmount: bigint;
   walletAddress: string;
   category:
     | 'Education'

@@ -5,7 +5,7 @@ export type utxo = {
   output_index: number;
   amount: Array<{
     unit: string;
-    quantity: string;
+    quantity: bigint;
   }>;
   block: string;
   data_hash: string | null;

@@ -10,23 +10,24 @@ import {
 } from '@heroicons/react/24/outline';
 import { useFundStore } from '../store/useFundStore';
 import { FundCard } from '../components/FundCard';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { getFunds } from '@/services/blockfrost.service';
+import { Fund } from '@/types/fund';
 
 export function LandingPage() {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 150]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
-  const funds = useFundStore((state) => state.funds);
+  // const funds = useFundStore((state) => state.funds);
+  const [funds, setFunds] = useState<Fund[]>([]);
 
   useEffect(() => {
     fetchFunds();
   }, []);
 
   const fetchFunds = async () => {
-    const funds = await getFunds({ page: 1, pageSize: 1 });
-
-    console.log(funds);
+    const funds: Fund[] = await getFunds({ page: 1, pageSize: 1 });
+    setFunds(funds);
   };
 
   const [featuresRef, featuresInView] = useInView({
@@ -109,12 +110,12 @@ export function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {funds.slice(0, 3).map((fund, index) => (
               <motion.div
-                key={fund.id}
+                key={fund.walletAddress}
                 initial={{ opacity: 0, y: 20 }}
                 animate={campaignsInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Link to={`/fund/${fund.id}`}>
+                <Link to={`/fund/${fund.walletAddress}`}>
                   <FundCard fund={fund} />
                 </Link>
               </motion.div>

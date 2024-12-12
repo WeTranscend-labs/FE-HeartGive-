@@ -19,6 +19,7 @@ import { SocialLinks } from './FundForm/SocialLinks';
 import { DateFields } from './FundForm/DateFields';
 import { OrganizationFields } from './FundForm/OrganizationFields';
 import { CampaignFields } from './FundForm/CampaignFields';
+import supabase, { uploadImageToSupabase } from '@/services/supabase.service';
 
 export function FundForm() {
   const { toast } = useToast();
@@ -56,7 +57,41 @@ export function FundForm() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Kiểm tra kích thước file (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          variant: 'destructive',
+          title: 'File Too Large',
+          description: 'Image must be less than 10MB',
+        });
+        return;
+      }
+
+      // Kiểm tra loại file
+      const allowedTypes = [
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        toast({
+          variant: 'destructive',
+          title: 'Invalid File Type',
+          description: 'Only JPEG, PNG, GIF, and WebP are allowed',
+        });
+        return;
+      }
+
+      // Debug: Log file details
+      console.log('Selected File:', {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      });
+
       setImageFile(file);
+      console.log(file);
       const preview = URL.createObjectURL(file);
       setImagePreview(preview);
       form.setValue('image', preview);
@@ -65,10 +100,25 @@ export function FundForm() {
 
   const onSubmit = async (data: FundFormData) => {
     try {
-      console.log('Form Data:', data);
+      // Upload ảnh trước
+      console.log('File: {}', imageFile);
+      let imageUrl = '';
+      if (imageFile) {
+        console.log(1);
+        imageUrl = (await uploadImageToSupabase(imageFile)) || '';
+      }
+
+      // Cập nhật data với URL ảnh
+      const fundDataWithImage = {
+        ...data,
+        image: imageUrl,
+      };
+
+      console.log('Form Data:', fundDataWithImage);
+
       await createFund({
         fundOwner: wallet.publicKeyHash,
-        fundMetadata: data,
+        fundMetadata: fundDataWithImage,
       });
 
       toast({
@@ -77,12 +127,14 @@ export function FundForm() {
         description: 'Fund registered successfully!',
       });
 
-      // Clean up the object URL
+      // Clean up
       if (imagePreview) {
         URL.revokeObjectURL(imagePreview);
       }
 
-      // navigate(`/fund/${fund.id}`);
+      // Reset state
+      setImagePreview('');
+      setImageFile(null);
     } catch (error) {
       console.error('Create Fund Error:', error);
       toast({
@@ -92,7 +144,6 @@ export function FundForm() {
       });
     }
   };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
