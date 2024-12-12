@@ -67,7 +67,7 @@ export function LandingPage() {
                   Nền tảng gây quỹ cộng đồng trực tuyến
                 </h1>
                 <p className="text-xl text-white/90 mb-8">
-                  Dự án gây quỹ bởi các tổ chức đã được cấp phép
+                  Dự án gây quỹ b��i các tổ chức đã được cấp phép
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
@@ -274,3 +274,5 @@ export function LandingPage() {
     </div>
   );
 }
+
+export default LandingPage;
