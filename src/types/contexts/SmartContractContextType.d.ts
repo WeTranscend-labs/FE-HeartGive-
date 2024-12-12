@@ -1,15 +1,23 @@
 import { FundFormData } from '@/components/FundForm';
 
-export type createFund = ({
-  fundOwner,
-  fundMetadata,
-}: {
+export type createFund = (params: {
   fundOwner: string;
-  fundMetadata: FundFormData;
+  fundMetadata: any;
 }) => Promise<void>;
 
-export type SmartContractContextType = {
-  createFund: createFund;
-};
+export type cancelFund = (params: {
+  txHash: string;
+  fundOwner: string;
+}) => Promise<string>;
 
-export type { create, SmartContractContextType };
+export type contribute = (params: {
+  fundAddress: string;
+  contributionAmount: bigint;
+  fundOwner: string;
+}) => Promise<string>;
+
+export interface SmartContractContextType {
+  createFund: createFund;
+  cancelFund: cancelFund;
+  contribute: contribute;
+}

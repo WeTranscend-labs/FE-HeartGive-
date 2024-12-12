@@ -5,7 +5,7 @@ import { useFundStore } from '../store/useFundStore';
 import { FundCard } from '../components/FundCard';
 import { CategoryFilter } from '../components/CategoryFilter';
 import { Breadcrumbs } from '../components/Breadcrumbs';
-import { FundCategory } from '../types/fund';
+import { Fund, FundCategory } from '../types/fund';
 import {
   MagnifyingGlassIcon,
   ChartBarIcon,
@@ -18,7 +18,7 @@ import { getFunds } from '@/services/blockfrost.service';
 type FundStatus = 'active' | 'completed' | 'all';
 
 export function HomePage() {
-  const funds = useFundStore((state) => state.funds);
+  // const funds = useFundStore((state) => state.funds);
   const [selectedCategory, setSelectedCategory] = useState<
     FundCategory | 'All'
   >('All');
@@ -27,6 +27,7 @@ export function HomePage() {
     'recent'
   );
   const [status, setStatus] = useState<FundStatus>('active');
+  const [funds, setFunds] = useState<Fund[]>(null!);
 
   useEffect(() => {
     fetchFunds();
@@ -35,43 +36,40 @@ export function HomePage() {
   const fetchFunds = async () => {
     const funds = await getFunds({ page: 1, pageSize: 1 });
 
-    console.log(funds);
+    setFunds(funds);
   };
 
-  const filteredFunds = funds
-    .filter((fund) => {
-      const matchesCategory =
-        selectedCategory === 'All' || fund.category === selectedCategory;
-      const matchesSearch =
-        fund.organizationName
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        fund.purpose.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        fund.tags.some((tag) =>
-          tag.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      const matchesStatus =
-        status === 'all' ||
-        (status === 'completed'
-          ? fund.currentAmount >= fund.targetAmount
-          : status === 'active'
-          ? fund.currentAmount < fund.targetAmount
-          : true);
+  const filteredFunds: Fund[] = funds?.filter((fund) => {
+    const matchesCategory =
+      selectedCategory === 'All' || fund.category === selectedCategory;
+    const matchesSearch =
+      fund.organizationName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      fund.purpose.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      fund?.tags.some((tag) =>
+        tag.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    const matchesStatus =
+      status === 'all' ||
+      (status === 'completed'
+        ? fund.currentAmount >= fund.targetAmount
+        : status === 'active'
+        ? fund.currentAmount < fund.targetAmount
+        : true);
 
-      return matchesCategory && matchesSearch && matchesStatus;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'progress':
-          return (
-            b.currentAmount / b.targetAmount - a.currentAmount / a.targetAmount
-          );
-        case 'amount':
-          return b.currentAmount - a.currentAmount;
-        default:
-          return b.createdAt.getTime() - a.createdAt.getTime();
-      }
-    });
+    return matchesCategory && matchesSearch && matchesStatus;
+  });
+  // .sort((a: Fund, b: Fund) => {
+  //   switch (sortBy) {
+  //     case 'progress':
+  //       return (
+  //         b.currentAmount / b.targetAmount - a.currentAmount / a.targetAmount
+  //       );
+  //     case 'amount':
+  //       return b.currentAmount - a.currentAmount;
+  //     default:
+  //       return b.createdAt.getTime() - a.createdAt.getTime();
+  //   }
+  // });
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -216,8 +214,8 @@ export function HomePage() {
         <div className="mb-12">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-gray-900">
-              {filteredFunds.length}{' '}
-              {filteredFunds.length === 1 ? 'Quỹ' : 'Quỹ'} phù hợp
+              {filteredFunds?.length}{' '}
+              {filteredFunds?.length === 1 ? 'Quỹ' : 'Quỹ'} phù hợp
             </h2>
             <button
               onClick={() => {
@@ -239,20 +237,20 @@ export function HomePage() {
             animate="visible"
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {filteredFunds.map((fund) => (
+            {filteredFunds?.map((fund) => (
               <motion.div
-                key={fund.id}
+                key={fund?.walletAddress}
                 variants={itemVariants}
                 transition={{ duration: 0.5 }}
               >
-                <Link to={`/fund/${fund.id}`}>
+                <Link to={`/fund/${fund?.fundAddress}`}>
                   <FundCard fund={fund} />
                 </Link>
               </motion.div>
             ))}
           </motion.div>
 
-          {filteredFunds.length === 0 && (
+          {filteredFunds?.length === 0 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
