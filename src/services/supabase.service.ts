@@ -19,7 +19,7 @@ export const uploadImageToSupabase = async (
 
     // Phần còn lại giữ nguyên
     const fileExt = imageFile.name.split('.').pop();
-    const fileName = `fund-images/${Date.now()}-${Math.random()
+    const fileName = `${Date.now()}-${Math.random()
       .toString(36)
       .substring(7)}.${fileExt}`;
 
@@ -36,9 +36,11 @@ export const uploadImageToSupabase = async (
       return null;
     }
 
+    const path = data.path;
+
     const { data: publicUrlData } = supabase.storage
       .from('EdVentures')
-      .getPublicUrl(fileName);
+      .getPublicUrl(path);
 
     return publicUrlData.publicUrl;
   } catch (error) {

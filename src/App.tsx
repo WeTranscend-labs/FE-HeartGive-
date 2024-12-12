@@ -16,7 +16,7 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/funds" element={<HomePage />} />
             <Route path="/register" element={<RegisterPage />} />
-            <Route path="/fund/:address" element={<FundDetailsPage />} />
+            <Route path="/fund/:id" element={<FundDetailsPage />} />
             <Route path="/about" element={<AboutPage />} />
           </Routes>
         </MainLayout>

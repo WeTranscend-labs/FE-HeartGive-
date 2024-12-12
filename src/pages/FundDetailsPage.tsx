@@ -22,11 +22,21 @@ import {
   TagIcon,
   ArrowLeftIcon,
 } from '@heroicons/react/24/outline';
+import { useEffect } from 'react';
+import { getFundByAddress } from '@/services/blockfrost.service';
 
 export function FundDetailsPage() {
-  const { id } = useParams();
+  const { id } = useParams<string>();
   const fund = useFundStore((state) => state.getFundById(id!));
   const transactions = useFundStore((state) => state.getFundTransactions(id!));
+
+  useEffect(() => {
+    (async () => {
+      const temp = await getFundByAddress({ address: id });
+
+      console.log(temp);
+    })();
+  }, []);
 
   if (!fund) {
     return (
