@@ -10,6 +10,7 @@ import fundValiadators from '../lib/plutus.json';
 export type Validators = {
   fund: SpendingValidator;
   fundManagement: SpendingValidator;
+  fundVerified: SpendingValidator;
 };
 
 const readValidators = function (): Validators {
@@ -21,12 +22,20 @@ const readValidators = function (): Validators {
     (validator) => validator.title === 'manage_fund.contract'
   );
 
+  const fundVerifiedValidator = fundValiadators.validators.find(
+    (validator) => validator.title === 'verify_funds.contract'
+  );
+
   if (!fundValidator) {
     throw new Error('Fund Validator not found');
   }
 
   if (!fundManagementValidator) {
     throw new Error('FundManagement Validator not found');
+  }
+
+  if (!fundVerifiedValidator) {
+    throw new Error('fundVerifiedValidator not found');
   }
 
   const fundScriptHex: string = toHex(
@@ -37,6 +46,10 @@ const readValidators = function (): Validators {
     encode(fromHex(fundManagementValidator.compiledCode))
   );
 
+  const fundVerifiedScriptHex: string = toHex(
+    encode(fromHex(fundVerifiedValidator.compiledCode))
+  );
+
   return {
     fund: {
       type: 'PlutusV2',
@@ -45,6 +58,10 @@ const readValidators = function (): Validators {
     fundManagement: {
       type: 'PlutusV2',
       script: applyDoubleCborEncoding(fundManagementScriptHex),
+    },
+    fundVerified: {
+      type: 'PlutusV2',
+      script: applyDoubleCborEncoding(fundVerifiedScriptHex),
     },
   };
 };
