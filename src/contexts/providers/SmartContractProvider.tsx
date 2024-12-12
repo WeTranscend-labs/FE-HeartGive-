@@ -118,7 +118,7 @@ const SmartContractProvider = function ({ children }: Props) {
         .newTx()
         .collectFrom([targetUtxo], Data.void())
         .attachSpendingValidator(fundManagementValidator)
-        .addSigner(fundOwner)
+        // .addSigner(fundOwner)
         .complete();
 
       // Ký và submit transaction
