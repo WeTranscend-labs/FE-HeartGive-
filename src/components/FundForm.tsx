@@ -1,31 +1,35 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useToast } from '@/components/ui/use-toast';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useContext, useState } from 'react';
 import { SmartContractContextType } from '@/types/contexts/SmartContractContextType';
 import SmartContractContext from '@/contexts/components/SmartContractContext';
 import { LucidContextType } from '@/types/contexts/LucidContextType';
 import LucidContext from '@/contexts/components/LucidContext';
 import { WalletContextType } from '@/types/contexts/WalletContextType';
 import WalletContext from '@/contexts/components/WalletContext';
+import { ModalContextType } from '@/types/contexts/ModalContextType';
+import ModalContext from '@/contexts/components/ModalContext';
 import { fundFormSchema, type FundFormData } from '@/schemas/fundFormSchema';
 import { ImageUpload } from './FundForm/ImageUpload';
 import { SocialLinks } from './FundForm/SocialLinks';
 import { DateFields } from './FundForm/DateFields';
 import { OrganizationFields } from './FundForm/OrganizationFields';
 import { CampaignFields } from './FundForm/CampaignFields';
+import supabase, { uploadImageToSupabase } from '@/services/supabase.service';
+import { useToast } from '@/hooks/use-toast';
 
 export function FundForm() {
   const { toast } = useToast();
-  const { createFund } =
-    useContext<SmartContractContextType>(SmartContractContext);
-  const { lucidPlatform } = useContext<LucidContextType>(LucidContext);
+  const { createFund } = useContext<SmartContractContextType>(SmartContractContext);
+  const { lucid } = useContext<LucidContextType>(LucidContext);
   const { wallet } = useContext<WalletContextType>(WalletContext);
+  const { toggleShowingWallet } = useContext<ModalContextType>(ModalContext);
   const navigate = useNavigate();
 
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -49,6 +53,7 @@ export function FundForm() {
       purpose: '',
       targetAmount: 100,
       walletAddress: '',
+      fundAddress: '',
       category: 'Education',
     },
   });
@@ -56,6 +61,26 @@ export function FundForm() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // File validation
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          variant: 'destructive',
+          title: 'File Too Large',
+          description: 'Image must be less than 10MB',
+        });
+        return;
+      }
+
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        toast({
+          variant: 'destructive',
+          title: 'Invalid File Type',
+          description: 'Only JPEG, PNG, GIF, and WebP are allowed',
+        });
+        return;
+      }
+
       setImageFile(file);
       const preview = URL.createObjectURL(file);
       setImagePreview(preview);
@@ -64,35 +89,65 @@ export function FundForm() {
   };
 
   const onSubmit = async (data: FundFormData) => {
+    // Check if wallet is connected
+    if (!wallet || !lucid) {
+      toast({
+        variant: 'destructive',
+        title: 'Wallet Not Connected',
+        description: 'Please connect your wallet to create a fund',
+      });
+      toggleShowingWallet(); // Show wallet connection modal
+      return;
+    }
+
     try {
-      console.log('Form Data:', data);
+
+      let imageUrl = '';
+      if (imageFile) {
+        imageUrl = await uploadImageToSupabase(imageFile);
+        if (!imageUrl) {
+          throw new Error('Failed to upload image');
+        }
+      }
+
+      // Update data with image URL
+      const fundDataWithImage = {
+        ...data,
+        image: imageUrl,
+      };
+
+
       await createFund({
         fundOwner: wallet.publicKeyHash,
-        fundMetadata: data,
+        fundMetadata: fundDataWithImage,
       });
 
+      // Success notification
       toast({
-        variant: 'success',
-        title: 'Success',
-        description: 'Fund registered successfully!',
+        variant: 'default',
+        title: 'Success!',
+        description: 'Your fund has been created successfully.',
       });
 
-      // Clean up the object URL
+      // Cleanup
       if (imagePreview) {
         URL.revokeObjectURL(imagePreview);
       }
+      setImagePreview('');
+      setImageFile(null);
+      form.reset();
 
-      // navigate(`/fund/${fund.id}`);
+      // Navigate to funds page
+      navigate('/funds');
     } catch (error) {
       console.error('Create Fund Error:', error);
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Failed to register fund. Please try again.',
+        description: error instanceof Error ? error.message : 'Failed to create fund. Please try again.',
       });
     }
   };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

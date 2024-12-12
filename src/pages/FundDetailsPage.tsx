@@ -8,7 +8,7 @@ import { formatCurrency } from '../utils/format';
 import { formatDistanceToNow } from '../utils/date';
 import { CampaignStory } from '../components/CampaignStory';
 import { Breadcrumbs } from '../components/Breadcrumbs';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   HeartIcon,
   ShieldCheckIcon,
@@ -22,21 +22,33 @@ import {
   TagIcon,
   ArrowLeftIcon,
 } from '@heroicons/react/24/outline';
+import { useEffect, useState } from 'react';
+import { getFundByAddress } from '@/services/blockfrost.service';
+import { Fund } from '@/types/fund';
+import { OrganizeStory } from '@/components/OrganizeStory';
 
 export function FundDetailsPage() {
-  const { id } = useParams();
-  const fund = useFundStore((state) => state.getFundById(id!));
+  const { id } = useParams<string>();
+  // const fund = useFundStore((state) => state.getFundById(id!));
   const transactions = useFundStore((state) => state.getFundTransactions(id!));
+  const [fund, setFund] = useState<Fund | null>(null!);
+
+  useEffect(() => {
+    (async () => {
+      const result = await getFundByAddress({ address: id });
+
+      setFund(result);
+    })();
+  }, []);
 
   if (!fund) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Fund not found</h2>
-          <Link
-            to="/funds"
-            className="text-primary-600 hover:text-primary-700"
-          >
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            Fund not found
+          </h2>
+          <Link to="/funds" className="text-primary-600 hover:text-primary-700">
             Browse other funds
           </Link>
         </div>
@@ -67,7 +79,7 @@ export function FundDetailsPage() {
       <div className="relative">
         <div className="h-[500px] overflow-hidden">
           <img
-            src={fund.imageUrl}
+            src={fund.image}
             alt={fund.organizationName}
             className="w-full h-full object-cover"
           />
@@ -85,11 +97,11 @@ export function FundDetailsPage() {
               <div className="flex flex-wrap items-center gap-4 text-white/80 text-sm mb-6">
                 <span className="flex items-center">
                   <ClockIcon className="w-4 h-4 mr-2" />
-                  Started {formatDistanceToNow(fund.createdAt)} ago
+                  {/* Started {formatDistanceToNow(fund.startDate)} ago */}
                 </span>
                 <span className="flex items-center">
                   <UserGroupIcon className="w-4 h-4 mr-2" />
-                  {fund.supporterCount} supporters
+                  {/* {fund.supporterCount} supporters */}
                 </span>
                 <span className="flex items-center">
                   <TagIcon className="w-4 h-4 mr-2" />
@@ -105,12 +117,22 @@ export function FundDetailsPage() {
                 {fund.purpose.split('\n')[0]}
               </p>
 
-              <div className="mt-8">
-                <ContributeDialog
-                  fundId={fund.id}
-                  currentAmount={fund.currentAmount}
-                  targetAmount={fund.targetAmount}
-                />
+              <div className="mt-8 flex gap-5">
+                <div className="w-[80%]">
+                  <ContributeDialog
+                    fundId={fund.walletAddress}
+                    currentAmount={fund.currentAmount}
+                    targetAmount={fund.targetAmount}
+                  />
+                </div>
+
+                <div>
+                  <ContributeDialog
+                    fundId={fund.walletAddress}
+                    currentAmount={fund.currentAmount}
+                    targetAmount={fund.targetAmount}
+                  />
+                </div>
               </div>
             </motion.div>
           </div>
@@ -151,20 +173,36 @@ export function FundDetailsPage() {
                   <div className="prose max-w-none">
                     <CampaignStory
                       content={fund.purpose}
-                      images={[fund.imageUrl]}
+                      images={[fund.image]}
                     />
 
                     {/* Impact Stats */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-12">
                       {[
-                        { icon: HeartIcon, label: 'Lives Impacted', value: '1,000+' },
-                        { icon: ShieldCheckIcon, label: 'Success Rate', value: '95%' },
-                        { icon: CheckBadgeIcon, label: 'Years Active', value: '5+' }
+                        {
+                          icon: HeartIcon,
+                          label: 'Lives Impacted',
+                          value: '1,000+',
+                        },
+                        {
+                          icon: ShieldCheckIcon,
+                          label: 'Success Rate',
+                          value: '95%',
+                        },
+                        {
+                          icon: CheckBadgeIcon,
+                          label: 'Years Active',
+                          value: '5+',
+                        },
                       ].map((stat, index) => (
                         <Card key={index} className="text-center p-6">
                           <stat.icon className="w-8 h-8 text-primary-600 mx-auto mb-3" />
-                          <div className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</div>
-                          <div className="text-sm text-gray-600">{stat.label}</div>
+                          <div className="text-2xl font-bold text-gray-900 mb-1">
+                            {stat.value}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            {stat.label}
+                          </div>
                         </Card>
                       ))}
                     </div>
@@ -190,9 +228,7 @@ export function FundDetailsPage() {
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="space-y-4">
-                      <p className="text-gray-600 text-sm whitespace-pre-wrap">
-                        {fund.organizationInfo.description}
-                      </p>
+                      <OrganizeStory />
 
                       <div className="pt-4 border-t border-gray-200 space-y-4">
                         {fund.organizationInfo.website && (
@@ -208,50 +244,52 @@ export function FundDetailsPage() {
                         )}
 
                         <a
-                          href={`mailto:${fund.organizationInfo.email}`}
+                          href={`mailto:${fund.organizationInfo.socialInfo?.email}`}
                           className="flex items-center text-sm text-primary-600 hover:text-primary-700"
                         >
                           <EnvelopeIcon className="w-5 h-5 text-gray-400 mr-3" />
-                          {fund.organizationInfo.email}
+                          {fund.organizationInfo.socialInfo?.email}
                         </a>
 
-                        {fund.organizationInfo.phone && (
+                        {fund.organizationInfo.socialInfo?.phone && (
                           <p className="flex items-center text-sm text-gray-600">
                             <PhoneIcon className="w-5 h-5 text-gray-400 mr-3" />
-                            {fund.organizationInfo.phone}
-                          </p>
-                        )}
-
-                        {fund.organizationInfo.address && (
-                          <p className="flex items-center text-sm text-gray-600">
-                            <MapPinIcon className="w-5 h-5 text-gray-400 mr-3" />
-                            {fund.organizationInfo.address}
+                            {fund.organizationInfo.socialInfo?.phone}
                           </p>
                         )}
                       </div>
 
                       {/* Social Links */}
-                      {fund.organizationInfo.socialLinks && Object.values(fund.organizationInfo.socialLinks).some(Boolean) && (
-                        <div className="pt-4 border-t border-gray-200">
-                          <h4 className="text-sm font-medium text-gray-900 mb-3">Follow Us</h4>
-                          <div className="flex flex-wrap gap-4">
-                            {Object.entries(fund.organizationInfo.socialLinks).map(([platform, url]) => {
-                              if (!url) return null;
-                              return (
-                                <a
-                                  key={platform}
-                                  href={url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-gray-500 hover:text-primary-600 transition-colors"
-                                >
-                                  <span className="capitalize">{platform}</span>
-                                </a>
-                              );
-                            })}
+                      {fund.organizationInfo.socialInfo &&
+                        Object.values(fund.organizationInfo.socialInfo).some(
+                          Boolean
+                        ) && (
+                          <div className="pt-4 border-t border-gray-200">
+                            <h4 className="text-sm font-medium text-gray-900 mb-3">
+                              Follow Us
+                            </h4>
+                            <div className="flex flex-wrap gap-4">
+                              {Object.entries(
+                                fund.organizationInfo.socialInfo
+                              ).map(([platform, url]) => {
+                                if (!url) return null;
+                                return (
+                                  <a
+                                    key={platform}
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-gray-500 hover:text-primary-600 transition-colors"
+                                  >
+                                    <span className="capitalize">
+                                      {platform}
+                                    </span>
+                                  </a>
+                                );
+                              })}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
                     </div>
 
                     <div className="pt-4 border-t border-gray-200">
