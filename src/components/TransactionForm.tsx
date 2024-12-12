@@ -1,7 +1,8 @@
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useFundStore } from "../store/useFundStore"
-import { motion } from "framer-motion"
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useFundStore } from '../store/useFundStore';
+import { motion } from 'framer-motion';
+import { useContext } from 'react';
 
 import {
   Form,
@@ -11,49 +12,84 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { transactionFormSchema, type TransactionFormData } from "../schemas/transactionFormSchema"
-import { useToast } from "@/hooks/use-toast"
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  transactionFormSchema,
+  type TransactionFormData,
+} from '../schemas/transactionFormSchema';
+import { useToast } from '@/hooks/use-toast';
+import { SmartContractContextType } from '@/types/contexts/SmartContractContextType';
+import { LucidContextType } from '@/types/contexts/LucidContextType';
+import SmartContractContext from '@/contexts/components/SmartContractContext';
+import LucidContext from '@/contexts/components/LucidContext';
+import WalletContext from '@/contexts/components/WalletContext';
+import { WalletContextType } from '@/types/contexts/WalletContextType';
 
 interface TransactionFormProps {
-  fundId: string;
+  fundAddress: string;
 }
 
-export function TransactionForm({ fundId }: TransactionFormProps) {
-  const { toast } = useToast()
+export function TransactionForm({ fundAddress }: TransactionFormProps) {
+  const { toast } = useToast();
+  const { contribute } =
+    useContext<SmartContractContextType>(SmartContractContext);
+  const { lucid } = useContext<LucidContextType>(LucidContext);
+  const { wallet } = useContext<WalletContextType>(WalletContext);
+
   const form = useForm<TransactionFormData>({
     resolver: zodResolver(transactionFormSchema),
     defaultValues: {
       amount: 1,
-      fromWallet: "",
     },
-  })
-
-  const addTransaction = useFundStore((state) => state.addTransaction)
+  });
 
   const onSubmit = async (data: TransactionFormData) => {
     try {
-      addTransaction({
-        ...data,
-        fundId,
-      })
+      // Kiểm tra kết nối Lucid
+      if (!lucid) {
+        throw new Error('Please connect your wallet first');
+      }
+
+      const adaAmount = data.amount;
+      const lovelaceAmount = BigInt(adaAmount) * 1_000_000n;
+
+      console.log(adaAmount);
+
+      // Gọi hàm contribute
+      const txHash = await contribute({
+        fundAddress,
+        contributionAmount: lovelaceAmount,
+        fundOwner: wallet.publicKeyHash,
+      });
+
+      console.log(txHash);
+
+      // Hiển thị toast thành công
       toast({
-        variant: "default",
-        title: "Success",
-        description: "Contribution added successfully!",
-      })
-      form.reset()
+        title: 'Contribution Successful',
+        description: `You've contributed ${data.amount} USD to the campaign.`,
+        variant: 'default',
+      });
+
+      // Reset form sau khi contribute thành công
+      form.reset();
     } catch (error) {
+      // Xử lý các lỗi có thể xảy ra
+      console.error('Contribution error:', error);
+
       toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to process contribution. Please try again.",
-      })
+        title: 'Contribution Failed',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'An unexpected error occurred',
+        variant: 'destructive',
+      });
     }
-  }
+  };
 
   return (
     <Card>
@@ -85,29 +121,14 @@ export function TransactionForm({ fundId }: TransactionFormProps) {
                           step="0.01"
                           className="pl-7"
                           {...field}
-                          onChange={event => field.onChange(+event.target.value)}
+                          onChange={(event) =>
+                            field.onChange(+event.target.value)
+                          }
                         />
                       </div>
                     </FormControl>
                     <FormDescription>
                       Enter the amount you wish to contribute
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="fromWallet"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>From Wallet</FormLabel>
-                    <FormControl>
-                      <Input placeholder="0x..." {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Your Ethereum wallet address
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -144,7 +165,7 @@ export function TransactionForm({ fundId }: TransactionFormProps) {
                     Processing...
                   </div>
                 ) : (
-                  "Contribute"
+                  'Contribute'
                 )}
               </Button>
             </form>
@@ -152,5 +173,5 @@ export function TransactionForm({ fundId }: TransactionFormProps) {
         </motion.div>
       </CardContent>
     </Card>
-  )
+  );
 }

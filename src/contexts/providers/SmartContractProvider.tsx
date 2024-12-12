@@ -140,8 +140,63 @@ const SmartContractProvider = function ({ children }: Props) {
     }
   };
 
+  const contribute = async ({
+    fundAddress,
+    contributionAmount,
+    fundOwner,
+  }: {
+    fundAddress: string;
+    contributionAmount: bigint;
+    fundOwner: string;
+  }) => {
+    try {
+      const validators: Validators = readValidators();
+      const fundValidator = validators.fund;
+      // Tạo datum cho contribution
+      const contributionDatum = Data.to(
+        {
+          fundOwner: fundOwner,
+        },
+        FundDatum
+      );
+
+      // Xây dựng transaction
+      const tx = await lucid
+        .newTx()
+        .payToContract(
+          fundAddress,
+          {
+            inline: contributionDatum,
+          },
+          {
+            lovelace: contributionAmount,
+          }
+        )
+        .complete();
+
+      // Ký và submit transaction
+      const signedTx = await tx.sign().complete();
+      const contributeTxHash = await signedTx.submit();
+
+      // Chờ xác nhận transaction
+      const success = await lucid.awaitTx(contributeTxHash);
+
+      if (success) {
+        console.log('Contribution successful. Tx Hash:', contributeTxHash);
+        return contributeTxHash;
+      } else {
+        throw new Error('Transaction failed to confirm');
+      }
+    } catch (error) {
+      console.error('Error contributing to fund:', error);
+      throw error;
+    }
+  };
+
   return (
-    <SmartContractContext.Provider value={{ createFund, cancelFund }}>
+    <SmartContractContext.Provider
+      value={{ createFund, cancelFund, contribute }}
+    >
       {children}
     </SmartContractContext.Provider>
   );

@@ -48,7 +48,7 @@ export function FundCard({ fund, onClick }: FundCardProps) {
         <div className="space-y-4">
           <div className="flex justify-between items-baseline">
             <span className="text-lg font-semibold text-gray-900">
-              {formatCurrency(fund.targetAmount)}
+              {formatCurrency(fund.currentAmount)}
             </span>
             <span className="text-sm text-gray-500">
               of {formatCurrency(fund.targetAmount)}

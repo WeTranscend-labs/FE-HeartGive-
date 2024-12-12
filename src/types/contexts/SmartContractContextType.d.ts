@@ -10,7 +10,14 @@ export type cancelFund = (params: {
   fundOwner: string;
 }) => Promise<string>;
 
+export type contribute = (params: {
+  fundAddress: string;
+  contributionAmount: bigint;
+  fundOwner: string;
+}) => Promise<string>;
+
 export interface SmartContractContextType {
   createFund: createFund;
   cancelFund: cancelFund;
+  contribute: contribute;
 }

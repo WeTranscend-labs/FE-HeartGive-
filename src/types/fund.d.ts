@@ -60,7 +60,7 @@ export type Fund = {
     | 'Community Development'
     | 'Children & Youth'
     | 'Elderly Care';
-  tags?: string[];
+  tags: string[];
 };
 
 export interface Transaction {

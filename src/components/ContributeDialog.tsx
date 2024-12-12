@@ -10,13 +10,13 @@ import { TransactionForm } from './TransactionForm';
 import { formatCurrency } from '@/utils/format';
 
 interface ContributeDialogProps {
-  fundId: string;
+  fundAddress: string;
   currentAmount: bigint;
   targetAmount: bigint;
 }
 
 export function ContributeDialog({
-  fundId,
+  fundAddress,
   currentAmount,
   targetAmount,
 }: ContributeDialogProps) {
@@ -40,7 +40,7 @@ export function ContributeDialog({
             <span>Target Amount</span>
             <span className="font-medium">{formatCurrency(targetAmount)}</span>
           </div>
-          <TransactionForm fundId={fundId} />
+          <TransactionForm fundAddress={fundAddress} />
         </div>
       </DialogContent>
     </Dialog>

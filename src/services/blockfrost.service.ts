@@ -74,6 +74,8 @@ export const getFunds = async ({
       })
     );
 
+    console.log(funds);
+
     return funds;
   } catch (error) {
     console.error('Error fetching funds:', error);
@@ -82,23 +84,46 @@ export const getFunds = async ({
 };
 
 const getTotalAda = async ({ address }: { address: string }) => {
-  const utxos: utxo[] = await blockfrostApi
-    .get(`/addresses/${address}/utxos`)
-    .then((response) => response.data);
+  try {
+    const utxos: utxo[] = await blockfrostApi
+      .get(`/addresses/${address}/utxos`)
+      .then((response) => response.data);
 
-  const totalAda = utxos.reduce((total, utxo) => {
-    // Tìm amount có unit là 'lovelace'
-    const adaAmount = utxo.amount.find((asset) => asset.unit === 'lovelace');
+    // Nếu không có UTXO, trả về 0
+    if (utxos.length === 0) {
+      return {
+        totalLovelace: 0n,
+        totalAda: 0n,
+      };
+    }
 
-    return total + (adaAmount ? BigInt(adaAmount.quantity) : 0n);
-  }, 0n);
+    const totalAda = utxos.reduce((total, utxo) => {
+      // Tìm amount có unit là 'lovelace'
+      const adaAmount = utxo.amount.find((asset) => asset.unit === 'lovelace');
 
-  const totalAdaInAda = BigInt(totalAda) / 1_000_000n;
+      return total + (adaAmount ? BigInt(adaAmount.quantity) : 0n);
+    }, 0n);
 
-  return {
-    totalLovelace: totalAda,
-    totalAda: totalAdaInAda,
-  };
+    const totalAdaInAda = BigInt(totalAda) / 1_000_000n;
+
+    return {
+      totalLovelace: totalAda,
+      totalAda: totalAdaInAda,
+    };
+  } catch (error) {
+    // Xử lý lỗi khi gọi API
+    if (error?.response && error.response?.status === 404) {
+      // Địa chỉ chưa được sử dụng
+      return {
+        totalLovelace: 0n,
+        totalAda: 0n,
+      };
+    }
+
+    // Nếu là lỗi khác, log và ném lỗi
+    console.error('Error fetching total ADA:', error);
+    throw error;
+  }
 };
 
 export const getFundByAddress = async ({

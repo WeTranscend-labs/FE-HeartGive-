@@ -127,7 +127,7 @@ export function FundDetailsPage() {
               <div className="mt-8 flex gap-5">
                 <div className="w-[80%]">
                   <ContributeDialog
-                    fundId={fund.txHash}
+                    fundAddress={fund.fundAddress}
                     currentAmount={fund.currentAmount}
                     targetAmount={fund.targetAmount}
                   />
