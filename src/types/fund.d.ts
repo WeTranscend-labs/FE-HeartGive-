@@ -72,3 +72,12 @@ export interface Transaction {
   message?: string;
   isAnonymous?: boolean;
 }
+
+export type FundTransaction = {
+  txHash: string;
+  sender: string;
+  amount: bigint;
+  timestamp: Date;
+  metadata?: any;
+  block: number;
+};
