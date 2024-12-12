@@ -43,7 +43,7 @@ function calculateFundStatus(startDate: string, endDate: string) {
   }
 }
 
-function formatDateRange(startDate: string, endDate: string) {
+export function formatDateRange(startDate: string, endDate: string) {
   const start = parseISO(startDate);
   const end = parseISO(endDate);
 

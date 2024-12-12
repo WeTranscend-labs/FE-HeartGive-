@@ -7,12 +7,13 @@ import { LandingPage } from './pages/LandingPage';
 import { AboutPage } from './pages/AboutPage';
 import ContextProvider from './contexts';
 import { Toaster } from './components/ui/toaster';
+import VerifiedFundPage from './pages/VerifiedFundPage';
 
 function App() {
   return (
     <ContextProvider>
       <Router>
-        <Toaster/>
+        <Toaster />
         <MainLayout>
           <Routes>
             <Route path="/" element={<LandingPage />} />
@@ -20,6 +21,7 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/fund/:id" element={<FundDetailsPage />} />
             <Route path="/about" element={<AboutPage />} />
+            <Route path="/verified" element={<VerifiedFundPage />} />
           </Routes>
         </MainLayout>
       </Router>

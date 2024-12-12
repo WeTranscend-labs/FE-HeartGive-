@@ -26,12 +26,16 @@ const SmartContractProvider = function ({ children }: Props) {
   const [fundManagementAddress, setFundManagementAddress] = useState<string>(
     null!
   );
+  const [fundVerifiedAddress, setFundVerifiedAddress] = useState<string>(null!);
 
   useEffect(() => {
     const validators = readValidators();
 
     setFundManagementAddress(
       lucid?.utils.validatorToAddress(validators.fundManagement)
+    );
+    setFundVerifiedAddress(
+      lucid?.utils.validatorToAddress(validators.fundVerified)
     );
   }, [lucid]);
 
@@ -69,7 +73,7 @@ const SmartContractProvider = function ({ children }: Props) {
       //   { lovelace: 1_000_000n }
       // )
       .payToContract(
-        fundManagementAddress,
+        fundVerifiedAddress,
         { inline: fundManagementDatum },
         { lovelace: 5_000_000n }
       )
