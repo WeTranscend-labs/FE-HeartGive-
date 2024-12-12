@@ -4,8 +4,8 @@ class LucidService {
   async initial(): Promise<Lucid> {
     const lucid = await Lucid.new(
       new Blockfrost(
-        process.env.VITE_BLOCKFROST_RPC_URL_PREVIEW!,
-        process.env.VITE_BLOCKFROST_PROJECT_API_KEY_PREVIEW!
+        import.meta.env.VITE_BLOCKFROST_RPC_URL_PREVIEW!,
+        import.meta.env.VITE_BLOCKFROST_PROJECT_API_KEY_PREVIEW!
       ),
       'Preview'
     );
@@ -14,4 +14,4 @@ class LucidService {
   }
 }
 
-export default LucidService;
+export default new LucidService().initial();
