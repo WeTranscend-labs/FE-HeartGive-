@@ -45,6 +45,10 @@ export type Fund = {
   currentAmount: bigint;
   walletAddress: string;
   fundAddress: string;
+  txHash: string;
+  inlineDatum: string | null;
+  dataHash: string | null;
+  block: string | null;
   category:
     | 'Education'
     | 'Healthcare'
@@ -56,7 +60,7 @@ export type Fund = {
     | 'Community Development'
     | 'Children & Youth'
     | 'Elderly Care';
-  tags?: string[];
+  tags: string[];
 };
 
 export interface Transaction {

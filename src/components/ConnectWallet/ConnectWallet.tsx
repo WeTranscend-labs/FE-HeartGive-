@@ -14,7 +14,6 @@ import WalletButton from '../wallet/WalletButton';
 import WalletModal from '../wallet/WalletModal';
 import NetworkErrorModal from '../wallet/NetworkErrorModal';
 
-
 type Props = {
   className?: string;
 };

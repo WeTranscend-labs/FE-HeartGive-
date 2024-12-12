@@ -4,8 +4,17 @@ interface ProgressBarProps {
 }
 
 export function ProgressBar({ current, target }: ProgressBarProps) {
-  const progress = (current / target) * 100n;
-  const percentage = Math.min(Number(progress), 100);
+  // Tính phần trăm với độ chính xác cao hơn
+  const percentage =
+    target > 0n ? Math.min(Number((current * 10000n) / target) / 100, 100) : 0;
+
+  // Hàm format số để loại bỏ các số 0 thừa
+  const formatPercentage = (value: number) => {
+    // Chuyển đổi sang chuỗi với 2 chữ số thập phân
+    const formatted = value.toFixed(2);
+    // Loại bỏ các số 0 thừa sau dấu thập phân
+    return formatted.replace(/\.?0+$/, '');
+  };
 
   return (
     <div className="space-y-2">
@@ -17,12 +26,12 @@ export function ProgressBar({ current, target }: ProgressBarProps) {
       </div>
       <div className="flex justify-between items-center text-sm">
         <div>
-          <span className="font-medium">{percentage.toFixed(1)}%</span>
+          <span className="font-medium">{formatPercentage(percentage)}%</span>
           <span className="text-gray-500 ml-1">complete</span>
         </div>
-        <span className="text-gray-500">{`${
-          percentage >= 100 ? 'Goal reached!' : 'In progress'
-        }`}</span>
+        <span className="text-gray-500">
+          {percentage >= 100 ? 'Goal reached!' : 'In progress'}
+        </span>
       </div>
     </div>
   );

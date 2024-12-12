@@ -92,8 +92,111 @@ const SmartContractProvider = function ({ children }: Props) {
     // return txHash;
   };
 
+  const cancelFund = async ({
+    txHash,
+    fundOwner,
+  }: {
+    txHash: string;
+    fundOwner: string;
+  }) => {
+    try {
+      const validators: Validators = readValidators();
+      const fundManagementValidator = validators.fundManagement;
+
+      // Tìm UTXOs tại địa chỉ quản lý quỹ
+      const utxos = await lucid.utxosAt(fundManagementAddress);
+
+      // Tìm UTXO cụ thể dựa trên transaction hash
+      const targetUtxo = utxos.find((utxo) => utxo.txHash === txHash);
+
+      if (!targetUtxo) {
+        throw new Error('UTXO not found for the given transaction hash');
+      }
+
+      // Xây dựng transaction để cancel fund
+      const tx = await lucid
+        .newTx()
+        .collectFrom([targetUtxo], Data.void())
+        .attachSpendingValidator(fundManagementValidator)
+        // .addSigner(fundOwner)
+        .complete();
+
+      // Ký và submit transaction
+      const signedTx = await tx.sign().complete();
+      const cancelTxHash = await signedTx.submit();
+
+      // Chờ xác nhận transaction
+      const success = await lucid.awaitTx(cancelTxHash);
+
+      if (success) {
+        console.log('Fund canceled successfully. Tx Hash:', cancelTxHash);
+        return cancelTxHash;
+      } else {
+        throw new Error('Transaction failed to confirm');
+      }
+    } catch (error) {
+      console.error('Error canceling fund:', error);
+      throw error;
+    }
+  };
+
+  const contribute = async ({
+    fundAddress,
+    contributionAmount,
+    fundOwner,
+  }: {
+    fundAddress: string;
+    contributionAmount: bigint;
+    fundOwner: string;
+  }) => {
+    try {
+      const validators: Validators = readValidators();
+      const fundValidator = validators.fund;
+      // Tạo datum cho contribution
+      const contributionDatum = Data.to(
+        {
+          fundOwner: fundOwner,
+        },
+        FundDatum
+      );
+
+      // Xây dựng transaction
+      const tx = await lucid
+        .newTx()
+        .payToContract(
+          fundAddress,
+          {
+            inline: contributionDatum,
+          },
+          {
+            lovelace: contributionAmount,
+          }
+        )
+        .complete();
+
+      // Ký và submit transaction
+      const signedTx = await tx.sign().complete();
+      const contributeTxHash = await signedTx.submit();
+
+      // Chờ xác nhận transaction
+      const success = await lucid.awaitTx(contributeTxHash);
+
+      if (success) {
+        console.log('Contribution successful. Tx Hash:', contributeTxHash);
+        return contributeTxHash;
+      } else {
+        throw new Error('Transaction failed to confirm');
+      }
+    } catch (error) {
+      console.error('Error contributing to fund:', error);
+      throw error;
+    }
+  };
+
   return (
-    <SmartContractContext.Provider value={{ createFund }}>
+    <SmartContractContext.Provider
+      value={{ createFund, cancelFund, contribute }}
+    >
       {children}
     </SmartContractContext.Provider>
   );
