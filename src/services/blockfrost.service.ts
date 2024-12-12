@@ -1,5 +1,5 @@
 import { rootMetdata, utxo } from '@/types/blockfrost';
-import { Fund } from '@/types/fund';
+import { Fund, FundTransaction } from '@/types/fund';
 import readValidators, { Validators } from '@/utils/readValidators';
 import axios from 'axios';
 import { decode } from 'cbor-x';
@@ -79,6 +79,72 @@ export const getFunds = async ({
     return funds;
   } catch (error) {
     console.error('Error fetching funds:', error);
+    return [];
+  }
+};
+
+export const getFundTransactions = async ({
+  fundAddress,
+}: {
+  fundAddress: string | undefined;
+}): Promise<FundTransaction[]> => {
+  try {
+    // Lấy tất cả các UTXO tại địa chỉ quỹ
+    const utxos: utxo[] = await blockfrostApi
+      .get(`/addresses/${fundAddress}/utxos`)
+      .then((response) => response.data);
+
+    // Lấy thông tin chi tiết của từng transaction
+    const transactions: FundTransaction[] = await Promise.all(
+      utxos.map(async (utxo) => {
+        // Lấy thông tin transaction
+        const txDetails = await blockfrostApi
+          .get(`/txs/${utxo.tx_hash}`)
+          .then((response) => response.data);
+
+        // Lấy địa chỉ người gửi (input đầu tiên)
+        const txInputs = await blockfrostApi
+          .get(`/txs/${utxo.tx_hash}/utxos`)
+          .then((response) => response.data.inputs);
+
+        // Lấy metadata của transaction (nếu có)
+        let metadata: any = null;
+        try {
+          const rootMetadata: rootMetdata[] = await blockfrostApi
+            .get(`/txs/${utxo.tx_hash}/metadata`)
+            .then((response) => response.data);
+
+          if (rootMetadata && rootMetadata.length > 0) {
+            metadata = rootMetadata[0].json_metadata;
+          }
+        } catch (metadataError) {
+          console.warn('No metadata found for transaction');
+        }
+
+        // Tìm số lượng ADA được gửi
+        const adaAmount = utxo.amount.find(
+          (asset) => asset.unit === 'lovelace'
+        );
+
+        return {
+          txHash: utxo.tx_hash,
+          sender: txInputs[0]?.address || 'Unknown',
+          amount: adaAmount
+            ? BigInt(adaAmount.quantity) / 1_000_000n // Chuyển từ lovelace sang ADA
+            : 0n,
+          timestamp: new Date(txDetails.block_time * 1000), // Chuyển unix timestamp sang Date
+          metadata: metadata,
+          block: txDetails.block_height,
+        };
+      })
+    );
+
+    // Sắp xếp transactions theo thời gian giảm dần (mới nhất lên trước)
+    return transactions.sort(
+      (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
+    );
+  } catch (error) {
+    console.error('Error fetching fund transactions:', error);
     return [];
   }
 };

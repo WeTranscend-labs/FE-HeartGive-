@@ -1,53 +1,86 @@
-import { useState } from 'react';
-import { Transaction } from '../types/fund';
+import React from 'react';
 import { formatCurrency } from '../utils/format';
 import { formatDistanceToNow } from '../utils/date';
-import { TransactionModal } from './TransactionModal';
+import { ArrowUpRightIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+
+interface Transaction {
+  txHash: string;
+  sender: string;
+  amount: bigint;
+  timestamp: Date;
+  block: number;
+}
 
 interface TransactionListProps {
   transactions: Transaction[];
 }
 
 export function TransactionList({ transactions }: TransactionListProps) {
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  // Nếu không có giao dịch
+  if (!transactions || transactions.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-500">No transactions yet</div>
+    );
+  }
 
   return (
-    <>
-      {transactions.length > 0 ? (
-        <div className="space-y-4">
-          {transactions.map((tx) => (
-            <div 
-              key={tx.id}
-              onClick={() => setSelectedTransaction(tx)}
-              className="flex justify-between items-center p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-            >
-              <div>
-                <p className="font-medium text-gray-900">
-                  From: <span className="font-mono">{tx.fromWallet.slice(0, 16)}...</span>
-                </p>
-                <p className="text-sm text-gray-500">
-                  {formatDistanceToNow(tx.timestamp)}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="font-medium text-green-600">
-                  +{formatCurrency(tx.amount)}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-gray-500 text-center py-8">
-          No transactions yet. Be the first to contribute!
-        </p>
-      )}
+    <div className="bg-white shadow-sm rounded-lg overflow-hidden">
+      <div className="divide-y divide-gray-200">
+        {transactions.map((transaction, index) => (
+          <div
+            key={transaction.txHash}
+            className="px-4 py-4 sm:px-6 hover:bg-gray-50 transition-colors"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                {/* Transaction Icon */}
+                <CheckCircleIcon className="h-6 w-6 text-green-500" />
 
-      <TransactionModal
-        transaction={selectedTransaction}
-        isOpen={!!selectedTransaction}
-        onClose={() => setSelectedTransaction(null)}
-      />
-    </>
+                {/* Sender Address */}
+                <div>
+                  <p className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
+                    From: {transaction.sender}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Block #{transaction.block}
+                  </p>
+                </div>
+              </div>
+
+              {/* Transaction Amount */}
+              <div className="flex flex-col items-end">
+                <div className="text-sm font-semibold text-green-600">
+                  + {formatCurrency(BigInt(transaction.amount))} ADA
+                </div>
+
+                {/* Timestamp */}
+                <div className="text-xs text-gray-500 mt-1">
+                  {formatDistanceToNow(transaction.timestamp)} ago
+                </div>
+              </div>
+
+              {/* Transaction Link */}
+              <a
+                href={`https://preview.cardanoscan.io/transaction/${transaction.txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-primary-600 transition-colors"
+              >
+                <ArrowUpRightIcon className="h-5 w-5" />
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Pagination or Load More (optional) */}
+      {transactions.length > 10 && (
+        <div className="px-4 py-3 bg-gray-50 text-center">
+          <button className="text-sm text-primary-600 hover:text-primary-700">
+            Load More Transactions
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

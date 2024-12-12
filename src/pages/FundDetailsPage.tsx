@@ -23,8 +23,11 @@ import {
   ArrowLeftIcon,
 } from '@heroicons/react/24/outline';
 import { useContext, useEffect, useState } from 'react';
-import { getFundByAddress } from '@/services/blockfrost.service';
-import { Fund } from '@/types/fund';
+import {
+  getFundByAddress,
+  getFundTransactions,
+} from '@/services/blockfrost.service';
+import { Fund, FundTransaction } from '@/types/fund';
 import { OrganizeStory } from '@/components/OrganizeStory';
 import { CancelDialog } from '@/components/CancelDialog';
 import { WalletContextType } from '@/types/contexts/WalletContextType';
@@ -32,16 +35,21 @@ import WalletContext from '@/contexts/components/WalletContext';
 
 export function FundDetailsPage() {
   const { id } = useParams<string>();
-  // const fund = useFundStore((state) => state.getFundById(id!));
-  const transactions = useFundStore((state) => state.getFundTransactions(id!));
   const [fund, setFund] = useState<Fund | null>(null!);
   const { wallet } = useContext<WalletContextType>(WalletContext);
+  const [transactions, setTransactions] = useState<FundTransaction[]>(null!);
 
   useEffect(() => {
     (async () => {
       const result = await getFundByAddress({ address: id });
 
       setFund(result);
+    })();
+
+    (async () => {
+      const result = await getFundTransactions({ fundAddress: id });
+
+      setTransactions(result);
     })();
   }, []);
 
