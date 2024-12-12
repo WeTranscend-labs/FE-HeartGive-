@@ -83,6 +83,80 @@ export const getFunds = async ({
   }
 };
 
+export const getVerifiedFunds = async ({
+  page,
+  pageSize,
+}: {
+  page: number;
+  pageSize: number;
+}) => {
+  try {
+    const validators: Validators = readValidators();
+    const fundVerifiedValidatorScript = validators.fundVerified;
+
+    // Lấy địa chỉ của validator fundVerified
+    const fundVerifiedAddress = (await lucidService).utils.validatorToAddress(
+      fundVerifiedValidatorScript
+    );
+
+    // Lấy UTXOs từ địa chỉ fundVerified
+    const utxos: utxo[] = await blockfrostApi
+      .get(`/addresses/${fundVerifiedAddress}/utxos`, {
+        params: {
+          page: page,
+          count: pageSize,
+        },
+      })
+      .then((response) => response.data);
+
+    const defaultFundAddress =
+      'addr_test1wr539xfv8psyhejd8yukjfuu9j2w9h5y9t2lukz04348aes7hvm5e';
+
+    // Xử lý từng UTXO để lấy thông tin quỹ
+    const verifiedFunds: Fund[] = await Promise.all(
+      utxos.map(async (utxo) => {
+        // Lấy metadata từ transaction
+        const rootMetadata: rootMetdata[] = await blockfrostApi
+          .get(`/txs/${utxo.tx_hash}/metadata`)
+          .then((response) => response.data);
+
+        // Trích xuất JSON string từ metadata
+        const encodedMetadataJson = rootMetadata[0].json_metadata[2].data;
+
+        // Giải mã metadata
+        const metadataJsonString = decodeMetadata(encodedMetadataJson);
+
+        // Parse JSON string thành object Fund
+        const metadata: Fund = JSON.parse(metadataJsonString);
+
+        // Lấy tổng số ADA tại địa chỉ quỹ
+        const totalAda = await getTotalAda({
+          address: metadata.fundAddress || defaultFundAddress,
+        });
+
+        return {
+          ...metadata,
+          fundAddress: metadata.fundAddress || defaultFundAddress,
+          txHash: utxo.tx_hash,
+          inlineDatum: utxo.inline_datum,
+          dataHash: utxo.data_hash,
+          blockHash: utxo.block,
+          currentAmount: totalAda.totalAda,
+          targetAmount: BigInt(metadata.targetAmount),
+          status: 'verified', // Thêm trạng thái verified
+        };
+      })
+    );
+
+    console.log('Verified Funds:', verifiedFunds);
+
+    return verifiedFunds;
+  } catch (error) {
+    console.error('Error fetching verified funds:', error);
+    return [];
+  }
+};
+
 export const getFundTransactions = async ({
   fundAddress,
 }: {
