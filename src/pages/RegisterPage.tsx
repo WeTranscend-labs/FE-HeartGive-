@@ -4,7 +4,7 @@ import { Breadcrumbs } from '../components/Breadcrumbs';
 import { motion } from 'framer-motion';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
-export function RegisterPage() {
+export default function RegisterPage() {
   const navigate = useNavigate();
 
   return (
