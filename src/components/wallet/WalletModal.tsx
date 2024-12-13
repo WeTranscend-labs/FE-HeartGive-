@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Modal from '@/components/Modal';
 import icons from '@/assets/icons';
 import configs from '@/configs';
 import { WalletType } from '@/types/GenericType';
 import WalletItem from '@/components/WalletItem';
+import { WalletContextType } from '@/types/contexts/WalletContextType';
+import WalletContext from '@/contexts/components/WalletContext';
+import { useNavigate } from 'react-router-dom';
 
 type WalletModalProps = {
   isShowing: boolean;
@@ -12,7 +15,6 @@ type WalletModalProps = {
   handleAccept: (event: React.ChangeEvent<HTMLInputElement>) => void;
   wallets: WalletType[];
 };
-
 const WalletModal = ({
   isShowing,
   toggle,
