@@ -1,47 +1,9 @@
-
-import React, { ChangeEvent, useContext, useRef, useState } from 'react';
-
+import React, { useState, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LucidContextType } from '@/types/contexts/LucidContextType';
 import { WalletContextType } from '@/types/contexts/WalletContextType';
 import LucidContext from '@/contexts/components/LucidContext';
 import WalletContext from '@/contexts/components/WalletContext';
-
-import NetworkContext from '@/contexts/components/NetworkContext';
-import ModalContext from '@/contexts/components/ModalContext';
-import Tippy from '@/components/Tippy';
-import wallets from '@/constants/wallets';
-import WalletDropdown from '../wallet/WalletDropdown';
-import WalletButton from '../wallet/WalletButton';
-import WalletModal from '../wallet/WalletModal';
-import NetworkErrorModal from '../wallet/NetworkErrorModal';
-import { Button } from '../ui/button';
-import { ShieldCheck } from 'lucide-react';
-
-type Props = {
-  className?: string;
-};
-
-const adminAddresses: String[] = [
-  'addr_test1qraxvmzu6p389au4gw4al58x6k93dmxu6zpx478lw8yv9waasan8r2pmhp044yugrqy4hvee6843tewn7hkvuws9lezqtfgu9f',
-  'addr_test1qquve965erclvur9z3allf85h4xck7lm7hx3fsgkpmft9cdkhqt9cfgur0e6vygwrcarzgn0ck3yrnuq99cp0g4w4eyqjtg669',
-];
-
-const ConnectWallet = function ({ className }: Props) {
-  const {
-    isShowingErrorNetwork,
-    toogleErrorNetwork,
-    isShowingWallet,
-    toggleShowingWallet,
-  } = useContext<ModalContextType>(ModalContext);
-  const { network } = useContext<NetworkContextType>(NetworkContext);
-  const { lucid } = useContext<LucidContextType>(LucidContext);
-  const { wallet, disconnect } = useContext<WalletContextType>(WalletContext);
-  const [accept, setAccept] = useState<boolean>(false);
-  const [isCopied, setIsCopied] = useState<boolean>(false);
-  const [isShowTippy, setIsShowTippy] = useState<boolean>(false);
-  const [isShowDropdown, setIsShowDropdown] = useState<boolean>(false);
-
 import WalletModalContext from '@/contexts/components/WalletModalContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -53,6 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { CheckIcon } from '@heroicons/react/24/solid';
 import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 
 const ConnectWallet = () => {
   const { lucid } = useContext<LucidContextType>(LucidContext);
@@ -95,36 +58,10 @@ const ConnectWallet = () => {
   }
 
   return (
-
-    <div
-      className={`relative ${className}`}
-      onClick={() => setIsShowDropdown(!isShowDropdown)}
-    >
-      <Tippy
-        onHide={() => setIsShowTippy(false)}
-        onShow={() => setIsShowTippy(lucid ? true : false)}
-        offset={[0, 0]}
-        className="inline-flex items-center rounded-lg text-sm font-medium transition-all duration-300"
-        trigger="click"
-        interactive
-        placement="bottom-end"
-        render={
-          wallet && (
-            <WalletDropdown
-              wallet={wallet}
-              network={network}
-              isCopied={isCopied}
-              disconnect={disconnect}
-              setIsCopied={setIsCopied}
-            />
-          )
-        }
-
     <div className="relative">
       <motion.div
         whileHover={{ scale: 1.03 }}
         whileTap={{ scale: 0.97 }}
-
       >
         <Button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -219,6 +156,22 @@ const ConnectWallet = () => {
                   <p className="text-xs font-mono text-gray-500 break-all">
                     {wallet.address}
                   </p>
+                </div>
+                <div className="px-5 mt-4">
+                  <Button
+                    onClick={disconnect}
+                    variant="outline"
+                    className="w-full text-red-500 border-red-200 hover:bg-red-50 hover:border-red-300 transition-colors mb-3"
+                  >
+                    Disconnect Wallet
+                  </Button>
+                  <Link to="/dashboard">
+                    <Button
+                      className="w-full bg-primary-600 text-white hover:bg-primary-500 transition-colors"
+                    >
+                      Go to Dashboard
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
