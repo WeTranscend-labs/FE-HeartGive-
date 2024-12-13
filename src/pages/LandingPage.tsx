@@ -11,7 +11,7 @@ import {
 import { useFundStore } from '../store/useFundStore';
 import { FundCard } from '../components/FundCard';
 import { useEffect, useState } from 'react';
-import { getFunds } from '@/services/blockfrost.service';
+import { getFunds, getVerifiedFunds } from '@/services/blockfrost.service';
 import { Fund } from '@/types/fund';
 
 export function LandingPage() {
@@ -26,7 +26,8 @@ export function LandingPage() {
   }, []);
 
   const fetchFunds = async () => {
-    const funds: Fund[] = await getFunds({ page: 1, pageSize: 10 });
+    // const funds: Fund[] = await getFunds({ page: 1, pageSize: 10 });
+    const funds: Fund[] = await getVerifiedFunds({ page: 1, pageSize: 10 });
     setFunds(funds);
   };
 
