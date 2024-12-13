@@ -41,6 +41,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { formatDateRange } from '@/components/FundCard';
+import { AnimatePresence } from 'framer-motion';
+import FundDetailsSidebar from '@/components/FundDetailsSidebar';
 
 // Skeleton Components
 const GridSkeleton = () => (
@@ -112,6 +114,7 @@ const FundDisplayPage: React.FC = () => {
   const [copiedAddresses, setCopiedAddresses] = useState<{
     [key: string]: boolean;
   }>({});
+  const [selectedFund, setSelectedFund] = useState<Fund | null>(null);
 
   const fetchVerifiedFunds = async () => {
     setLoading(true);
@@ -145,6 +148,23 @@ const FundDisplayPage: React.FC = () => {
         [txHash]: false,
       }));
     }, 2000);
+  };
+
+  const handleVerifyFund = async (fundId: string) => {
+    try {
+      // await verifyFund(fundId);
+
+      // Cập nhật danh sách funds
+      setFunds((currentFunds) =>
+        currentFunds.filter((fund) => fund.txHash !== fundId)
+      );
+
+      setSelectedFund(null);
+      toast.success('Fund verified successfully');
+    } catch (error) {
+      toast.error('Failed to verify fund');
+      console.error('Verification error:', error);
+    }
   };
 
   const renderGridView = () => (
@@ -185,7 +205,11 @@ const FundDisplayPage: React.FC = () => {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="w-full" variant="outline">
+            <Button
+              className="w-full"
+              variant="outline"
+              onClick={() => setSelectedFund(fund)}
+            >
               View Fund Details
             </Button>
           </CardFooter>
@@ -292,7 +316,9 @@ const FundDisplayPage: React.FC = () => {
                   )}
                 </div>
               </CopyToClipboard>
-              <Button variant="outline">View Fund Details </Button>
+              <Button variant="outline" onClick={() => setSelectedFund(fund)}>
+                View Fund Details
+              </Button>
             </div>
           </div>
         </Card>
@@ -352,6 +378,17 @@ const FundDisplayPage: React.FC = () => {
           <ChevronRightIcon className="w-5 h-5 ml-2" />
         </Button>
       </div>
+
+      <AnimatePresence>
+        {selectedFund && (
+          <FundDetailsSidebar
+            fund={selectedFund}
+            onClose={() => setSelectedFund(null)}
+            onVerify={handleVerifyFund}
+            onCopyAddress={(address) => toast.success('Fund address copied')}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

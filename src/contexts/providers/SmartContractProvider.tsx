@@ -1,5 +1,8 @@
 import { FundDatum, FundManagementDatum } from '@/constants/datum';
-import { createFund } from '@/types/contexts/SmartContractContextType';
+import {
+  createFund,
+  verifyFund,
+} from '@/types/contexts/SmartContractContextType';
 import readValidators, { Validators } from '@/utils/readValidators';
 import {
   applyDoubleCborEncoding,
@@ -9,6 +12,7 @@ import {
   Script,
   SpendingValidator,
   toText,
+  UTxO,
 } from 'lucid-cardano';
 import { ReactNode, useContext, useEffect, useState } from 'react';
 import SmartContractContext from '../components/SmartContractContext';
@@ -16,6 +20,11 @@ import { applyParams } from '@/utils/applyParams';
 import { LucidContextType } from '@/types/contexts/LucidContextType';
 import LucidContext from '../components/LucidContext';
 import { decode, encode } from 'cbor-x';
+import {
+  decodeMetadata,
+  getMetadataFromUtxo,
+} from '@/services/blockfrost.service';
+import { utxo } from '@/types/blockfrost';
 
 type Props = {
   children: ReactNode;
@@ -113,6 +122,8 @@ const SmartContractProvider = function ({ children }: Props) {
       // Tìm UTXO cụ thể dựa trên transaction hash
       const targetUtxo = utxos.find((utxo) => utxo.txHash === txHash);
 
+      console.log('targetUtxo: {}', targetUtxo);
+
       if (!targetUtxo) {
         throw new Error('UTXO not found for the given transaction hash');
       }
@@ -140,6 +151,79 @@ const SmartContractProvider = function ({ children }: Props) {
       }
     } catch (error) {
       console.error('Error canceling fund:', error);
+      throw error;
+    }
+  };
+
+  const verifyFund: verifyFund = async ({
+    txHash,
+    fundOwner,
+    fundMetadata,
+  }: {
+    txHash: string;
+    fundOwner: string;
+    fundMetadata: any;
+  }) => {
+    try {
+      const validators: Validators = readValidators();
+      const fundVerifiedValidator = validators.fundVerified;
+
+      // Tìm UTXOs tại địa chỉ quỹ đã được xác minh
+      const utxos = await lucid.utxosAt(fundVerifiedAddress);
+
+      // Tìm UTXO cụ thể dựa trên transaction hash
+      const targetUtxo: UTxO | undefined = utxos.find(
+        (utxo) => utxo.txHash === txHash
+      );
+
+      const fundMetadata = await getMetadataFromUtxo(targetUtxo);
+
+      console.log('metadata: {}', fundMetadata);
+
+      if (!targetUtxo) {
+        throw new Error('UTXO not found for the given transaction hash');
+      }
+
+      // Tạo datum cho fundManagement
+      const fundManagementDatum = Data.to(
+        {
+          fundAddress: fromText(fundMetadata.fundAddress),
+        },
+        FundManagementDatum
+      );
+
+      // Xây dựng transaction để verify fund
+      const tx = await lucid
+        .newTx()
+        .collectFrom([targetUtxo], Data.void())
+        .attachSpendingValidator(fundVerifiedValidator)
+        .payToContract(
+          fundManagementAddress,
+          { inline: fundManagementDatum },
+          { lovelace: 5_000_000n }
+        )
+        .attachMetadata(1, {
+          2: {
+            data: encode(JSON.stringify(fundMetadata)),
+          },
+        })
+        .complete();
+
+      // Ký và submit transaction
+      const signedTx = await tx.sign().complete();
+      const verifyTxHash = await signedTx.submit();
+
+      // Chờ xác nhận transaction
+      const success = await lucid.awaitTx(verifyTxHash);
+
+      if (success) {
+        console.log('Fund verified successfully. Tx Hash:', verifyTxHash);
+        return verifyTxHash;
+      } else {
+        throw new Error('Verification transaction failed to confirm');
+      }
+    } catch (error) {
+      console.error('Error verifying fund:', error);
       throw error;
     }
   };
@@ -199,7 +283,7 @@ const SmartContractProvider = function ({ children }: Props) {
 
   return (
     <SmartContractContext.Provider
-      value={{ createFund, cancelFund, contribute }}
+      value={{ createFund, cancelFund, contribute, verifyFund }}
     >
       {children}
     </SmartContractContext.Provider>
