@@ -11,7 +11,7 @@ import {
 import { useFundStore } from '../store/useFundStore';
 import { FundCard } from '../components/FundCard';
 import { useEffect, useState } from 'react';
-import { getFunds } from '@/services/blockfrost.service';
+import { getFunds, getVerifiedFunds } from '@/services/blockfrost.service';
 import { Fund } from '@/types/fund';
 
 export function LandingPage() {
@@ -26,6 +26,7 @@ export function LandingPage() {
   }, []);
 
   const fetchFunds = async () => {
+    // const funds: Fund[] = await getFunds({ page: 1, pageSize: 10 });
     const funds: Fund[] = await getFunds({ page: 1, pageSize: 10 });
     setFunds(funds);
   };
@@ -67,7 +68,7 @@ export function LandingPage() {
                   Nền tảng gây quỹ cộng đồng trực tuyến
                 </h1>
                 <p className="text-xl text-white/90 mb-8">
-                  Dự án gây quỹ bởi các tổ chức đã được cấp phép
+                  Dự án gây quỹ b��i các tổ chức đã được cấp phép
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
@@ -274,3 +275,5 @@ export function LandingPage() {
     </div>
   );
 }
+
+export default LandingPage;

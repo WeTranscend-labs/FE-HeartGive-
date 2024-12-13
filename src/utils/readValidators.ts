@@ -50,9 +50,6 @@ const readValidators = function (): Validators {
     encode(fromHex(fundVerifiedValidator.compiledCode))
   );
 
-  console.log('verify: {}', fundVerifiedScriptHex);
-  console.log('fund: {}', fundManagementScriptHex);
-
   return {
     fund: {
       type: 'PlutusV2',

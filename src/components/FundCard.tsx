@@ -99,10 +99,6 @@ export function FundCard({ fund, onClick }: FundCardProps) {
           </div>
         </div>
 
-        <p className="text-gray-600 mb-4 line-clamp-2 leading-relaxed">
-          {fund.purpose}
-        </p>
-
         <div className="space-y-4">
           <div className="flex justify-between items-baseline">
             <span className="text-lg font-semibold text-gray-900">
