@@ -4,7 +4,6 @@ import { MainLayout } from './layouts/MainLayout';
 import { Toaster } from './components/ui/toaster';
 import ContextProvider from './contexts';
 
-// Loading Component
 const LoadingFallback = () => (
   <div className="min-h-screen flex items-center justify-center">
     <div className="text-center">
@@ -14,7 +13,6 @@ const LoadingFallback = () => (
   </div>
 );
 
-// Lazy load components
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const HomePage = lazy(() => import('./pages/HomePage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
