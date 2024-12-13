@@ -23,10 +23,12 @@ import { OrganizationFields } from './FundForm/OrganizationFields';
 import { CampaignFields } from './FundForm/CampaignFields';
 import supabase, { uploadImageToSupabase } from '@/services/supabase.service';
 import { useToast } from '@/hooks/use-toast';
+import { CheckCircle2 } from 'lucide-react';
 
 export function FundForm() {
   const { toast } = useToast();
-  const { createFund } = useContext<SmartContractContextType>(SmartContractContext);
+  const { createFund } =
+    useContext<SmartContractContextType>(SmartContractContext);
   const { lucid } = useContext<LucidContextType>(LucidContext);
   const { wallet } = useContext<WalletContextType>(WalletContext);
   const { toggleShowingWallet } = useContext<ModalContextType>(ModalContext);
@@ -71,7 +73,12 @@ export function FundForm() {
         return;
       }
 
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      const allowedTypes = [
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+      ];
       if (!allowedTypes.includes(file.type)) {
         toast({
           variant: 'destructive',
@@ -101,6 +108,12 @@ export function FundForm() {
     }
 
     try {
+      // Hiển thị toast loading
+      const createToast = toast({
+        variant: 'default',
+        title: 'Creating Fund...',
+        description: 'Preparing your fund details',
+      });
 
       let imageUrl = '';
       if (imageFile) {
@@ -116,17 +129,18 @@ export function FundForm() {
         image: imageUrl,
       };
 
-
-      await createFund({
+      // Tạo quỹ
+      const fundResult = await createFund({
         fundOwner: wallet.publicKeyHash,
         fundMetadata: fundDataWithImage,
       });
 
-      // Success notification
+      // Cập nhật toast thành công với màu xanh lá
       toast({
-        variant: 'default',
-        title: 'Success!',
-        description: 'Your fund has been created successfully.',
+        variant: 'success',
+        title: 'Fund Created Successfully!',
+        description: `"${data.organizationName}" is live soon`,
+        icon: <CheckCircle2 className="w-5 h-5 text-green-600" />,
       });
 
       // Cleanup
@@ -143,8 +157,11 @@ export function FundForm() {
       console.error('Create Fund Error:', error);
       toast({
         variant: 'destructive',
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to create fund. Please try again.',
+        title: 'Fund Creation Failed',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'Failed to create fund. Please try again.',
       });
     }
   };
