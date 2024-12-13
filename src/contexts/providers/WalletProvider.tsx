@@ -12,6 +12,7 @@ import { networks } from '@/constants/networks';
 import wallets from '@/constants/wallets';
 import checkNetwork from '@/helpers/check-network';
 import fetchPublicKeyHash from '@/utils/fetchPublicKeyHash';
+import WalletModalContext from '../components/WalletModalContext';
 
 type Props = {
   children: ReactNode;
@@ -30,6 +31,7 @@ const WalletProvider = function ({ children }: Props) {
   const [wallet, setWallet] = useState<WalletType>(null!);
   const [loading, setLoading] = useState<boolean>(false);
   const { network } = useContext<NetworkContextType>(NetworkContext);
+  const { closeModal } = useContext(WalletModalContext);
 
   useEffect(() => {
     const walletConnecttion = localStorage.getItem('wallet');
@@ -127,6 +129,7 @@ const WalletProvider = function ({ children }: Props) {
         };
       });
       setLucid(lucid);
+      closeModal();
     } catch (error) {
       console.error(error);
     } finally {
