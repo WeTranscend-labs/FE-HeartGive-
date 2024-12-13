@@ -8,6 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { TransactionForm } from './TransactionForm';
 import { formatCurrency } from '@/utils/format';
+import { useState } from 'react';
 
 
 interface ContributeDialogProps {
@@ -23,8 +24,12 @@ export function ContributeDialog({
   targetAmount,
   className,
 }: ContributeDialogProps & { className?: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleClose = () => setIsOpen(false);
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
           className={`w-full text-lg relative group ${className}`}
@@ -64,7 +69,7 @@ export function ContributeDialog({
               <span className="font-semibold text-primary-600">{formatCurrency(targetAmount)}</span>
             </div>
           </div>
-          <TransactionForm fundAddress={fundAddress} />
+          <TransactionForm fundAddress={fundAddress} onSuccess={handleClose} />
         </div>
       </DialogContent>
     </Dialog>
