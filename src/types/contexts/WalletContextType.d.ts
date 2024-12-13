@@ -6,4 +6,5 @@ export type WalletContextType = {
   refresh: () => Promise<void>;
   loading: boolean;
   wallet: WalletType;
+  isAdmin: boolean;
 };

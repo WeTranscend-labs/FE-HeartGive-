@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { MainLayout } from './layouts/MainLayout';
 import { Toaster } from './components/ui/toaster';
 import ContextProvider from './contexts';
+import WalletModalProvider from './contexts/providers/WalletModalProvider';
+
 
 const LoadingFallback = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -22,23 +24,25 @@ const VerifiedFundPage = lazy(() => import('./pages/VerifiedFundPage'));
 
 function App() {
   return (
-    <ContextProvider>
-      <Router>
-        <Toaster />
-        <MainLayout>
-          <Suspense fallback={<LoadingFallback />}>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/funds" element={<HomePage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/fund/:id" element={<FundDetailsPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/verified" element={<VerifiedFundPage />} />
-            </Routes>
-          </Suspense>
-        </MainLayout>
-      </Router>
-    </ContextProvider>
+    <WalletModalProvider>
+      <ContextProvider>
+        <Router>
+          <Toaster />
+          <MainLayout>
+            <Suspense fallback={<LoadingFallback />}>
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/funds" element={<HomePage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/fund/:id" element={<FundDetailsPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/verified" element={<VerifiedFundPage />} />
+              </Routes>
+            </Suspense>
+          </MainLayout>
+        </Router>
+      </ContextProvider>
+    </WalletModalProvider>
   );
 }
 

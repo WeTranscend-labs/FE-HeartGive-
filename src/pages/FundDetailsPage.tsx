@@ -32,26 +32,44 @@ import { OrganizeStory } from '@/components/OrganizeStory';
 import { CancelDialog } from '@/components/CancelDialog';
 import { WalletContextType } from '@/types/contexts/WalletContextType';
 import WalletContext from '@/contexts/components/WalletContext';
+import { Loader2 } from "lucide-react";
 
 export default function FundDetailsPage() {
   const { id } = useParams<string>();
   const [fund, setFund] = useState<Fund | null>(null!);
   const { wallet } = useContext<WalletContextType>(WalletContext);
   const [transactions, setTransactions] = useState<FundTransaction[]>(null!);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const result = await getFundByAddress({ address: id });
+      try {
+        setIsLoading(true);
+        const [fundResult, transactionsResult] = await Promise.all([
+          getFundByAddress({ address: id }),
+          getFundTransactions({ fundAddress: id })
+        ]);
 
-      setFund(result);
-    })();
-
-    (async () => {
-      const result = await getFundTransactions({ fundAddress: id });
-
-      setTransactions(result);
+        setFund(fundResult);
+        setTransactions(transactionsResult);
+      } catch (error) {
+        console.error('Error fetching fund details:', error);
+      } finally {
+        setIsLoading(false);
+      }
     })();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary-600 mx-auto mb-4" />
+          <h2 className="text-xl font-medium text-gray-900">Loading fund details...</h2>
+        </div>
+      </div>
+    );
+  }
 
   if (!fund) {
     return (
