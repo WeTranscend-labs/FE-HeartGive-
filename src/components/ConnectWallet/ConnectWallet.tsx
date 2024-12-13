@@ -1,47 +1,9 @@
-
-import React, { ChangeEvent, useContext, useRef, useState } from 'react';
-
+import React, { useState, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LucidContextType } from '@/types/contexts/LucidContextType';
 import { WalletContextType } from '@/types/contexts/WalletContextType';
 import LucidContext from '@/contexts/components/LucidContext';
 import WalletContext from '@/contexts/components/WalletContext';
-
-import NetworkContext from '@/contexts/components/NetworkContext';
-import ModalContext from '@/contexts/components/ModalContext';
-import Tippy from '@/components/Tippy';
-import wallets from '@/constants/wallets';
-import WalletDropdown from '../wallet/WalletDropdown';
-import WalletButton from '../wallet/WalletButton';
-import WalletModal from '../wallet/WalletModal';
-import NetworkErrorModal from '../wallet/NetworkErrorModal';
-import { Button } from '../ui/button';
-import { ShieldCheck } from 'lucide-react';
-
-type Props = {
-  className?: string;
-};
-
-const adminAddresses: String[] = [
-  'addr_test1qraxvmzu6p389au4gw4al58x6k93dmxu6zpx478lw8yv9waasan8r2pmhp044yugrqy4hvee6843tewn7hkvuws9lezqtfgu9f',
-  'addr_test1qquve965erclvur9z3allf85h4xck7lm7hx3fsgkpmft9cdkhqt9cfgur0e6vygwrcarzgn0ck3yrnuq99cp0g4w4eyqjtg669',
-];
-
-const ConnectWallet = function ({ className }: Props) {
-  const {
-    isShowingErrorNetwork,
-    toogleErrorNetwork,
-    isShowingWallet,
-    toggleShowingWallet,
-  } = useContext<ModalContextType>(ModalContext);
-  const { network } = useContext<NetworkContextType>(NetworkContext);
-  const { lucid } = useContext<LucidContextType>(LucidContext);
-  const { wallet, disconnect } = useContext<WalletContextType>(WalletContext);
-  const [accept, setAccept] = useState<boolean>(false);
-  const [isCopied, setIsCopied] = useState<boolean>(false);
-  const [isShowTippy, setIsShowTippy] = useState<boolean>(false);
-  const [isShowDropdown, setIsShowDropdown] = useState<boolean>(false);
-
 import WalletModalContext from '@/contexts/components/WalletModalContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -49,10 +11,11 @@ import {
   WalletIcon,
   ArrowTopRightOnSquareIcon,
   ClipboardIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import { CheckIcon } from '@heroicons/react/24/solid';
 import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 
 const ConnectWallet = () => {
   const { lucid } = useContext<LucidContextType>(LucidContext);
@@ -76,10 +39,7 @@ const ConnectWallet = () => {
 
   if (!wallet || !lucid) {
     return (
-      <motion.div
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
+      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <Button
           onClick={openModal}
           className="relative overflow-hidden group bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl px-6 py-3 shadow-md hover:shadow-lg"
@@ -95,37 +55,8 @@ const ConnectWallet = () => {
   }
 
   return (
-
-    <div
-      className={`relative ${className}`}
-      onClick={() => setIsShowDropdown(!isShowDropdown)}
-    >
-      <Tippy
-        onHide={() => setIsShowTippy(false)}
-        onShow={() => setIsShowTippy(lucid ? true : false)}
-        offset={[0, 0]}
-        className="inline-flex items-center rounded-lg text-sm font-medium transition-all duration-300"
-        trigger="click"
-        interactive
-        placement="bottom-end"
-        render={
-          wallet && (
-            <WalletDropdown
-              wallet={wallet}
-              network={network}
-              isCopied={isCopied}
-              disconnect={disconnect}
-              setIsCopied={setIsCopied}
-            />
-          )
-        }
-
     <div className="relative">
-      <motion.div
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.97 }}
-
-      >
+      <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
         <Button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className={cn(
@@ -151,10 +82,12 @@ const ConnectWallet = () => {
                 alt="Wallet"
               />
             </div>
-            <ChevronDownIcon className={cn(
-              "w-4 h-4 transition-transform duration-300",
-              isDropdownOpen ? "rotate-180" : ""
-            )} />
+            <ChevronDownIcon
+              className={cn(
+                'w-4 h-4 transition-transform duration-300',
+                isDropdownOpen ? 'rotate-180' : ''
+              )}
+            />
           </div>
         </Button>
       </motion.div>
@@ -170,10 +103,12 @@ const ConnectWallet = () => {
           >
             <div className="px-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-gray-900">Wallet Details</h3>
+                <h3 className="text-sm font-semibold text-gray-900">
+                  Wallet Details
+                </h3>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => { }}
+                    onClick={() => {}}
                     className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
                     title="Refresh"
                   >
@@ -220,17 +155,21 @@ const ConnectWallet = () => {
                     {wallet.address}
                   </p>
                 </div>
+                <div className="px-5 mt-4">
+                  <Link to="/verified">
+                    <Button className="w-full bg-primary-600 text-white hover:bg-primary-500 transition-colors mb-3">
+                      Go to Dashboard
+                    </Button>
+                  </Link>
+                  <Button
+                    onClick={disconnect}
+                    variant="outline"
+                    className="w-full text-red-500 border-red-200 hover:bg-red-50 hover:border-red-300 transition-colors"
+                  >
+                    Disconnect Wallet
+                  </Button>
+                </div>
               </div>
-            </div>
-
-            <div className="px-5 mt-4">
-              <Button
-                onClick={disconnect}
-                variant="outline"
-                className="w-full text-red-500 border-red-200 hover:bg-red-50 hover:border-red-300 transition-colors"
-              >
-                Disconnect Wallet
-              </Button>
             </div>
           </motion.div>
         )}

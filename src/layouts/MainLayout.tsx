@@ -19,15 +19,13 @@ export function MainLayout({ children, className }: MainLayoutProps) {
       <ScrollProgress />
       <Navbar />
 
-
       <div className="sticky top-4 h-0 right-12 z-50 flex justify-end pr-4">
-        <ConnectWallet />
+        {/* <ConnectWallet /> */}
       </div>
 
       {/* Main Content */}
 
       <WalletModalRoot />
-      
 
       <AnimatePresence mode="wait">
         <motion.main
