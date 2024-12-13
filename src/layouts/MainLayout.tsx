@@ -6,6 +6,7 @@ import { ScrollProgress } from '@/components/ScrollProgress';
 import WalletModalRoot from '@/components/wallet/WalletModalRoot';
 import { cn } from '@/lib/utils';
 import { Toaster } from 'react-hot-toast';
+import ConnectWallet from '@/components/ConnectWallet';
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -20,9 +21,9 @@ export function MainLayout({ children, className }: MainLayoutProps) {
       <Navbar />
 
 
-      <div className="sticky top-4 h-0 right-12 z-50 flex justify-end pr-4">
+      {/* <div className="sticky top-4 h-0 right-12 z-50 flex justify-end pr-4">
         <ConnectWallet />
-      </div>
+      </div> */}
 
       {/* Main Content */}
 
