@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LucidContextType } from '@/types/contexts/LucidContextType';
 import { WalletContextType } from '@/types/contexts/WalletContextType';
@@ -19,10 +19,12 @@ import { Link } from 'react-router-dom';
 
 const ConnectWallet = () => {
   const { lucid } = useContext<LucidContextType>(LucidContext);
-  const { wallet, disconnect } = useContext<WalletContextType>(WalletContext);
+  const { wallet, disconnect, isAdmin } =
+    useContext<WalletContextType>(WalletContext);
   const { openModal } = useContext(WalletModalContext);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const formatAddress = (address: string) => {
     if (!address) return '';
@@ -36,6 +38,22 @@ const ConnectWallet = () => {
       setTimeout(() => setCopied(false), 2000);
     }
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   if (!wallet || !lucid) {
     return (
@@ -55,7 +73,7 @@ const ConnectWallet = () => {
   }
 
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
         <Button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -108,7 +126,7 @@ const ConnectWallet = () => {
                 </h3>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => {}}
+                    onClick={() => { }}
                     className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
                     title="Refresh"
                   >
@@ -156,11 +174,13 @@ const ConnectWallet = () => {
                   </p>
                 </div>
                 <div className="px-5 mt-4">
-                  <Link to="/verified">
-                    <Button className="w-full bg-primary-600 text-white hover:bg-primary-500 transition-colors mb-3">
-                      Go to Dashboard
-                    </Button>
-                  </Link>
+                  {isAdmin && (
+                    <Link to="/verified">
+                      <Button className="w-full bg-primary-600 text-white hover:bg-primary-500 transition-colors mb-3">
+                        Go to Dashboard
+                      </Button>
+                    </Link>
+                  )}
                   <Button
                     onClick={disconnect}
                     variant="outline"

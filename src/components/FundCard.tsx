@@ -87,10 +87,10 @@ export function FundCard({ fund, onClick }: FundCardProps) {
             <span className="px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800">
               {fund.category}
             </span>
-            <div className="flex items-center text-gray-500 text-sm">
+            {/* <div className="flex items-center text-gray-500 text-sm">
               <TagIcon className="w-4 h-4 mr-1" />
               {fund.category}
-            </div>
+            </div> */}
           </div>
 
           <div className="flex items-center text-gray-500 text-sm">

@@ -123,7 +123,7 @@ const FundDisplayPage: React.FC = () => {
         page,
         pageSize: viewMode === 'grid' ? 9 : 5,
       });
-      setFunds(fetchedFunds);
+      setFunds(fetchedFunds.funds);
     } catch (error) {
       toast.error('Failed to fetch funds');
       console.error('Error fetching funds:', error);

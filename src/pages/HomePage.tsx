@@ -13,6 +13,7 @@ import {
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import { getFunds } from '@/services/blockfrost.service';
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 
 type FundStatus = 'active' | 'completed' | 'all';
 
@@ -27,15 +28,26 @@ export default function HomePage() {
   );
   const [status, setStatus] = useState<FundStatus>('active');
   const [funds, setFunds] = useState<Fund[]>(null!);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 9;
 
   useEffect(() => {
-    fetchFunds();
-  }, []);
+    fetchFunds(currentPage);
+  }, [currentPage]);
 
-  const fetchFunds = async () => {
-    const funds = await getFunds({ page: 1, pageSize: 9 });
+  const fetchFunds = async (page: number) => {
+    try {
+      const result = await getFunds({
+        page,
+        pageSize: itemsPerPage,
+      });
 
-    setFunds(funds);
+      setFunds(result.funds);
+      setTotalPages(result.totalPages);
+    } catch (error) {
+      console.error('Error fetching funds:', error);
+    }
   };
 
   const filteredFunds: Fund[] = funds?.filter((fund) => {
@@ -52,23 +64,11 @@ export default function HomePage() {
       (status === 'completed'
         ? fund.currentAmount >= fund.targetAmount
         : status === 'active'
-        ? fund.currentAmount < fund.targetAmount
-        : true);
+          ? fund.currentAmount < fund.targetAmount
+          : true);
 
     return matchesCategory && matchesSearch && matchesStatus;
   });
-  // .sort((a: Fund, b: Fund) => {
-  //   switch (sortBy) {
-  //     case 'progress':
-  //       return (
-  //         b.currentAmount / b.targetAmount - a.currentAmount / a.targetAmount
-  //       );
-  //     case 'amount':
-  //       return b.currentAmount - a.currentAmount;
-  //     default:
-  //       return b.createdAt.getTime() - a.createdAt.getTime();
-  //   }
-  // });
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -105,17 +105,16 @@ export default function HomePage() {
               className="max-w-3xl mx-auto text-center"
             >
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                Khám phá các Quỹ Tình nguyện
+                Explore Volunteer Funds
               </h1>
               <p className="text-xl text-primary-100 mb-8">
-                Tìm kiếm và hỗ trợ các dự án có ý nghĩa, tạo nên sự thay đổi
-                tích cực trong cộng đồng
+                Find and support meaningful projects that create positive change in communities
               </p>
               <div className="relative">
                 <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Tìm kiếm theo tên tổ chức, mục đích hoặc từ khóa..."
+                  placeholder="Search by organization name, purpose, or keywords..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-12 pr-4 py-4 rounded-xl border-2 border-transparent focus:border-primary-300 focus:ring-4 focus:ring-primary-100 bg-white shadow-lg text-gray-900 placeholder-gray-500"
@@ -149,9 +148,9 @@ export default function HomePage() {
                     }
                     className="rounded-lg border-gray-300 focus:border-primary-500 focus:ring-primary-500"
                   >
-                    <option value="recent">Mới nhất</option>
-                    <option value="progress">Tiến độ</option>
-                    <option value="amount">Số tiền quyên góp</option>
+                    <option value="recent">Newest</option>
+                    <option value="progress">Progress</option>
+                    <option value="amount">Amount raised</option>
                   </select>
                 </div>
               </div>
@@ -159,7 +158,7 @@ export default function HomePage() {
                 to="/register"
                 className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors shadow-sm"
               >
-                Bắt đầu gây quỹ
+               Start Fundraising
               </Link>
             </div>
 
@@ -167,35 +166,32 @@ export default function HomePage() {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setStatus('active')}
-                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  status === 'active'
+                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${status === 'active'
                     ? 'bg-primary-100 text-primary-800'
                     : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 <ClockIcon className="w-5 h-5 mr-2" />
-                Đang gây quỹ
+                Fundraising
               </button>
               <button
                 onClick={() => setStatus('completed')}
-                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  status === 'completed'
+                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${status === 'completed'
                     ? 'bg-green-100 text-green-800'
                     : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 <CheckCircleIcon className="w-5 h-5 mr-2" />
-                Đã hoàn thành
+                Completed
               </button>
               <button
                 onClick={() => setStatus('all')}
-                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  status === 'all'
+                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${status === 'all'
                     ? 'bg-gray-100 text-gray-800'
                     : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                  }`}
               >
-                Tất cả
+                All
               </button>
             </div>
 
@@ -214,7 +210,7 @@ export default function HomePage() {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-gray-900">
               {filteredFunds?.length}{' '}
-              {filteredFunds?.length === 1 ? 'Quỹ' : 'Quỹ'} phù hợp
+              {filteredFunds?.length === 1 ? 'Fund' : 'Fund'} matching your search
             </h2>
             <button
               onClick={() => {
@@ -226,7 +222,7 @@ export default function HomePage() {
               className="flex items-center gap-2 text-primary-600 hover:text-primary-700"
             >
               <ArrowPathIcon className="w-5 h-5" />
-              <span>Đặt lại</span>
+              <span>Reset</span>
             </button>
           </div>
 
@@ -238,7 +234,7 @@ export default function HomePage() {
           >
             {filteredFunds?.map((fund) => (
               <motion.div
-                key={fund?.walletAddress}
+                key={fund?.txHash}
                 variants={itemVariants}
                 transition={{ duration: 0.5 }}
               >
@@ -248,6 +244,42 @@ export default function HomePage() {
               </motion.div>
             ))}
           </motion.div>
+
+          <div className="flex justify-center mt-8">
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="p-2 rounded-md bg-white shadow-md disabled:opacity-50"
+              >
+                <ChevronLeftIcon className="w-5 h-5" />
+              </button>
+
+              {[...Array(totalPages)].map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentPage(index + 1)}
+                  className={`px-4 py-2 rounded-md ${
+                    currentPage === index + 1
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-white text-gray-700'
+                  } shadow-md`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-md bg-white shadow-md disabled:opacity-50"
+              >
+                <ChevronRightIcon className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
 
           {filteredFunds?.length === 0 && (
             <motion.div
@@ -262,7 +294,7 @@ export default function HomePage() {
                   className="w-48 h-48 mx-auto mb-6"
                 />
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  Không tìm thấy quỹ nào
+                  No funds found
                 </h3>
                 <p className="text-gray-600 mb-6">
                   {funds.length === 0
@@ -273,7 +305,7 @@ export default function HomePage() {
                   to="/register"
                   className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 transition-colors"
                 >
-                  Tạo Quỹ Mới
+                  Create New Fund
                 </Link>
               </div>
             </motion.div>

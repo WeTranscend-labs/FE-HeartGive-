@@ -25,20 +25,34 @@ export const getFunds = async ({
   try {
     const validators: Validators = readValidators();
     const fundManagementValidatorScript = validators.fundManagement;
+    const validatorAddress = (await lucidService).utils.validatorToAddress(
+      fundManagementValidatorScript
+    );
 
-    const utxos: utxo[] = await blockfrostApi
-      .get(
-        `/addresses/${(
-          await lucidService
-        ).utils.validatorToAddress(fundManagementValidatorScript)}/utxos`,
-        {
+    // Lấy tổng số UTXOs tại địa chỉ validator
+    const totalUtxosResponse = await blockfrostApi.get(
+      `/addresses/${validatorAddress}/utxos`,
+      {
+        params: {
+          count: 1, // Chỉ lấy thông tin tổng số
+        },
+      }
+    );
+
+    // Tính toán tổng số trang
+    const [utxos, totalUtxos] = await Promise.all([
+      blockfrostApi
+        .get(`/addresses/${validatorAddress}/utxos`, {
           params: {
             page: page,
             count: pageSize,
           },
-        }
-      )
-      .then((response) => response.data);
+        })
+        .then((response) => response.data),
+      blockfrostApi
+        .get(`/addresses/${validatorAddress}/utxos`)
+        .then((response) => response.data.length),
+    ]);
 
     const defaultFundAddress =
       'addr_test1wr539xfv8psyhejd8yukjfuu9j2w9h5y9t2lukz04348aes7hvm5e';
@@ -64,7 +78,7 @@ export const getFunds = async ({
 
         return {
           ...metadata,
-          fundAddress: metadata.fundAddress || defaultFundAddress, // Đảm bảo luôn có fundAddress
+          fundAddress: metadata.fundAddress || defaultFundAddress,
           txHash: utxo.tx_hash,
           inlineDatum: utxo.inline_datum,
           dataHash: utxo.data_hash,
@@ -75,12 +89,19 @@ export const getFunds = async ({
       })
     );
 
-    console.log(funds);
+    console.log();
 
-    return funds;
+    // Trả về cả funds và totalPages
+    return {
+      funds,
+      totalPages: Math.ceil(totalUtxos / pageSize),
+    };
   } catch (error) {
     console.error('Error fetching funds:', error);
-    return [];
+    return {
+      funds: [],
+      totalPages: 1,
+    };
   }
 };
 
@@ -123,29 +144,40 @@ export const getVerifiedFunds = async ({
   try {
     const validators: Validators = readValidators();
     const fundVerifiedValidatorScript = validators.fundVerified;
-
-    // Lấy địa chỉ của validator fundVerified
-    const fundVerifiedAddress = (await lucidService).utils.validatorToAddress(
+    const validatorAddress = (await lucidService).utils.validatorToAddress(
       fundVerifiedValidatorScript
     );
 
-    // Lấy UTXOs từ địa chỉ fundVerified
-    const utxos: utxo[] = await blockfrostApi
-      .get(`/addresses/${fundVerifiedAddress}/utxos`, {
+    // Lấy tổng số UTXOs tại địa chỉ validator
+    const totalUtxosResponse = await blockfrostApi.get(
+      `/addresses/${validatorAddress}/utxos`,
+      {
         params: {
-          page: page,
-          count: pageSize,
+          count: 1, // Chỉ lấy thông tin tổng số
         },
-      })
-      .then((response) => response.data);
+      }
+    );
+
+    // Tính toán tổng số trang
+    const [utxos, totalUtxos] = await Promise.all([
+      blockfrostApi
+        .get(`/addresses/${validatorAddress}/utxos`, {
+          params: {
+            page: page,
+            count: pageSize,
+          },
+        })
+        .then((response) => response.data),
+      blockfrostApi
+        .get(`/addresses/${validatorAddress}/utxos`)
+        .then((response) => response.data.length),
+    ]);
 
     const defaultFundAddress =
       'addr_test1wr539xfv8psyhejd8yukjfuu9j2w9h5y9t2lukz04348aes7hvm5e';
 
-    // Xử lý từng UTXO để lấy thông tin quỹ
     const verifiedFunds: Fund[] = await Promise.all(
       utxos.map(async (utxo) => {
-        // Lấy metadata từ transaction
         const rootMetadata: rootMetdata[] = await blockfrostApi
           .get(`/txs/${utxo.tx_hash}/metadata`)
           .then((response) => response.data);
@@ -159,7 +191,6 @@ export const getVerifiedFunds = async ({
         // Parse JSON string thành object Fund
         const metadata: Fund = JSON.parse(metadataJsonString);
 
-        // Lấy tổng số ADA tại địa chỉ quỹ
         const totalAda = await getTotalAda({
           address: metadata.fundAddress || defaultFundAddress,
         });
@@ -172,18 +203,23 @@ export const getVerifiedFunds = async ({
           dataHash: utxo.data_hash,
           blockHash: utxo.block,
           currentAmount: totalAda.totalAda,
-          targetAmount: BigInt(metadata.targetAmount),
+          targetAmount: BigInt(metadata.targetAmount ?? 100n),
           status: 'verified', // Thêm trạng thái verified
         };
       })
     );
 
-    console.log('Verified Funds:', verifiedFunds);
-
-    return verifiedFunds;
+    // Trả về cả verifiedFunds và totalPages
+    return {
+      funds: verifiedFunds,
+      totalPages: Math.ceil(totalUtxos / pageSize),
+    };
   } catch (error) {
     console.error('Error fetching verified funds:', error);
-    return [];
+    return {
+      funds: [],
+      totalPages: 1,
+    };
   }
 };
 
