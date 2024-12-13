@@ -68,7 +68,7 @@ export default function AboutPage() {
             alt="Hero"
             className="w-full h-full object-cover"
           />
-  
+
         </div>
 
         <div className="relative h-full flex items-center">
@@ -83,7 +83,7 @@ export default function AboutPage() {
                 Empowering Change Through Technology
               </h1>
               <p className="text-xl text-primary-100 leading-relaxed mb-8">
-                VolunteerFund is Vietnam's first blockchain-powered fundraising platform,
+                HeartGive is Vietnam's first blockchain-powered fundraising platform,
                 bringing transparency and trust to charitable giving.
               </p>
               <Link
@@ -133,7 +133,7 @@ export default function AboutPage() {
             className="text-center mb-16"
           >
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Why Choose VolunteerFund?
+              Why Choose HeartGive?
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               We combine the power of Cardano blockchain with a user-friendly platform

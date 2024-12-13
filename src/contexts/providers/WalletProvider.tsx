@@ -12,6 +12,7 @@ import { networks } from '@/constants/networks';
 import wallets from '@/constants/wallets';
 import checkNetwork from '@/helpers/check-network';
 import fetchPublicKeyHash from '@/utils/fetchPublicKeyHash';
+import WalletModalContext from '../components/WalletModalContext';
 
 type Props = {
   children: ReactNode;
@@ -35,7 +36,11 @@ const WalletProvider = function ({ children }: Props) {
   const [wallet, setWallet] = useState<WalletType>(null!);
   const [loading, setLoading] = useState<boolean>(false);
   const { network } = useContext<NetworkContextType>(NetworkContext);
+
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
+
+  const { closeModal } = useContext(WalletModalContext);
+
 
   useEffect(() => {
     autoConnectWallet();
@@ -173,6 +178,9 @@ const WalletProvider = function ({ children }: Props) {
         address,
         publicKeyHash,
       });
+
+      closeModal();
+
     } catch (error) {
       console.error(error);
     } finally {
