@@ -33,7 +33,10 @@ interface TransactionFormProps {
   onSuccess: () => void;
 }
 
-export function TransactionForm({ fundAddress, onSuccess }: TransactionFormProps) {
+export function TransactionForm({
+  fundAddress,
+  onSuccess,
+}: TransactionFormProps) {
   const { toast } = useToast();
   const { contribute } =
     useContext<SmartContractContextType>(SmartContractContext);
@@ -60,11 +63,11 @@ export function TransactionForm({ fundAddress, onSuccess }: TransactionFormProps
       console.log(adaAmount);
 
       // Gọi hàm contribute
-      // const txHash = await contribute({
-      //   fundAddress,
-      //   contributionAmount: lovelaceAmount,
-      //   fundOwner: wallet.publicKeyHash,
-      // });
+      const txHash = await contribute({
+        fundAddress,
+        contributionAmount: lovelaceAmount,
+        fundOwner: wallet.publicKeyHash,
+      });
 
       // console.log(txHash);
 
