@@ -33,7 +33,7 @@ export default function HomePage() {
   }, []);
 
   const fetchFunds = async () => {
-    const funds = await getFunds({ page: 1, pageSize: 1 });
+    const funds = await getFunds({ page: 1, pageSize: 9 });
 
     setFunds(funds);
   };

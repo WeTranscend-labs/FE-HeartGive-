@@ -11,7 +11,7 @@ import {
   WalletIcon,
   ArrowTopRightOnSquareIcon,
   ClipboardIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import { CheckIcon } from '@heroicons/react/24/solid';
 import { cn } from '@/lib/utils';
@@ -39,10 +39,7 @@ const ConnectWallet = () => {
 
   if (!wallet || !lucid) {
     return (
-      <motion.div
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
+      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <Button
           onClick={openModal}
           className="relative overflow-hidden group bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl px-6 py-3 shadow-md hover:shadow-lg"
@@ -59,10 +56,7 @@ const ConnectWallet = () => {
 
   return (
     <div className="relative">
-      <motion.div
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.97 }}
-      >
+      <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
         <Button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className={cn(
@@ -88,10 +82,12 @@ const ConnectWallet = () => {
                 alt="Wallet"
               />
             </div>
-            <ChevronDownIcon className={cn(
-              "w-4 h-4 transition-transform duration-300",
-              isDropdownOpen ? "rotate-180" : ""
-            )} />
+            <ChevronDownIcon
+              className={cn(
+                'w-4 h-4 transition-transform duration-300',
+                isDropdownOpen ? 'rotate-180' : ''
+              )}
+            />
           </div>
         </Button>
       </motion.div>
@@ -107,10 +103,12 @@ const ConnectWallet = () => {
           >
             <div className="px-5">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-gray-900">Wallet Details</h3>
+                <h3 className="text-sm font-semibold text-gray-900">
+                  Wallet Details
+                </h3>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => { }}
+                    onClick={() => {}}
                     className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
                     title="Refresh"
                   >
@@ -158,32 +156,20 @@ const ConnectWallet = () => {
                   </p>
                 </div>
                 <div className="px-5 mt-4">
-                  <Button
-                    onClick={disconnect}
-                    variant="outline"
-                    className="w-full text-red-500 border-red-200 hover:bg-red-50 hover:border-red-300 transition-colors mb-3"
-                  >
-                    Disconnect Wallet
-                  </Button>
-                  <Link to="/dashboard">
-                    <Button
-                      className="w-full bg-primary-600 text-white hover:bg-primary-500 transition-colors"
-                    >
+                  <Link to="/verified">
+                    <Button className="w-full bg-primary-600 text-white hover:bg-primary-500 transition-colors mb-3">
                       Go to Dashboard
                     </Button>
                   </Link>
+                  <Button
+                    onClick={disconnect}
+                    variant="outline"
+                    className="w-full text-red-500 border-red-200 hover:bg-red-50 hover:border-red-300 transition-colors"
+                  >
+                    Disconnect Wallet
+                  </Button>
                 </div>
               </div>
-            </div>
-
-            <div className="px-5 mt-4">
-              <Button
-                onClick={disconnect}
-                variant="outline"
-                className="w-full text-red-500 border-red-200 hover:bg-red-50 hover:border-red-300 transition-colors"
-              >
-                Disconnect Wallet
-              </Button>
             </div>
           </motion.div>
         )}

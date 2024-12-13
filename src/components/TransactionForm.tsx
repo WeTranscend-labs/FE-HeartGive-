@@ -20,7 +20,7 @@ import {
   transactionFormSchema,
   type TransactionFormData,
 } from '../schemas/transactionFormSchema';
-import { useToast } from '@/hooks/use-toast'; 
+import { useToast } from '@/hooks/use-toast';
 import { SmartContractContextType } from '@/types/contexts/SmartContractContextType';
 import { LucidContextType } from '@/types/contexts/LucidContextType';
 import SmartContractContext from '@/contexts/components/SmartContractContext';
@@ -70,7 +70,7 @@ export function TransactionForm({ fundAddress }: TransactionFormProps) {
       // Hiển thị toast thành công
       toast({
         title: 'Contribution Successful',
-        description: `You've contributed ${data.amount} USD to the campaign.`,
+        description: `You've contributed ${data.amount} ₳ to the campaign.`,
         variant: 'success',
       });
 
@@ -109,11 +109,11 @@ export function TransactionForm({ fundAddress }: TransactionFormProps) {
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Amount (USD)</FormLabel>
+                    <FormLabel>Amount (₳)</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <span className="text-gray-500 sm:text-sm">$</span>
+                          <span className="text-gray-500 sm:text-sm">₳</span>
                         </div>
                         <Input
                           type="number"

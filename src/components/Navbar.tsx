@@ -53,17 +53,18 @@ export function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-             
-            >
-              <span className="text-white font-bold text-xl"><Logo/></span>
+          <Link
+            to="/"
+            className="flex items-center space-x-3 group outline-none"
+          >
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <span className="text-white font-bold text-xl">
+                <Logo />
+              </span>
             </motion.div>
             <span
               className={cn(
-                'text-xl font-bold transition-colors duration-300',
+                'text-xl font-bold transition-colors duration-300 outline-none',
                 shouldUseTransparentBg ? 'text-gray-900' : 'text-gray-900'
               )}
             >
