@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useContext, useState } from 'react';
+import React, { ChangeEvent, useContext, useRef, useState } from 'react';
 import { LucidContextType } from '@/types/contexts/LucidContextType';
 import { WalletContextType } from '@/types/contexts/WalletContextType';
 import { NetworkContextType } from '@/types/contexts/NetworkContextType';
@@ -13,10 +13,17 @@ import WalletDropdown from '../wallet/WalletDropdown';
 import WalletButton from '../wallet/WalletButton';
 import WalletModal from '../wallet/WalletModal';
 import NetworkErrorModal from '../wallet/NetworkErrorModal';
+import { Button } from '../ui/button';
+import { ShieldCheck } from 'lucide-react';
 
 type Props = {
   className?: string;
 };
+
+const adminAddresses: String[] = [
+  'addr_test1qraxvmzu6p389au4gw4al58x6k93dmxu6zpx478lw8yv9waasan8r2pmhp044yugrqy4hvee6843tewn7hkvuws9lezqtfgu9f',
+  'addr_test1qquve965erclvur9z3allf85h4xck7lm7hx3fsgkpmft9cdkhqt9cfgur0e6vygwrcarzgn0ck3yrnuq99cp0g4w4eyqjtg669',
+];
 
 const ConnectWallet = function ({ className }: Props) {
   const {
@@ -31,13 +38,17 @@ const ConnectWallet = function ({ className }: Props) {
   const [accept, setAccept] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [isShowTippy, setIsShowTippy] = useState<boolean>(false);
+  const [isShowDropdown, setIsShowDropdown] = useState<boolean>(false);
 
   const handleAccept = function (event: ChangeEvent<HTMLInputElement>) {
     setAccept(event.target.checked);
   };
 
   return (
-    <div className={`relative ${className}`}>
+    <div
+      className={`relative ${className}`}
+      onClick={() => setIsShowDropdown(!isShowDropdown)}
+    >
       <Tippy
         onHide={() => setIsShowTippy(false)}
         onShow={() => setIsShowTippy(lucid ? true : false)}

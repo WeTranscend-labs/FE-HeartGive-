@@ -23,10 +23,9 @@ export function MainLayout({ children, className }: MainLayoutProps) {
       {/* Fixed Header */}
       <Navbar />
 
-            <div className="sticky top-4 h-0 right-12 z-50 flex justify-end pr-4">
-                <ConnectWallet />
-            </div>
-
+      <div className="sticky top-4 h-0 right-12 z-50 flex justify-end pr-4">
+        <ConnectWallet />
+      </div>
 
       {/* Main Content */}
       <AnimatePresence mode="wait">

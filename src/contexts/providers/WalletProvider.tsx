@@ -17,6 +17,11 @@ type Props = {
   children: ReactNode;
 };
 
+const adminAddresses: String[] = [
+  'addr_test1qraxvmzu6p389au4gw4al58x6k93dmxu6zpx478lw8yv9waasan8r2pmhp044yugrqy4hvee6843tewn7hkvuws9lezqtfgu9f',
+  'addr_test1qquve965erclvur9z3allf85h4xck7lm7hx3fsgkpmft9cdkhqt9cfgur0e6vygwrcarzgn0ck3yrnuq99cp0g4w4eyqjtg669',
+];
+
 const WalletProvider = function ({ children }: Props) {
   const { lucid, setLucid } = useContext<LucidContextType>(LucidContext);
   const {
@@ -30,42 +35,74 @@ const WalletProvider = function ({ children }: Props) {
   const [wallet, setWallet] = useState<WalletType>(null!);
   const [loading, setLoading] = useState<boolean>(false);
   const { network } = useContext<NetworkContextType>(NetworkContext);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   useEffect(() => {
-    const walletConnecttion = localStorage.getItem('wallet');
-    if (walletConnecttion) {
-      const walletConnected = JSON.parse(walletConnecttion);
-
-      wallets.forEach(async function (wallet: WalletType) {
-        const publicKeyHash = await fetchPublicKeyHash(lucid);
-
-        if (wallet.name.toLowerCase() === walletConnected.name) {
-          await connect({
-            name: wallet.name,
-            api: wallet.api,
-            checkApi: wallet.checkApi,
-            image: wallet.image,
-            publicKeyHash: publicKeyHash,
-          });
-          return;
-        }
-      });
-    }
-    //  react-hooks/exhaustive-deps
+    autoConnectWallet();
   }, []);
 
-  useEffect(() => {
-    if (wallet) {
-      localStorage.setItem(
-        'wallet',
-        JSON.stringify({
-          name: wallet.name.toLowerCase(),
-          connectedAt: new Date().getTime(),
-        })
-      );
+  // useEffect(() => {
+  //   if (wallet) {
+  //     localStorage.setItem(
+  //       'walletConnecttion',
+  //       JSON.stringify({
+  //         name: wallet.name.toLowerCase(),
+  //         connectedAt: new Date().getTime(),
+  //       })
+  //     );
+  //   }
+  //   // react-hooks/exhaustive-deps
+  // }, [wallet]);
+
+  // Hàm lưu thông tin ví vào localStorage
+  const saveWalletToLocalStorage = (walletInfo: {
+    name: string;
+    address: string;
+    publicKeyHash: string;
+  }) => {
+    localStorage.setItem(
+      'walletConnection',
+      JSON.stringify({
+        name: walletInfo.name.toLowerCase(),
+        address: walletInfo.address,
+        publicKeyHash: walletInfo.publicKeyHash,
+        connectedAt: new Date().getTime(),
+      })
+    );
+  };
+
+  const getWalletFromLocalStorage = () => {
+    const storedWallet = localStorage.getItem('walletConnection');
+    return storedWallet ? JSON.parse(storedWallet) : null;
+  };
+
+  // Hàm kết nối ví tự động từ localStorage
+  const autoConnectWallet = async () => {
+    const storedWallet = getWalletFromLocalStorage();
+
+    if (storedWallet) {
+      try {
+        // Tìm wallet phù hợp trong danh sách wallets
+        const matchedWallet = wallets.find(
+          (wallet) => wallet.name.toLowerCase() === storedWallet.name
+        );
+
+        if (matchedWallet) {
+          await connect({
+            name: matchedWallet.name,
+            api: matchedWallet.api,
+            checkApi: matchedWallet.checkApi,
+            image: matchedWallet.image,
+            publicKeyHash: storedWallet.publicKeyHash,
+          });
+        }
+      } catch (error) {
+        console.error('Auto connect failed:', error);
+        // Xóa localStorage nếu kết nối thất bại
+        localStorage.removeItem('walletConnection');
+      }
     }
-    // react-hooks/exhaustive-deps
-  }, [wallet]);
+  };
 
   const connect = async function ({ name, api, image, checkApi }: WalletType) {
     try {
@@ -114,6 +151,9 @@ const WalletProvider = function ({ children }: Props) {
 
       const publicKeyHash = await fetchPublicKeyHash(lucid);
 
+      const isAdmin = adminAddresses.includes(address);
+      setIsAdmin(isAdmin);
+
       setWallet(function (previous: WalletType) {
         return {
           ...previous,
@@ -127,6 +167,12 @@ const WalletProvider = function ({ children }: Props) {
         };
       });
       setLucid(lucid);
+
+      saveWalletToLocalStorage({
+        name,
+        address,
+        publicKeyHash,
+      });
     } catch (error) {
       console.error(error);
     } finally {
@@ -138,11 +184,12 @@ const WalletProvider = function ({ children }: Props) {
     try {
       setWallet(null!);
       setLucid(null!);
+      setIsAdmin(false);
       if (isShowingErrorNetwork) {
         toogleErrorNetwork();
       }
 
-      localStorage.removeItem('wallet');
+      localStorage.removeItem('walletConnection');
     } catch (error) {
       console.log(error);
     }
@@ -176,9 +223,12 @@ const WalletProvider = function ({ children }: Props) {
       setLoading(false);
     }
   };
+
+  console.log(isAdmin);
+
   return (
     <WalletContext.Provider
-      value={{ connect, wallet, disconnect, refresh, loading }}
+      value={{ connect, wallet, disconnect, refresh, loading, isAdmin }}
     >
       {children}
     </WalletContext.Provider>
