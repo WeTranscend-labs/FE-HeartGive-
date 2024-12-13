@@ -8,6 +8,7 @@ import {
   ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 import ConnectWallet from './ConnectWallet';
+import Logo from './Logo';
 
 const mainNavItems = [
   { path: '/funds', label: 'Browse Funds' },
@@ -56,9 +57,9 @@ export function Navbar() {
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-10 h-10 bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg flex items-center justify-center shadow-lg"
+             
             >
-              <span className="text-white font-bold text-xl">VF</span>
+              <span className="text-white font-bold text-xl"><Logo/></span>
             </motion.div>
             <span
               className={cn(
@@ -66,7 +67,7 @@ export function Navbar() {
                 shouldUseTransparentBg ? 'text-gray-900' : 'text-gray-900'
               )}
             >
-              VolunteerFund
+              HeartGive
             </span>
           </Link>
 
