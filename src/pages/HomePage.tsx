@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useFundStore } from '../store/useFundStore';
 import { FundCard } from '../components/FundCard';
 import { CategoryFilter } from '../components/CategoryFilter';
 import { Breadcrumbs } from '../components/Breadcrumbs';

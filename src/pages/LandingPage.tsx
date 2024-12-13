@@ -27,7 +27,7 @@ export function LandingPage() {
 
   const fetchFunds = async () => {
     // const funds: Fund[] = await getFunds({ page: 1, pageSize: 10 });
-    const funds: Fund[] = await getVerifiedFunds({ page: 1, pageSize: 10 });
+    const funds: Fund[] = await getFunds({ page: 1, pageSize: 10 });
     setFunds(funds);
   };
 

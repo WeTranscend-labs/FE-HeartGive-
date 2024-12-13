@@ -33,7 +33,7 @@ import { CancelDialog } from '@/components/CancelDialog';
 import { WalletContextType } from '@/types/contexts/WalletContextType';
 import WalletContext from '@/contexts/components/WalletContext';
 
-export function FundDetailsPage() {
+export default function FundDetailsPage() {
   const { id } = useParams<string>();
   const [fund, setFund] = useState<Fund | null>(null!);
   const { wallet } = useContext<WalletContextType>(WalletContext);
@@ -109,14 +109,14 @@ export function FundDetailsPage() {
               {/* Campaign Stats */}
               <div className="flex items-center gap-8">
                 {[
-                  { icon: ClockIcon, text: "Started 2 days ago" },
-                  { icon: UserGroupIcon, text: `${transactions?.length || 0} supporters` },
-                  { icon: TagIcon, text: fund.category }
+                  { icon: ClockIcon, text: 'Started 2 days ago' },
+                  {
+                    icon: UserGroupIcon,
+                    text: `${transactions?.length || 0} supporters`,
+                  },
+                  { icon: TagIcon, text: fund.category },
                 ].map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center text-white/90"
-                  >
+                  <div key={index} className="flex items-center text-white/90">
                     <item.icon className="w-4 h-4 mr-2 text-primary-200" />
                     <span className="text-sm font-medium">{item.text}</span>
                   </div>
@@ -253,7 +253,6 @@ export function FundDetailsPage() {
               </Card>
             </div>
 
-
             {/* Right Column - Organization Info */}
             <div className="lg:col-span-1">
               <div className="space-y-6 sticky top-24">
@@ -304,9 +303,11 @@ export function FundDetailsPage() {
 
                     {/* Contact Information */}
                     <div className="space-y-4">
-                      <h4 className="text-sm font-semibold text-gray-900">Contact Information</h4>
+                      <h4 className="text-sm font-semibold text-gray-900">
+                        Contact Information
+                      </h4>
                       <div className="space-y-3">
-                        {fund.organizationInfo.website && (
+                        {fund.organizationInfo?.website && (
                           <a
                             href={fund.organizationInfo.website}
                             target="_blank"
@@ -317,15 +318,20 @@ export function FundDetailsPage() {
                               <GlobeAltIcon className="w-5 h-5 text-primary-600 group-hover:scale-110 transition-transform" />
                             </div>
                             <div>
-                              <div className="text-sm font-medium text-gray-900">Website</div>
+                              <div className="text-sm font-medium text-gray-900">
+                                Website
+                              </div>
                               <div className="text-sm text-gray-500 truncate">
-                                {new URL(fund.organizationInfo.website).hostname}
+                                {
+                                  new URL(fund.organizationInfo.website)
+                                    .hostname
+                                }
                               </div>
                             </div>
                           </a>
                         )}
 
-                        {fund.organizationInfo.socialInfo?.email && (
+                        {fund.organizationInfo?.socialInfo?.email && (
                           <a
                             href={`mailto:${fund.organizationInfo.socialInfo.email}`}
                             className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group"
@@ -334,7 +340,9 @@ export function FundDetailsPage() {
                               <EnvelopeIcon className="w-5 h-5 text-primary-600 group-hover:scale-110 transition-transform" />
                             </div>
                             <div>
-                              <div className="text-sm font-medium text-gray-900">Email</div>
+                              <div className="text-sm font-medium text-gray-900">
+                                Email
+                              </div>
                               <div className="text-sm text-gray-500 truncate">
                                 {fund.organizationInfo.socialInfo.email}
                               </div>
@@ -342,13 +350,15 @@ export function FundDetailsPage() {
                           </a>
                         )}
 
-                        {fund.organizationInfo.socialInfo?.phone && (
+                        {fund.organizationInfo?.socialInfo?.phone && (
                           <div className="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group">
                             <div className="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center mr-3">
                               <PhoneIcon className="w-5 h-5 text-primary-600 group-hover:scale-110 transition-transform" />
                             </div>
                             <div>
-                              <div className="text-sm font-medium text-gray-900">Phone</div>
+                              <div className="text-sm font-medium text-gray-900">
+                                Phone
+                              </div>
                               <div className="text-sm text-gray-500">
                                 {fund.organizationInfo.socialInfo.phone}
                               </div>
@@ -359,12 +369,18 @@ export function FundDetailsPage() {
                     </div>
 
                     {/* Social Links */}
-                    {fund.organizationInfo.socialInfo &&
-                      Object.values(fund.organizationInfo.socialInfo).some(Boolean) && (
+                    {fund?.organizationInfo?.socialInfo &&
+                      Object.values(fund.organizationInfo.socialInfo).some(
+                        Boolean
+                      ) && (
                         <div className="space-y-4">
-                          <h4 className="text-sm font-semibold text-gray-900">Social Media</h4>
+                          <h4 className="text-sm font-semibold text-gray-900">
+                            Social Media
+                          </h4>
                           <div className="flex flex-wrap gap-3">
-                            {Object.entries(fund.organizationInfo.socialInfo).map(([platform, url]) => {
+                            {Object.entries(
+                              fund.organizationInfo.socialInfo
+                            ).map(([platform, url]) => {
                               if (!url) return null;
                               return (
                                 <a
@@ -384,12 +400,18 @@ export function FundDetailsPage() {
 
                     {/* Fund Address */}
                     <div className="space-y-3">
-                      <h4 className="text-sm font-semibold text-gray-900">Fund Address</h4>
+                      <h4 className="text-sm font-semibold text-gray-900">
+                        Fund Address
+                      </h4>
                       <div className="bg-gray-50 rounded-lg p-4 space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-500">Contract Address</span>
+                          <span className="text-sm text-gray-500">
+                            Contract Address
+                          </span>
                           <button
-                            onClick={() => navigator.clipboard.writeText(fund.fundAddress)}
+                            onClick={() =>
+                              navigator.clipboard.writeText(fund.fundAddress)
+                            }
                             className="text-primary-600 hover:text-primary-700 text-sm"
                           >
                             Copy
@@ -405,17 +427,19 @@ export function FundDetailsPage() {
                     <div className="rounded-lg bg-primary-50 p-4">
                       <div className="flex items-center text-primary-700">
                         <ShieldCheckIcon className="w-5 h-5 mr-2" />
-                        <span className="text-sm font-medium">Verified Organization</span>
+                        <span className="text-sm font-medium">
+                          Verified Organization
+                        </span>
                       </div>
                       <p className="mt-2 text-sm text-primary-600/80">
-                        This organization has been verified and meets our trust & safety standards
+                        This organization has been verified and meets our trust
+                        & safety standards
                       </p>
                     </div>
                   </CardContent>
                 </Card>
               </div>
             </div>
-
           </div>
         </div>
       </div>
