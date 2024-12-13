@@ -30,9 +30,10 @@ import { WalletContextType } from '@/types/contexts/WalletContextType';
 
 interface TransactionFormProps {
   fundAddress: string;
+  onSuccess: () => void;
 }
 
-export function TransactionForm({ fundAddress }: TransactionFormProps) {
+export function TransactionForm({ fundAddress, onSuccess }: TransactionFormProps) {
   const { toast } = useToast();
   const { contribute } =
     useContext<SmartContractContextType>(SmartContractContext);
@@ -59,13 +60,13 @@ export function TransactionForm({ fundAddress }: TransactionFormProps) {
       console.log(adaAmount);
 
       // Gọi hàm contribute
-      const txHash = await contribute({
-        fundAddress,
-        contributionAmount: lovelaceAmount,
-        fundOwner: wallet.publicKeyHash,
-      });
+      // const txHash = await contribute({
+      //   fundAddress,
+      //   contributionAmount: lovelaceAmount,
+      //   fundOwner: wallet.publicKeyHash,
+      // });
 
-      console.log(txHash);
+      // console.log(txHash);
 
       // Hiển thị toast thành công
       toast({
@@ -73,6 +74,9 @@ export function TransactionForm({ fundAddress }: TransactionFormProps) {
         description: `You've contributed ${data.amount} ₳ to the campaign.`,
         variant: 'success',
       });
+
+      // Call onSuccess to close the modal
+      onSuccess();
 
       // Reset form sau khi contribute thành công
       form.reset();

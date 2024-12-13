@@ -18,7 +18,6 @@ export function LandingPage() {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 150]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
-  // const funds = useFundStore((state) => state.funds);
   const [funds, setFunds] = useState<Fund[]>([]);
 
   useEffect(() => {
@@ -26,7 +25,6 @@ export function LandingPage() {
   }, []);
 
   const fetchFunds = async () => {
-    // const funds: Fund[] = await getFunds({ page: 1, pageSize: 10 });
     const funds: Fund[] = await getFunds({ page: 1, pageSize: 10 });
     setFunds(funds);
   };
@@ -65,23 +63,23 @@ export function LandingPage() {
                 className="max-w-3xl"
               >
                 <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-                  Nền tảng gây quỹ cộng đồng trực tuyến
+                  Online Crowdfunding Platform
                 </h1>
                 <p className="text-xl text-white/90 mb-8">
-                  Dự án gây quỹ b��i các tổ chức đã được cấp phép
+                  Fundraising projects from verified organizations
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
                     to="/register"
                     className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-white bg-primary-600 hover:bg-primary-700 transition-colors"
                   >
-                    Bắt đầu gây quỹ
+                    Start Fundraising
                   </Link>
                   <Link
                     to="/funds"
                     className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-white border-2 border-white hover:bg-white/20 transition-colors"
                   >
-                    Khám phá các quỹ
+                    Explore Funds
                   </Link>
                 </div>
               </motion.div>
@@ -100,11 +98,10 @@ export function LandingPage() {
             className="text-center mb-12"
           >
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Các chiến dịch nổi bật
+              Featured Campaigns
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Khám phá và hỗ trợ những dự án đang tạo nên sự thay đổi tích cực
-              trong cộng đồng
+              Discover and support projects making a positive impact in the community
             </p>
           </motion.div>
 
@@ -133,7 +130,7 @@ export function LandingPage() {
               to="/funds"
               className="inline-flex items-center px-6 py-3 rounded-lg text-white bg-primary-600 hover:bg-primary-700 transition-colors"
             >
-              Xem tất cả chiến dịch
+              View All Campaigns
             </Link>
           </motion.div>
         </div>
@@ -144,10 +141,10 @@ export function LandingPage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Tại sao chọn chúng tôi?
+              Why Choose Us?
             </h2>
             <p className="text-xl text-gray-600">
-              Nền tảng gây quỹ minh bạch và đáng tin cậy
+              A transparent and reliable fundraising platform
             </p>
           </div>
 
@@ -158,23 +155,23 @@ export function LandingPage() {
             {[
               {
                 icon: HeartIcon,
-                title: 'Đáng tin cậy',
-                description: 'Các tổ chức được xác minh và cấp phép',
+                title: 'Trustworthy',
+                description: 'Verified and licensed organizations',
               },
               {
                 icon: ShieldCheckIcon,
-                title: 'An toàn',
-                description: 'Bảo mật thông tin và giao dịch',
+                title: 'Secure',
+                description: 'Secure transactions and information',
               },
               {
                 icon: UserGroupIcon,
-                title: 'Cộng đồng',
-                description: 'Kết nối nhà hảo tâm với tổ chức',
+                title: 'Community',
+                description: 'Connecting donors with organizations',
               },
               {
                 icon: GlobeAltIcon,
-                title: 'Minh bạch',
-                description: 'Theo dõi quỹ theo thời gian thực',
+                title: 'Transparent',
+                description: 'Track funds in real-time',
               },
             ].map((feature, index) => (
               <motion.div
@@ -200,14 +197,14 @@ export function LandingPage() {
       {/* Parallax Impact Section */}
       <ParallaxSection
         imageUrl="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80"
-        title="Tạo tác động thực sự"
-        description="Hỗ trợ các dự án ý nghĩa và theo dõi tác động của bạn theo thời gian thực"
+        title="Make a Real Impact"
+        description="Support meaningful projects and track your impact in real-time"
       >
         <Link
           to="/funds"
           className="inline-flex items-center px-6 py-3 rounded-lg text-white border-2 border-white hover:bg-white/20 transition-colors"
         >
-          Xem các chiến dịch
+          View Campaigns
         </Link>
       </ParallaxSection>
 
@@ -216,9 +213,10 @@ export function LandingPage() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { number: '50K+', label: 'Nhà hảo tâm' },
-              { number: '$1.2M+', label: 'Đã quyên góp' },
-              { number: '100+', label: 'Dự án thành công' },
+              { number: '50K+', label: 'Donors' },
+              { number: '$1.2M+', label: 'Raised' },
+              { number: '100+', label: 'Successful Projects' },
+
             ].map((stat, index) => (
               <motion.div
                 key={index}
@@ -257,20 +255,21 @@ export function LandingPage() {
             className="max-w-3xl mx-auto text-center"
           >
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Sẵn sàng tạo nên sự thay đổi?
+              Ready to make a difference?
             </h2>
             <p className="text-xl text-white/90 mb-12">
-              Bắt đầu chiến dịch gây quỹ của bạn ngay hôm nay
+              Start your fundraising campaign today
             </p>
 
             <Link
               to="/register"
               className="inline-flex items-center px-8 py-4 rounded-xl text-lg font-semibold bg-white text-primary-600 hover:bg-primary-50 transition-colors"
             >
-              Bắt đầu gây quỹ
+              Start Fundraising
             </Link>
           </motion.div>
         </div>
+
       </section>
     </div>
   );
