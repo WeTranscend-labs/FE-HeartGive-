@@ -20,7 +20,7 @@ import {
   transactionFormSchema,
   type TransactionFormData,
 } from '../schemas/transactionFormSchema';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast'; 
 import { SmartContractContextType } from '@/types/contexts/SmartContractContextType';
 import { LucidContextType } from '@/types/contexts/LucidContextType';
 import SmartContractContext from '@/contexts/components/SmartContractContext';
@@ -71,7 +71,7 @@ export function TransactionForm({ fundAddress }: TransactionFormProps) {
       toast({
         title: 'Contribution Successful',
         description: `You've contributed ${data.amount} USD to the campaign.`,
-        variant: 'default',
+        variant: 'success',
       });
 
       // Reset form sau khi contribute thành công

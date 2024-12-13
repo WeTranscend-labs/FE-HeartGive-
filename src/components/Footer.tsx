@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import Logo from './Logo';
 
 const footerSections = [
   {
@@ -46,16 +47,11 @@ export function Footer() {
           {/* Brand Section */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center space-x-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">VF</span>
-              </div>
-              <span className="text-xl font-bold text-gray-900">
-                VolunteerFund
-              </span>
+              <Logo />
+              <span className="text-xl font-bold text-gray-900">HeartGive</span>
             </Link>
             <p className="text-gray-600 mb-6 max-w-md">
-              Empowering organizations to make a difference through transparent fundraising. 
-              Join us in creating positive change in communities worldwide.
+              Empowering organizations to make a difference through transparent blockchain solutions. Join us in revolutionizing community support.
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((social) => (
@@ -101,28 +97,11 @@ export function Footer() {
         <div className="mt-12 pt-8 border-t border-gray-200">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-500 text-sm">
-              © {new Date().getFullYear()} VolunteerFund. All rights reserved.
+              © {new Date().getFullYear()} HeartGive. All rights reserved.
             </p>
-            <div className="flex items-center space-x-4">
-              <motion.img
-                src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg"
-                alt="Visa"
-                className="h-6"
-                whileHover={{ scale: 1.05 }}
-              />
-              <motion.img
-                src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg"
-                alt="Mastercard"
-                className="h-6"
-                whileHover={{ scale: 1.05 }}
-              />
-              <motion.img
-                src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg"
-                alt="PayPal"
-                className="h-6"
-                whileHover={{ scale: 1.05 }}
-              />
-            </div>
+            <p className="text-gray-500 text-sm">
+              Built on blockchain for a transparent future.
+            </p>
           </div>
         </div>
       </div>
