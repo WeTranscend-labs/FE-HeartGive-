@@ -17,7 +17,7 @@ import { getFunds } from '@/services/blockfrost.service';
 
 type FundStatus = 'active' | 'completed' | 'all';
 
-export function HomePage() {
+export default function HomePage() {
   // const funds = useFundStore((state) => state.funds);
   const [selectedCategory, setSelectedCategory] = useState<
     FundCategory | 'All'
