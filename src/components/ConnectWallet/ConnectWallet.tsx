@@ -19,7 +19,8 @@ import { Link } from 'react-router-dom';
 
 const ConnectWallet = () => {
   const { lucid } = useContext<LucidContextType>(LucidContext);
-  const { wallet, disconnect } = useContext<WalletContextType>(WalletContext);
+  const { wallet, disconnect, isAdmin } =
+    useContext<WalletContextType>(WalletContext);
   const { openModal } = useContext(WalletModalContext);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -173,11 +174,13 @@ const ConnectWallet = () => {
                   </p>
                 </div>
                 <div className="px-5 mt-4">
-                  <Link to="/verified">
-                    <Button className="w-full bg-primary-600 text-white hover:bg-primary-500 transition-colors mb-3">
-                      Go to Dashboard
-                    </Button>
-                  </Link>
+                  {isAdmin && (
+                    <Link to="/verified">
+                      <Button className="w-full bg-primary-600 text-white hover:bg-primary-500 transition-colors mb-3">
+                        Go to Dashboard
+                      </Button>
+                    </Link>
+                  )}
                   <Button
                     onClick={disconnect}
                     variant="outline"

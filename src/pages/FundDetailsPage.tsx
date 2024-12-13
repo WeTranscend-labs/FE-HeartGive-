@@ -32,12 +32,12 @@ import { OrganizeStory } from '@/components/OrganizeStory';
 import { CancelDialog } from '@/components/CancelDialog';
 import { WalletContextType } from '@/types/contexts/WalletContextType';
 import WalletContext from '@/contexts/components/WalletContext';
-import { Loader2 } from "lucide-react";
+import { Loader2 } from 'lucide-react';
 
 export default function FundDetailsPage() {
   const { id } = useParams<string>();
   const [fund, setFund] = useState<Fund | null>(null!);
-  const { wallet } = useContext<WalletContextType>(WalletContext);
+  const { wallet, isAdmin } = useContext<WalletContextType>(WalletContext);
   const [transactions, setTransactions] = useState<FundTransaction[]>(null!);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -47,7 +47,7 @@ export default function FundDetailsPage() {
         setIsLoading(true);
         const [fundResult, transactionsResult] = await Promise.all([
           getFundByAddress({ address: id }),
-          getFundTransactions({ fundAddress: id })
+          getFundTransactions({ fundAddress: id }),
         ]);
 
         setFund(fundResult);
@@ -65,7 +65,9 @@ export default function FundDetailsPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary-600 mx-auto mb-4" />
-          <h2 className="text-xl font-medium text-gray-900">Loading fund details...</h2>
+          <h2 className="text-xl font-medium text-gray-900">
+            Loading fund details...
+          </h2>
         </div>
       </div>
     );
@@ -168,17 +170,19 @@ export default function FundDetailsPage() {
                   />
                 </div>
                 <div className="w-[30%]">
-                  <CancelDialog
-                    fundId={fund.txHash}
-                    currentAmount={fund.currentAmount}
-                    fundOwner={wallet?.publicKeyHash}
-                    className="bg-white/10 hover:bg-white/15
-                             text-white font-medium 
-                             py-4 px-8 rounded-xl
-                             backdrop-blur-sm
-                             transition-all duration-300
-                             border border-white/10"
-                  />
+                  {isAdmin && (
+                    <CancelDialog
+                      fundId={fund.txHash}
+                      currentAmount={fund.currentAmount}
+                      fundOwner={wallet?.publicKeyHash}
+                      className="bg-white/10 hover:bg-white/15
+                           text-white font-medium 
+                           py-4 px-8 rounded-xl
+                           backdrop-blur-sm
+                           transition-all duration-300
+                           border border-white/10"
+                    />
+                  )}
                 </div>
               </div>
             </div>

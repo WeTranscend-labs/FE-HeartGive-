@@ -13,6 +13,7 @@ import {
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import { getFunds } from '@/services/blockfrost.service';
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 
 type FundStatus = 'active' | 'completed' | 'all';
 
@@ -27,15 +28,26 @@ export default function HomePage() {
   );
   const [status, setStatus] = useState<FundStatus>('active');
   const [funds, setFunds] = useState<Fund[]>(null!);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 9;
 
   useEffect(() => {
-    fetchFunds();
-  }, []);
+    fetchFunds(currentPage);
+  }, [currentPage]);
 
-  const fetchFunds = async () => {
-    const funds = await getFunds({ page: 1, pageSize: 9 });
+  const fetchFunds = async (page: number) => {
+    try {
+      const result = await getFunds({
+        page,
+        pageSize: itemsPerPage,
+      });
 
-    setFunds(funds);
+      setFunds(result.funds);
+      setTotalPages(result.totalPages);
+    } catch (error) {
+      console.error('Error fetching funds:', error);
+    }
   };
 
   const filteredFunds: Fund[] = funds?.filter((fund) => {
@@ -57,18 +69,6 @@ export default function HomePage() {
 
     return matchesCategory && matchesSearch && matchesStatus;
   });
-  // .sort((a: Fund, b: Fund) => {
-  //   switch (sortBy) {
-  //     case 'progress':
-  //       return (
-  //         b.currentAmount / b.targetAmount - a.currentAmount / a.targetAmount
-  //       );
-  //     case 'amount':
-  //       return b.currentAmount - a.currentAmount;
-  //     default:
-  //       return b.createdAt.getTime() - a.createdAt.getTime();
-  //   }
-  // });
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -234,7 +234,7 @@ export default function HomePage() {
           >
             {filteredFunds?.map((fund) => (
               <motion.div
-                key={fund?.walletAddress}
+                key={fund?.txHash}
                 variants={itemVariants}
                 transition={{ duration: 0.5 }}
               >
@@ -244,6 +244,42 @@ export default function HomePage() {
               </motion.div>
             ))}
           </motion.div>
+
+          <div className="flex justify-center mt-8">
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="p-2 rounded-md bg-white shadow-md disabled:opacity-50"
+              >
+                <ChevronLeftIcon className="w-5 h-5" />
+              </button>
+
+              {[...Array(totalPages)].map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentPage(index + 1)}
+                  className={`px-4 py-2 rounded-md ${
+                    currentPage === index + 1
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-white text-gray-700'
+                  } shadow-md`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="p-2 rounded-md bg-white shadow-md disabled:opacity-50"
+              >
+                <ChevronRightIcon className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
 
           {filteredFunds?.length === 0 && (
             <motion.div
