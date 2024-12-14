@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+import tailwindcssAnimate from 'tailwindcss-animate';
+
 const config = {
   darkMode: ['class'],
   content: [
@@ -109,7 +111,7 @@ const config = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [tailwindcssAnimate], // Sử dụng biến đã nhập
 };
 
 export default config; // Xuất cấu hình
