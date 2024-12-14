@@ -60,7 +60,7 @@ export function CampaignStory({ content, images }: CampaignStoryProps) {
                     className="w-full rounded-lg shadow-lg object-cover max-h-[500px]" // Thêm object-cover và max-height
                   />
                   <p className="text-sm text-gray-500 mt-2 text-center italic">
-                    Những nụ cười và hành trình thay đổi cuộc sống
+                    "Every contribution writes a story of hope and possibility"
                   </p>
                 </div>
               )}
