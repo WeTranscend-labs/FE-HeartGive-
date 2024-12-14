@@ -58,7 +58,7 @@ const WalletDropdown = ({
         <div className="flex items-center justify-between bg-gray-50/80 rounded-xl p-3.5 group hover:bg-gray-100/80 transition-colors">
           <p className="text-sm text-gray-600 font-medium">
             {convertString({
-              inputString: String(wallet.address),
+              inputString: String(wallet?.address),
               numberOfFirstChar: 12,
               numberOfLastChar: -12,
             })}

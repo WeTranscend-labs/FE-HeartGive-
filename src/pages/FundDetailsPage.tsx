@@ -210,7 +210,7 @@ export default function FundDetailsPage() {
                   />
                 </div>
                 <div className="w-[30%]">
-                  {wallet.address == fund.walletAddress &&
+                  {wallet?.address == fund?.walletAddress &&
                     (new Date(fund.endDate) <= new Date() ? (
                       <WithdrawFundsDialog
                         fundId={fund.txHash}
