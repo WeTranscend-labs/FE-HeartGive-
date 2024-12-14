@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Target, ChevronRight, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { FileText, Target, X } from 'lucide-react';
 
 // Modal Component
-export const PurposeModal = ({ fund, onClose }) => {
+export const PurposeModal = ({ fund, onClose }: any) => {
   return (
     <AnimatePresence>
       <motion.div

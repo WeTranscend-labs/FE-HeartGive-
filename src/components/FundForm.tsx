@@ -1,34 +1,31 @@
-import { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { motion } from 'framer-motion';
+import { useContext, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 
-import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { SmartContractContextType } from '@/types/contexts/SmartContractContextType';
-import SmartContractContext from '@/contexts/components/SmartContractContext';
-import { LucidContextType } from '@/types/contexts/LucidContextType';
+import { Form } from '@/components/ui/form';
 import LucidContext from '@/contexts/components/LucidContext';
-import { WalletContextType } from '@/types/contexts/WalletContextType';
-import WalletContext from '@/contexts/components/WalletContext';
-import { ModalContextType } from '@/types/contexts/ModalContextType';
 import ModalContext from '@/contexts/components/ModalContext';
-import { fundFormSchema, type FundFormData } from '@/schemas/fundFormSchema';
-import { ImageUpload } from './FundForm/ImageUpload';
-import { SocialLinks } from './FundForm/SocialLinks';
-import { DateFields } from './FundForm/DateFields';
-import { OrganizationFields } from './FundForm/OrganizationFields';
-import { CampaignFields } from './FundForm/CampaignFields';
-import supabase, { uploadImageToSupabase } from '@/services/supabase.service';
+import WalletContext from '@/contexts/components/WalletContext';
 import { useToast } from '@/hooks/use-toast';
+import { fundFormSchema, type FundFormData } from '@/schemas/fundFormSchema';
+import { uploadImageToSupabase } from '@/services/supabase.service';
+import { LucidContextType } from '@/types/contexts/LucidContextType';
+import { ModalContextType } from '@/types/contexts/ModalContextType';
+import { WalletContextType } from '@/types/contexts/WalletContextType';
 import { CheckCircle2 } from 'lucide-react';
+import { CampaignFields } from './FundForm/CampaignFields';
+import { DateFields } from './FundForm/DateFields';
+import { ImageUpload } from './FundForm/ImageUpload';
+import { OrganizationFields } from './FundForm/OrganizationFields';
+import { SocialLinks } from './FundForm/SocialLinks';
 
 export function FundForm() {
   const { toast } = useToast();
-  const { createFund } =
-    useContext<SmartContractContextType>(SmartContractContext);
+
   const { lucid } = useContext<LucidContextType>(LucidContext);
   const { wallet } = useContext<WalletContextType>(WalletContext);
   const { toggleShowingWallet } = useContext<ModalContextType>(ModalContext);
@@ -106,16 +103,10 @@ export function FundForm() {
       toggleShowingWallet(); // Show wallet connection modal
       return;
     }
+    let imageUrl = null;
 
     try {
       // Hiển thị toast loading
-      const createToast = toast({
-        variant: 'default',
-        title: 'Creating Fund...',
-        description: 'Preparing your fund details',
-      });
-
-      let imageUrl = '';
       if (imageFile) {
         imageUrl = await uploadImageToSupabase(imageFile);
         if (!imageUrl) {
@@ -124,17 +115,6 @@ export function FundForm() {
       }
 
       // Update data with image URL
-      const fundDataWithImage = {
-        ...data,
-        image: imageUrl,
-      };
-
-      // Tạo quỹ
-      const fundResult = await createFund({
-        fundOwner: wallet.publicKeyHash,
-        fundMetadata: fundDataWithImage,
-      });
-
       // Cập nhật toast thành công với màu xanh lá
       toast({
         variant: 'success',

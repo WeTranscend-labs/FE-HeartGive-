@@ -1,20 +1,18 @@
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import SmartContractContext from '@/contexts/components/SmartContractContext';
+import { SmartContractContextType } from '@/types/contexts/SmartContractContextType';
 import { formatCurrency } from '@/utils/format';
 import { useContext, useState } from 'react';
-import SmartContractContext from '@/contexts/components/SmartContractContext';
-import { toast } from '@/hooks/use-toast';
-import { SmartContractContextType } from '@/types/contexts/SmartContractContextType';
-
 
 interface CancelDialogProps {
   fundId: string;
@@ -22,7 +20,6 @@ interface CancelDialogProps {
   fundOwner: string;
   className?: string;
 }
-
 
 export function CancelDialog({
   fundId,
@@ -34,7 +31,6 @@ export function CancelDialog({
     useContext<SmartContractContextType>(SmartContractContext);
   const [isLoading, setIsLoading] = useState(false);
 
-
   const handleCancelFund = async () => {
     try {
       setIsLoading(true);
@@ -43,9 +39,7 @@ export function CancelDialog({
         fundOwner: fundOwner,
       });
 
-
       console.log(cancelTxHash);
-
 
       //   toast.success('Fund successfully canceled', {
       //     description: `Transaction Hash: ${cancelTxHash}`,
@@ -58,7 +52,6 @@ export function CancelDialog({
       setIsLoading(false);
     }
   };
-
 
   return (
     <Dialog>
@@ -87,10 +80,12 @@ export function CancelDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] p-6 rounded-xl">
         <DialogHeader className="space-y-3">
-          <DialogTitle className="text-2xl font-bold text-red-600">Cancel Fund</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-red-600">
+            Cancel Fund
+          </DialogTitle>
           <DialogDescription className="text-gray-600">
-            Are you sure you want to cancel this fund and withdraw all contributions?
-            This action cannot be undone.
+            Are you sure you want to cancel this fund and withdraw all
+            contributions? This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
         <div className="py-6">
@@ -104,10 +99,7 @@ export function CancelDialog({
           </div>
           <DialogFooter className="flex gap-3">
             <DialogClose asChild>
-              <Button
-                variant="outline"
-                className="flex-1 py-6"
-              >
+              <Button variant="outline" className="flex-1 py-6">
                 Cancel
               </Button>
             </DialogClose>
@@ -119,9 +111,25 @@ export function CancelDialog({
             >
               {isLoading ? (
                 <span className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Canceling...
                 </span>
@@ -135,6 +143,3 @@ export function CancelDialog({
     </Dialog>
   );
 }
-
-
-

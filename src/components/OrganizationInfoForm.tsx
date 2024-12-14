@@ -1,8 +1,14 @@
+import {
+  BuildingOfficeIcon,
+  EnvelopeIcon,
+  GlobeAltIcon,
+  MapPinIcon,
+  PhoneIcon,
+} from '@heroicons/react/24/outline';
 import { useFormContext } from 'react-hook-form';
-import { BuildingOfficeIcon, GlobeAltIcon, EnvelopeIcon, PhoneIcon, MapPinIcon } from '@heroicons/react/24/outline';
 
 export function OrganizationInfoForm() {
-  const { register, formState: { errors } } = useFormContext();
+  const { register } = useFormContext();
 
   return (
     <div className="space-y-6">
@@ -14,17 +20,20 @@ export function OrganizationInfoForm() {
         <textarea
           {...register('organizationInfo.description', {
             required: 'Organization description is required',
-            minLength: { value: 100, message: 'Description must be at least 100 characters' }
+            minLength: {
+              value: 100,
+              message: 'Description must be at least 100 characters',
+            },
           })}
           rows={4}
           className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           placeholder="Tell us about your organization's mission, history, and impact..."
         />
-        {errors.organizationInfo?.description && (
+        {/* {errors.organizationInfo?. && (
           <p className="mt-1 text-sm text-red-600">
             {errors.organizationInfo.description.message as string}
           </p>
-        )}
+        )} */}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -52,17 +61,17 @@ export function OrganizationInfoForm() {
               required: 'Email is required',
               pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: 'Invalid email address'
-              }
+                message: 'Invalid email address',
+              },
             })}
             className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             placeholder="contact@organization.org"
           />
-          {errors.organizationInfo?.email && (
+          {/* {errors.organizationInfo?.email && (
             <p className="mt-1 text-sm text-red-600">
               {errors.organizationInfo.email.message as string}
             </p>
-          )}
+          )} */}
         </div>
 
         <div>

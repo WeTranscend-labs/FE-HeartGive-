@@ -1,5 +1,5 @@
 import { Network } from 'lucid-cardano';
-import React, { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import NetworkContext from '../components/NetworkContext';
 
 type Props = {

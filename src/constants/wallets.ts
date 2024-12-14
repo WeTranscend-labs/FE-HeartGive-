@@ -1,10 +1,9 @@
 import images from '@/assets/images';
 import configs from '@/configs';
-import { WalletType } from '@/types/GenericType';
 
 declare const window: any;
 
-const wallets: WalletType[] = [
+const wallets: any = [
   {
     name: 'Nami',
     image: images.nami,

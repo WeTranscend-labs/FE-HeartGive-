@@ -6,17 +6,12 @@ import { WalletContextType } from '@/types/contexts/WalletContextType';
 import { applyParams } from '@/utils/applyParams';
 import readValidators, { Validators } from '@/utils/readValidators';
 import { encode } from 'cbor-x';
-import {
-  applyDoubleCborEncoding,
-  Data,
-  fromText,
-  SpendingValidator,
-} from 'lucid-cardano';
+import { Data, fromText } from 'lucid-cardano';
 import { ReactNode, useContext, useEffect, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import LucidContext from '../components/LucidContext';
 import SmartContractContext from '../components/SmartContractContext';
 import WalletContext from '../components/WalletContext';
-import { v4 as uuidv4 } from 'uuid';
 
 type Props = {
   children: ReactNode;
@@ -51,13 +46,6 @@ const SmartContractProvider = function ({ children }: Props) {
       randomHashKey,
     });
     const fundAddress = fundAppliedParams.fundAddress;
-
-    const fundDatum = Data.to(
-      {
-        fundOwner: fundOwner,
-      },
-      FundDatum
-    );
 
     const fundManagementDatum = Data.to(
       {
@@ -107,7 +95,6 @@ const SmartContractProvider = function ({ children }: Props) {
 
   const cancelFund = async ({
     txHash,
-    fundOwner,
   }: {
     txHash: string;
     fundOwner: string;
@@ -165,8 +152,6 @@ const SmartContractProvider = function ({ children }: Props) {
     fundOwner: string;
   }) => {
     try {
-      const validators: Validators = readValidators();
-      const fundValidator = validators.fund;
       // Tạo datum cho contribution
       const contributionDatum = Data.to(
         {
@@ -223,15 +208,11 @@ const SmartContractProvider = function ({ children }: Props) {
   }) => {
     try {
       const validators: Validators = readValidators();
-      const fundValidator = validators.fund;
       const temp = applyParams({ validators, fundOwner, lucid, randomHashKey });
 
       if (walletAddress !== wallet.address) return 'This Fund is owned by you';
       // Tìm tất cả UTXOs tại địa chỉ quỹ
       const utxos = await lucid.utxosAt(fundAddress);
-
-      const hash = await lucid.utils.getAddressDetails(walletAddress)
-        .paymentCredential?.hash;
 
       // Tính tổng số ADA hiện có tại quỹ
       const totalFundBalance = utxos.reduce(

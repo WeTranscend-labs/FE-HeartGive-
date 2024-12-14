@@ -1,10 +1,10 @@
 import { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { MainLayout } from './layouts/MainLayout';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { Toaster } from './components/ui/toaster';
+import { TooltipProvider } from './components/ui/tooltip';
 import ContextProvider from './contexts';
 import WalletModalProvider from './contexts/providers/WalletModalProvider';
-import { TooltipProvider } from './components/ui/tooltip';
+import { MainLayout } from './layouts/MainLayout';
 
 const LoadingFallback = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -20,7 +20,6 @@ const HomePage = lazy(() => import('./pages/HomePage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
 const FundDetailsPage = lazy(() => import('./pages/FundDetailsPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
-const VerifiedFundPage = lazy(() => import('./pages/VerifiedFundPage'));
 
 function App() {
   return (
@@ -37,7 +36,6 @@ function App() {
                   <Route path="/register" element={<RegisterPage />} />
                   <Route path="/fund/:id" element={<FundDetailsPage />} />
                   <Route path="/about" element={<AboutPage />} />
-                  <Route path="/verified" element={<VerifiedFundPage />} />
                 </Routes>
               </Suspense>
             </MainLayout>

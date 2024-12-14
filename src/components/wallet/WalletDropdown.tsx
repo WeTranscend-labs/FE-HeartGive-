@@ -1,14 +1,13 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
-import convertString from '@/helpers/convert-string';
 import icons from '@/assets/icons';
-import Tippy from '../Tippy/Tippy';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '../ui/button';
-import { ShieldCheck } from 'lucide-react';
-import { WalletContextType } from '@/types/contexts/WalletContextType';
 import WalletContext from '@/contexts/components/WalletContext';
+import convertString from '@/helpers/convert-string';
+import { WalletContextType } from '@/types/contexts/WalletContextType';
+import { ShieldCheck } from 'lucide-react';
+import Tippy from '../Tippy/Tippy';
+import { Button } from '../ui/button';
 
 type WalletDropdownProps = {
   wallet: any;
@@ -26,7 +25,6 @@ const WalletDropdown = ({
   setIsCopied,
 }: WalletDropdownProps) => {
   const { isAdmin } = useContext<WalletContextType>(WalletContext);
-  const navigate = useNavigate();
 
   return (
     <section

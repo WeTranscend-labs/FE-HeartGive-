@@ -1,5 +1,4 @@
 import * as z from 'zod';
-import { FundCategory } from '../types/fund';
 
 export const fundFormSchema = z.object({
   organizationName: z

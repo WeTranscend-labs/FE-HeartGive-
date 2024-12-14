@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import WalletModalContext from '../components/WalletModalContext';
 
 type Props = {
@@ -18,4 +18,4 @@ const WalletModalProvider = ({ children }: Props) => {
   );
 };
 
-export default WalletModalProvider; 
+export default WalletModalProvider;

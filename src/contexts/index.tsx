@@ -1,4 +1,4 @@
-import React, { ReactNode, lazy } from 'react';
+import { ReactNode, lazy } from 'react';
 
 const WalletProvider = lazy(
   () => import('@/contexts/providers/WalletProvider')

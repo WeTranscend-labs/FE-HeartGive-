@@ -1,9 +1,9 @@
-import React, { ReactNode, useContext, useEffect, useState } from 'react';
-import { Blockfrost, Lucid, Network } from 'lucid-cardano';
-import { NetworkContextType } from '@/types/contexts/NetworkContextType';
-import NetworkContext from '../components/NetworkContext';
 import { networks } from '@/constants/networks';
+import { NetworkContextType } from '@/types/contexts/NetworkContextType';
+import { Blockfrost, Lucid, Network } from 'lucid-cardano';
+import { ReactNode, useContext, useEffect, useState } from 'react';
 import LucidContext from '../components/LucidContext';
+import NetworkContext from '../components/NetworkContext';
 
 type Props = {
   children: ReactNode;

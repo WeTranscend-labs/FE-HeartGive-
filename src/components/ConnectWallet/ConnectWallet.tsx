@@ -1,20 +1,20 @@
-import React, { useState, useContext, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { LucidContextType } from '@/types/contexts/LucidContextType';
-import { WalletContextType } from '@/types/contexts/WalletContextType';
+import { Button } from '@/components/ui/button';
 import LucidContext from '@/contexts/components/LucidContext';
 import WalletContext from '@/contexts/components/WalletContext';
 import WalletModalContext from '@/contexts/components/WalletModalContext';
-import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { LucidContextType } from '@/types/contexts/LucidContextType';
+import { WalletContextType } from '@/types/contexts/WalletContextType';
 import {
-  ChevronDownIcon,
-  WalletIcon,
-  ArrowTopRightOnSquareIcon,
-  ClipboardIcon,
   ArrowPathIcon,
+  ArrowTopRightOnSquareIcon,
+  ChevronDownIcon,
+  ClipboardIcon,
+  WalletIcon,
 } from '@heroicons/react/24/outline';
 import { CheckIcon } from '@heroicons/react/24/solid';
-import { cn } from '@/lib/utils';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const ConnectWallet = () => {
@@ -26,7 +26,7 @@ const ConnectWallet = () => {
   const [copied, setCopied] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const formatAddress = (address: string) => {
+  const formatAddress = (address: any) => {
     if (!address) return '';
     return `${address.slice(0, 7)}...${address.slice(-6)}`;
   };
@@ -126,7 +126,7 @@ const ConnectWallet = () => {
                 </h3>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => { }}
+                    onClick={() => {}}
                     className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
                     title="Refresh"
                   >

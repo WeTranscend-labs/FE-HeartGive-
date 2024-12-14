@@ -1,8 +1,7 @@
-import React, { useContext } from 'react';
-import WalletModalContext from '@/contexts/components/WalletModalContext';
-import WalletModal from './WalletModal';
-import useModal from '@/hooks/useModal';
 import wallets from '@/constants/wallets';
+import WalletModalContext from '@/contexts/components/WalletModalContext';
+import React, { useContext } from 'react';
+import WalletModal from './WalletModal';
 
 const WalletModalRoot = () => {
   const { isOpen, closeModal } = useContext(WalletModalContext);
@@ -23,4 +22,4 @@ const WalletModalRoot = () => {
   );
 };
 
-export default WalletModalRoot; 
+export default WalletModalRoot;
