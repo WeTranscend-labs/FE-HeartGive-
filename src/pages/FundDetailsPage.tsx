@@ -16,10 +16,11 @@ import {
   EnvelopeIcon,
   GlobeAltIcon,
   HeartIcon,
+  LockClosedIcon,
   PhoneIcon,
   ShieldCheckIcon,
   TagIcon,
-  UserGroupIcon
+  UserGroupIcon,
 } from '@heroicons/react/24/outline';
 import { Loader2, Wallet } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
@@ -31,7 +32,13 @@ import { ProgressBar } from '../components/ProgressBar';
 import { TransactionList } from '../components/TransactionList';
 import { formatCurrency } from '../utils/format';
 import { calculateRoundStats, calculateTransactionStats } from '@/utils/stats';
-import { StatItem } from '@/components/Round/StatItem';
+import { WithdrawFundsDialog } from '@/components/WithdrawFundsDialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@radix-ui/react-tooltip';
+import { Button } from '@/components/ui/button';
 
 export default function FundDetailsPage() {
   const { id } = useParams<string>();
@@ -70,7 +77,7 @@ export default function FundDetailsPage() {
       try {
         // Fetch transactions for the specific fund
         const fundTransactions = await getFundTransactions({
-          fundAddress: id
+          fundAddress: id,
         });
 
         // Calculate round stats for this specific fund
@@ -81,7 +88,7 @@ export default function FundDetailsPage() {
           totalInRound: calculatedRoundStats.totalInRound,
           matchingPool: calculatedRoundStats.matchingPool,
           contributionsTotal: calculatedRoundStats.contributionsTotal,
-          contributorsCount: calculatedRoundStats.contributorsCount
+          contributorsCount: calculatedRoundStats.contributorsCount,
         });
       } catch (error) {
         console.error('Error fetching round statistics:', error);
@@ -121,6 +128,7 @@ export default function FundDetailsPage() {
     );
   }
 
+  console.log(fund);
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Breadcrumbs */}
@@ -203,19 +211,56 @@ export default function FundDetailsPage() {
                   />
                 </div>
                 <div className="w-[30%]">
-                  {isAdmin && (
-                    <CancelDialog
-                      fundId={fund.txHash}
-                      currentAmount={fund.currentAmount}
-                      fundOwner={wallet?.publicKeyHash}
-                      className="bg-white/10 hover:bg-white/15
+                  {wallet.address == fund.walletAddress &&
+                    (new Date(fund.endDate) <= new Date() ? (
+                      <WithdrawFundsDialog
+                        fundId={fund.txHash}
+                        fundAddress={fund.fundAddress}
+                        currentAmount={fund.currentAmount}
+                        fundOwner={wallet?.publicKeyHash}
+                        walletAddress={fund.walletAddress}
+                        randomHashKey={fund.randomHashKey}
+                        className="bg-white/10 hover:bg-white/15
                            text-white font-medium 
                            py-4 px-8 rounded-xl
                            backdrop-blur-sm
                            transition-all duration-300
                            border border-white/10"
-                    />
-                  )}
+                      />
+                    ) : (
+                      <Tooltip delayDuration={300}>
+                        <TooltipTrigger asChild>
+                          <button
+                            disabled
+                            className="w-full py-2.5 px-8 rounded-xl bg-white/10 border border-white/20 text-white/50 cursor-not-allowed transition-all duration-300 flex items-center justify-center space-x-2 hover:bg-white/15 hover:border-white/30"
+                          >
+                            <LockClosedIcon className="w-5 h-5 opacity-70 mr-2" />
+                            Withdraw
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="bottom"
+                          className="bg-primary-900 text-white border-none shadow-xl rounded-xl px-4 py-2 text-sm"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <ClockIcon className="w-5 h-5 text-yellow-400" />
+                            <span>
+                              Funds can be withdrawn after{' '}
+                              <span className="font-bold text-primary-200">
+                                {new Date(fund.endDate).toLocaleDateString(
+                                  'en-US',
+                                  {
+                                    month: 'long',
+                                    day: 'numeric',
+                                    year: 'numeric',
+                                  }
+                                )}
+                              </span>
+                            </span>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
                 </div>
               </div>
             </div>
@@ -250,17 +295,7 @@ export default function FundDetailsPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-
         <div className="container mx-auto px-4 -mt-2">
-          <div className="grid grid-cols-12 gap-8">
-            <div className="col-span-3">
-              <div className="sticky top-24">
-                <RoundStatsContainer roundStats={roundStats} />
-              </div>
-            </div>
-
-            <div className="col-span-9">
-        <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Campaign Story */}
             <div className="lg:col-span-2">
@@ -506,10 +541,7 @@ export default function FundDetailsPage() {
               </div>
             </div>
           </div>
-              </div>
-            </div>
-          </div>
-             </div>
+        </div>
       </div>
     </div>
   );

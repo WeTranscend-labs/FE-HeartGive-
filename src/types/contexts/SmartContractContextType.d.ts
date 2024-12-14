@@ -16,15 +16,17 @@ export type contribute = (params: {
   fundOwner: string;
 }) => Promise<string>;
 
-export type verifyFund = (params: {
-  txHash: string;
+export type withdrawFunds = (params: {
+  fundAddress: string;
+  withdrawAmount: bigint;
   fundOwner: string;
-  fundMetadata: any;
+  walletAddress: string;
+  randomHashKey: string;
 }) => Promise<string>;
 
 export interface SmartContractContextType {
   createFund: createFund;
   cancelFund: cancelFund;
   contribute: contribute;
-  verifyFund: verifyFund;
+  withdrawFunds: withdrawFunds;
 }

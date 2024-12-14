@@ -61,6 +61,7 @@ export type Fund = {
     | 'Children & Youth'
     | 'Elderly Care';
   tags: string[];
+  randomHashKey: string;
 };
 
 export interface Transaction {

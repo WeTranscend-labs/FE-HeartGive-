@@ -6,14 +6,13 @@ import {
   SpendingValidator,
 } from 'lucid-cardano';
 import { Validators } from './readValidators';
-import { v4 as uuidv4 } from 'uuid';
 
 type Props = {
   validators: Validators;
   fundOwner: string;
   lucid: Lucid;
+  randomHashKey: string;
 };
-
 export type AppliedValidators = {
   fund: SpendingValidator;
   fundManagement: SpendingValidator;
@@ -25,10 +24,11 @@ export const applyParams = ({
   validators,
   fundOwner,
   lucid,
+  randomHashKey,
 }: Props): AppliedValidators => {
   const fund = applyParamsToScript(validators.fund.script, [
     fundOwner,
-    fromText(uuidv4()),
+    fromText(randomHashKey),
   ]);
 
   const fundAddress = lucid.utils.validatorToAddress({
