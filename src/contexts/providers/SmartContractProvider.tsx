@@ -247,7 +247,7 @@ const SmartContractProvider = function ({ children }: Props) {
         },
         FundDatum
       );
-
+    
       // Xây dựng transaction
       const tx = await lucid
         .newTx()

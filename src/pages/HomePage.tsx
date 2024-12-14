@@ -1,19 +1,22 @@
+import { RoundStatsContainer } from '@/components/Round/RoundStatsContainer';
+import { getFunds, getFundTransactions } from '@/services/blockfrost.service';
+import {
+  ArrowPathIcon,
+  ChartBarIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  MagnifyingGlassIcon,
+} from '@heroicons/react/24/outline';
+import { motion } from 'framer-motion';
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { FundCard } from '../components/FundCard';
-import { CategoryFilter } from '../components/CategoryFilter';
 import { Breadcrumbs } from '../components/Breadcrumbs';
+import { CategoryFilter } from '../components/CategoryFilter';
+import { FundCard } from '../components/FundCard';
 import { Fund, FundCategory } from '../types/fund';
-import {
-  MagnifyingGlassIcon,
-  ChartBarIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  ArrowPathIcon,
-} from '@heroicons/react/24/outline';
-import { getFunds } from '@/services/blockfrost.service';
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+import { RoundStats } from '@/components/Round/RoundStats';
+import { calculateRoundStats } from '@/utils/stats';
 
 type FundStatus = 'active' | 'completed' | 'all';
 
@@ -30,8 +33,37 @@ export default function HomePage() {
   const [funds, setFunds] = useState<Fund[]>(null!);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [roundStats, setRoundStats] = useState({
+    totalInRound: BigInt(0),
+    matchingPool: BigInt(0),
+    contributionsTotal: BigInt(0),
+    contributorsCount: 0,
+  });
   const itemsPerPage = 9;
+  // Inside your component:
+  useEffect(() => {
+    async function fetchAllTransactions() {
+      try {
+        // Fetch transactions for all funds
+        const fundTransactions = await Promise.all(
+          funds.map(fund =>
+            getFundTransactions({ fundAddress: fund.fundAddress })
+          )
+        );
 
+        const roundStats = calculateRoundStats(fundTransactions);
+
+        // Use the stats to update your UI
+        setRoundStats(roundStats);
+      } catch (error) {
+        console.error('Error fetching transactions:', error);
+      }
+    }
+
+    if (funds?.length) {
+      fetchAllTransactions();
+    }
+  }, [funds]);
   useEffect(() => {
     fetchFunds(currentPage);
   }, [currentPage]);
@@ -64,8 +96,8 @@ export default function HomePage() {
       (status === 'completed'
         ? fund.currentAmount >= fund.targetAmount
         : status === 'active'
-        ? fund.currentAmount < fund.targetAmount
-        : true);
+          ? fund.currentAmount < fund.targetAmount
+          : true);
 
     return matchesCategory && matchesSearch && matchesStatus;
   });
@@ -87,6 +119,8 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+
+
       {/* Breadcrumbs */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-4">
@@ -108,8 +142,7 @@ export default function HomePage() {
                 Explore Volunteer Funds
               </h1>
               <p className="text-xl text-primary-100 mb-8">
-                Find and support meaningful projects that create positive change
-                in communities
+                Find and support meaningful projects that create positive change in communities
               </p>
               <div className="relative">
                 <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -167,33 +200,30 @@ export default function HomePage() {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setStatus('active')}
-                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  status === 'active'
-                    ? 'bg-primary-100 text-primary-800'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${status === 'active'
+                  ? 'bg-primary-100 text-primary-800'
+                  : 'text-gray-600 hover:bg-gray-100'
+                  }`}
               >
                 <ClockIcon className="w-5 h-5 mr-2" />
                 Fundraising
               </button>
               <button
                 onClick={() => setStatus('completed')}
-                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  status === 'completed'
-                    ? 'bg-green-100 text-green-800'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${status === 'completed'
+                  ? 'bg-green-100 text-green-800'
+                  : 'text-gray-600 hover:bg-gray-100'
+                  }`}
               >
                 <CheckCircleIcon className="w-5 h-5 mr-2" />
                 Completed
               </button>
               <button
                 onClick={() => setStatus('all')}
-                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  status === 'all'
-                    ? 'bg-gray-100 text-gray-800'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${status === 'all'
+                  ? 'bg-gray-100 text-gray-800'
+                  : 'text-gray-600 hover:bg-gray-100'
+                  }`}
               >
                 All
               </button>
@@ -214,8 +244,7 @@ export default function HomePage() {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-gray-900">
               {filteredFunds?.length}{' '}
-              {filteredFunds?.length === 1 ? 'Fund' : 'Fund'} matching your
-              search
+              {filteredFunds?.length === 1 ? 'Fund' : 'Fund'} matching your search
             </h2>
             <button
               onClick={() => {
@@ -231,24 +260,36 @@ export default function HomePage() {
             </button>
           </div>
 
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {filteredFunds?.map((fund) => (
-              <motion.div
-                key={fund.txHash}
-                variants={itemVariants}
-                transition={{ duration: 0.5 }}
-              >
-                <Link to={`/fund/${fund?.fundAddress}`}>
-                  <FundCard fund={fund} />
-                </Link>
-              </motion.div>
-            ))}
-          </motion.div>
+          <div className="container mx-auto px-4 -mt-2">
+            <div className="grid grid-cols-12 gap-8">
+              <div className="col-span-3">
+                <div className="sticky top-24">
+                  <RoundStatsContainer roundStats={roundStats} />
+                </div>
+              </div>
+
+              <div className="col-span-9">
+                <motion.div
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                >
+                  {filteredFunds?.map((fund) => (
+                    <motion.div
+                      key={fund?.txHash}
+                      variants={itemVariants}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <Link to={`/fund/${fund?.fundAddress}`}>
+                        <FundCard fund={fund} />
+                      </Link>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </div>
+            </div>
+          </div>
 
           <div className="flex justify-center mt-8">
             <div className="flex items-center space-x-2">
@@ -264,11 +305,10 @@ export default function HomePage() {
                 <button
                   key={index}
                   onClick={() => setCurrentPage(index + 1)}
-                  className={`px-4 py-2 rounded-md ${
-                    currentPage === index + 1
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-white text-gray-700'
-                  } shadow-md`}
+                  className={`px-4 py-2 rounded-md ${currentPage === index + 1
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-white text-gray-700'
+                    } shadow-md`}
                 >
                   {index + 1}
                 </button>
