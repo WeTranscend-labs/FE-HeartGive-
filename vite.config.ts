@@ -2,24 +2,28 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import path from 'path';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
 
 export default defineConfig({
   plugins: [
     react(),
     nodePolyfills({
-      include: ['stream'],
+      include: ['util', 'stream', 'buffer'],
       protocolImports: true,
     }),
   ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      stream: 'stream-browserify',
+      'node:util': 'util',
       'node:stream': 'stream-browserify',
+      'node:buffer': 'buffer',
     },
   },
   optimizeDeps: {
-    include: ['lucid-cardano', 'stream-browserify'],
+    include: ['lucid-cardano', 'util', 'stream-browserify', 'buffer'],
     esbuildOptions: {
       target: 'es2020',
     },
@@ -27,6 +31,7 @@ export default defineConfig({
   define: {
     global: {},
     'process.env': {},
+    'globalThis.Buffer': ['buffer', 'Buffer'],
   },
   build: {
     commonjsOptions: {
@@ -34,7 +39,10 @@ export default defineConfig({
       include: [/node_modules/],
     },
     rollupOptions: {
-      plugins: [],
+      plugins: [
+        // Thêm plugin để xử lý node modules
+        require('rollup-plugin-node-polyfills')(),
+      ],
     },
   },
 });
