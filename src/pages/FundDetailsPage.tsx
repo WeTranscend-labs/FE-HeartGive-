@@ -1,38 +1,37 @@
-import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useFundStore } from '../store/useFundStore';
-import { TransactionList } from '../components/TransactionList';
-import { ContributeDialog } from '../components/ContributeDialog';
-import { ProgressBar } from '../components/ProgressBar';
-import { formatCurrency } from '../utils/format';
-import { formatDistanceToNow } from '../utils/date';
-import { CampaignStory } from '../components/CampaignStory';
-import { Breadcrumbs } from '../components/Breadcrumbs';
+import { CancelDialog } from '@/components/CancelDialog';
+import { OrganizeStory } from '@/components/OrganizeStory';
+import { RoundStatsContainer } from '@/components/Round/RoundStatsContainer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  HeartIcon,
-  ShieldCheckIcon,
-  CheckBadgeIcon,
-  GlobeAltIcon,
-  EnvelopeIcon,
-  PhoneIcon,
-  MapPinIcon,
-  ClockIcon,
-  UserGroupIcon,
-  TagIcon,
-  ArrowLeftIcon,
-} from '@heroicons/react/24/outline';
-import { useContext, useEffect, useState } from 'react';
+import WalletContext from '@/contexts/components/WalletContext';
 import {
   getFundByAddress,
   getFundTransactions,
 } from '@/services/blockfrost.service';
-import { Fund, FundTransaction } from '@/types/fund';
-import { OrganizeStory } from '@/components/OrganizeStory';
-import { CancelDialog } from '@/components/CancelDialog';
 import { WalletContextType } from '@/types/contexts/WalletContextType';
-import WalletContext from '@/contexts/components/WalletContext';
-import { Loader2 } from 'lucide-react';
+import { Fund, FundTransaction } from '@/types/fund';
+import {
+  ArrowLeftIcon,
+  CheckBadgeIcon,
+  ClockIcon,
+  EnvelopeIcon,
+  GlobeAltIcon,
+  HeartIcon,
+  PhoneIcon,
+  ShieldCheckIcon,
+  TagIcon,
+  UserGroupIcon
+} from '@heroicons/react/24/outline';
+import { Loader2, Wallet } from 'lucide-react';
+import { useContext, useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { Breadcrumbs } from '../components/Breadcrumbs';
+import { CampaignStory } from '../components/CampaignStory';
+import { ContributeDialog } from '../components/ContributeDialog';
+import { ProgressBar } from '../components/ProgressBar';
+import { TransactionList } from '../components/TransactionList';
+import { formatCurrency } from '../utils/format';
+import { calculateRoundStats, calculateTransactionStats } from '@/utils/stats';
+import { StatItem } from '@/components/Round/StatItem';
 
 export default function FundDetailsPage() {
   const { id } = useParams<string>();
@@ -40,7 +39,13 @@ export default function FundDetailsPage() {
   const { wallet, isAdmin } = useContext<WalletContextType>(WalletContext);
   const [transactions, setTransactions] = useState<FundTransaction[]>(null!);
   const [isLoading, setIsLoading] = useState(true);
-
+  const stats = calculateTransactionStats(transactions);
+  const [roundStats, setRoundStats] = useState<{
+    totalInRound: bigint;
+    matchingPool: bigint;
+    contributionsTotal: bigint;
+    contributorsCount: number;
+  } | null>(null);
   useEffect(() => {
     (async () => {
       try {
@@ -59,6 +64,34 @@ export default function FundDetailsPage() {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    async function fetchRoundStats() {
+      try {
+        // Fetch transactions for the specific fund
+        const fundTransactions = await getFundTransactions({
+          fundAddress: id
+        });
+
+        // Calculate round stats for this specific fund
+        const calculatedRoundStats = calculateRoundStats([fundTransactions]);
+
+        // Update round stats state
+        setRoundStats({
+          totalInRound: calculatedRoundStats.totalInRound,
+          matchingPool: calculatedRoundStats.matchingPool,
+          contributionsTotal: calculatedRoundStats.contributionsTotal,
+          contributorsCount: calculatedRoundStats.contributorsCount
+        });
+      } catch (error) {
+        console.error('Error fetching round statistics:', error);
+      }
+    }
+
+    if (id) {
+      fetchRoundStats();
+    }
+  }, [id]);
 
   if (isLoading) {
     return (
@@ -217,6 +250,16 @@ export default function FundDetailsPage() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
+
+        <div className="container mx-auto px-4 -mt-2">
+          <div className="grid grid-cols-12 gap-8">
+            <div className="col-span-3">
+              <div className="sticky top-24">
+                <RoundStatsContainer roundStats={roundStats} />
+              </div>
+            </div>
+
+            <div className="col-span-9">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Campaign Story */}
@@ -463,7 +506,10 @@ export default function FundDetailsPage() {
               </div>
             </div>
           </div>
-        </div>
+              </div>
+            </div>
+          </div>
+             </div>
       </div>
     </div>
   );

@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@blockfrost/blockfrost-js": "^5.7.0",
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.0.18",
     "@hookform/resolvers": "^3.3.2",
@@ -36,6 +35,7 @@
     "process": "^0.11.10",
     "react": "^18.2.0",
     "react-copy-to-clipboard": "^5.1.0",
+    "react-countup": "^6.5.3",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.49.2",

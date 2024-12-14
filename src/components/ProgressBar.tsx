@@ -4,11 +4,15 @@ interface ProgressBarProps {
 }
 
 export function ProgressBar({ current, target }: ProgressBarProps) {
-  // Tính phần trăm với độ chính xác cao hơn
+  // Tính phần trăm với độ chính xác cao nhất sử dụng BigInt
   const percentage =
-    target > 0n ? Math.min(Number((current * 10000n) / target) / 100, 100) : 0;
+    target > 0n
+      ? Math.max(
+          Math.min(Number((current * 10000n) / target) / 100, 100),
+          current > 0n ? Number((current * 10000n) / target) / 100 : 0
+        )
+      : 0;
 
-  // Hàm format số để loại bỏ các số 0 thừa
   const formatPercentage = (value: number) => {
     // Chuyển đổi sang chuỗi với 2 chữ số thập phân
     const formatted = value.toFixed(2);
