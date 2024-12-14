@@ -215,7 +215,7 @@ export function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { number: '50K+', label: 'Donors' },
-              { number: '$1.2M+', label: 'Raised' },
+              { number: '₳1.2M+', label: 'Raised' },
               { number: '100+', label: 'Successful Projects' },
             ].map((stat, index) => (
               <motion.div
