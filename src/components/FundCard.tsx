@@ -1,6 +1,5 @@
 import { format, parseISO } from 'date-fns';
 import { CalendarDaysIcon, ClockIcon } from 'lucide-react';
-import { TagIcon } from '@heroicons/react/24/outline';
 
 import { Fund } from '../types/fund';
 import { formatCurrency } from '../utils/format';

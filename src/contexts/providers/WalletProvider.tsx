@@ -1,17 +1,17 @@
-import { LucidContextType } from '@/types/contexts/LucidContextType';
-import React, { ReactNode, useContext, useState, useEffect } from 'react';
-import LucidContext from '../components/LucidContext';
-import { ModalContextType } from '@/types/contexts/ModalContextType';
-import ModalContext from '../components/ModalContext';
-import { NetworkType, WalletType } from '@/types/GenericType';
-import { NetworkContextType } from '@/types/contexts/NetworkContextType';
-import NetworkContext from '../components/NetworkContext';
-import { Blockfrost, Lucid, Network, UTxO } from 'lucid-cardano';
-import WalletContext from '../components/WalletContext';
 import { networks } from '@/constants/networks';
 import wallets from '@/constants/wallets';
 import checkNetwork from '@/helpers/check-network';
+import { WalletType } from '@/types/GenericType';
+import { LucidContextType } from '@/types/contexts/LucidContextType';
+import { ModalContextType } from '@/types/contexts/ModalContextType';
+import { NetworkContextType } from '@/types/contexts/NetworkContextType';
 import fetchPublicKeyHash from '@/utils/fetchPublicKeyHash';
+import { Blockfrost, Lucid, Network, UTxO } from 'lucid-cardano';
+import { ReactNode, useContext, useEffect, useState } from 'react';
+import LucidContext from '../components/LucidContext';
+import ModalContext from '../components/ModalContext';
+import NetworkContext from '../components/NetworkContext';
+import WalletContext from '../components/WalletContext';
 import WalletModalContext from '../components/WalletModalContext';
 
 type Props = {
@@ -28,7 +28,6 @@ const WalletProvider = function ({ children }: Props) {
   const {
     toogleErrorNetwork,
     isShowingErrorNetwork,
-    isShowingWallet,
     toggleShowingWallet,
     isShowingTestNetwork,
     toggleTestNetwork,
@@ -40,7 +39,6 @@ const WalletProvider = function ({ children }: Props) {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   const { closeModal } = useContext(WalletModalContext);
-
 
   useEffect(() => {
     autoConnectWallet();
@@ -89,7 +87,7 @@ const WalletProvider = function ({ children }: Props) {
       try {
         // Tìm wallet phù hợp trong danh sách wallets
         const matchedWallet = wallets.find(
-          (wallet) => wallet.name.toLowerCase() === storedWallet.name
+          (wallet: any) => wallet.name.toLowerCase() === storedWallet.name
         );
 
         if (matchedWallet) {
@@ -109,7 +107,7 @@ const WalletProvider = function ({ children }: Props) {
     }
   };
 
-  const connect = async function ({ name, api, image, checkApi }: WalletType) {
+  const connect = async function ({ name, api, image }: WalletType) {
     try {
       setLoading(true);
       const currentNetwork = networks.find(function ({ networkName }) {
@@ -180,7 +178,6 @@ const WalletProvider = function ({ children }: Props) {
       });
 
       closeModal();
-
     } catch (error) {
       console.error(error);
     } finally {

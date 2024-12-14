@@ -7,7 +7,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 export default supabase;
 
 export const uploadImageToSupabase = async (
-  imageFile: File
+  imageFile: any
 ): Promise<string | null> => {
   try {
     // Loại bỏ phần kiểm tra user

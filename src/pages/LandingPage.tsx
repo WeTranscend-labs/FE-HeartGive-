@@ -1,18 +1,17 @@
-import { Link } from 'react-router-dom';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useInView } from 'react-intersection-observer';
-import { ParallaxSection } from '../components/ParallaxSection';
+import { getFunds } from '@/services/blockfrost.service';
+import { Fund } from '@/types/fund';
 import {
+  GlobeAltIcon,
   HeartIcon,
   ShieldCheckIcon,
   UserGroupIcon,
-  GlobeAltIcon,
 } from '@heroicons/react/24/outline';
-import { useFundStore } from '../store/useFundStore';
-import { FundCard } from '../components/FundCard';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { getFunds } from '@/services/blockfrost.service';
-import { Fund } from '@/types/fund';
+import { useInView } from 'react-intersection-observer';
+import { Link } from 'react-router-dom';
+import { FundCard } from '../components/FundCard';
+import { ParallaxSection } from '../components/ParallaxSection';
 
 export function LandingPage() {
   const { scrollY } = useScroll();

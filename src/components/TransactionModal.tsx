@@ -10,7 +10,11 @@ interface TransactionModalProps {
   onClose: () => void;
 }
 
-export function TransactionModal({ transaction, isOpen, onClose }: TransactionModalProps) {
+export function TransactionModal({
+  transaction,
+  isOpen,
+  onClose,
+}: TransactionModalProps) {
   if (!transaction) return null;
 
   return (
@@ -49,14 +53,18 @@ export function TransactionModal({ transaction, isOpen, onClose }: TransactionMo
 
                 <div className="space-y-4">
                   <div>
-                    <h4 className="text-sm font-medium text-gray-500">Amount</h4>
+                    <h4 className="text-sm font-medium text-gray-500">
+                      Amount
+                    </h4>
                     <p className="text-lg font-semibold text-green-600">
                       {formatCurrency(transaction.amount)}
                     </p>
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-medium text-gray-500">From Wallet</h4>
+                    <h4 className="text-sm font-medium text-gray-500">
+                      From Wallet
+                    </h4>
                     <p className="text-gray-900 font-mono break-all">
                       {transaction.fromWallet}
                     </p>
@@ -70,7 +78,9 @@ export function TransactionModal({ transaction, isOpen, onClose }: TransactionMo
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-medium text-gray-500">Transaction ID</h4>
+                    <h4 className="text-sm font-medium text-gray-500">
+                      Transaction ID
+                    </h4>
                     <p className="text-gray-900 font-mono text-sm break-all">
                       {transaction.id}
                     </p>

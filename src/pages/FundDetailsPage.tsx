@@ -1,6 +1,4 @@
-import { CancelDialog } from '@/components/CancelDialog';
 import { OrganizeStory } from '@/components/OrganizeStory';
-import { RoundStatsContainer } from '@/components/Round/RoundStatsContainer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import WalletContext from '@/contexts/components/WalletContext';
 import {
@@ -22,7 +20,7 @@ import {
   TagIcon,
   UserGroupIcon,
 } from '@heroicons/react/24/outline';
-import { Loader2, Wallet } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useContext, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Breadcrumbs } from '../components/Breadcrumbs';
@@ -38,21 +36,22 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@radix-ui/react-tooltip';
-import { Button } from '@/components/ui/button';
 
 export default function FundDetailsPage() {
   const { id } = useParams<string>();
   const [fund, setFund] = useState<Fund | null>(null!);
-  const { wallet, isAdmin } = useContext<WalletContextType>(WalletContext);
+  const { wallet } = useContext<WalletContextType>(WalletContext);
   const [transactions, setTransactions] = useState<FundTransaction[]>(null!);
   const [isLoading, setIsLoading] = useState(true);
   const stats = calculateTransactionStats(transactions);
+  console.log(stats);
   const [roundStats, setRoundStats] = useState<{
     totalInRound: bigint;
     matchingPool: bigint;
     contributionsTotal: bigint;
     contributorsCount: number;
   } | null>(null);
+  console.log(roundStats);
   useEffect(() => {
     (async () => {
       try {

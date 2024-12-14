@@ -31,7 +31,6 @@ interface WithdrawFundsDialogProps {
 }
 
 export function WithdrawFundsDialog({
-  fundId,
   fundAddress,
   currentAmount,
   fundOwner,
@@ -41,7 +40,7 @@ export function WithdrawFundsDialog({
 }: WithdrawFundsDialogProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [withdrawAmount, setWithdrawAmount] = useState<bigint>(currentAmount);
+  const [withdrawAmount] = useState<bigint>(currentAmount);
 
   const { withdrawFunds } =
     useContext<SmartContractContextType>(SmartContractContext);

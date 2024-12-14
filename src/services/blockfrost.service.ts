@@ -2,9 +2,8 @@ import { rootMetdata, utxo } from '@/types/blockfrost';
 import { Fund, FundTransaction } from '@/types/fund';
 import readValidators, { Validators } from '@/utils/readValidators';
 import axios from 'axios';
-import { decode } from 'cbor-x';
-import lucidService from './lucid.service';
 import { UTxO } from 'lucid-cardano';
+import lucidService from './lucid.service';
 
 // Tạo instance axios với baseURL
 const blockfrostApi = axios.create({
@@ -30,14 +29,14 @@ export const getFunds = async ({
     );
 
     // Lấy tổng số UTXOs tại địa chỉ validator
-    const totalUtxosResponse = await blockfrostApi.get(
-      `/addresses/${validatorAddress}/utxos`,
-      {
-        params: {
-          count: 1, // Chỉ lấy thông tin tổng số
-        },
-      }
-    );
+    // const totalUtxosResponse = await blockfrostApi.get(
+    //   `/addresses/${validatorAddress}/utxos`,
+    //   {
+    //     params: {
+    //       count: 1, // Chỉ lấy thông tin tổng số
+    //     },
+    //   }
+    // );
 
     // Tính toán tổng số trang
     const [utxos, totalUtxos] = await Promise.all([
@@ -58,7 +57,7 @@ export const getFunds = async ({
       'addr_test1wr539xfv8psyhejd8yukjfuu9j2w9h5y9t2lukz04348aes7hvm5e';
 
     const funds: Fund[] = await Promise.all(
-      utxos.map(async (utxo) => {
+      utxos.map(async (utxo: any) => {
         const rootMetadata: rootMetdata[] = await blockfrostApi
           .get(`/txs/${utxo.tx_hash}/metadata`)
           .then((response) => response.data);
@@ -165,7 +164,7 @@ export const getFundTransactions = async ({
     }
 
     // Lấy thông tin chi tiết của từng transaction
-    const transactions: FundTransaction[] = await Promise.all(
+    const transactions: any[] = await Promise.all(
       utxos.map(async (utxo) => {
         try {
           // Lấy thông tin transaction
@@ -262,17 +261,11 @@ const getTotalAda = async ({ address }: { address: string }) => {
     };
   } catch (error) {
     // Xử lý lỗi khi gọi API
-    if (error?.response && error.response?.status === 404) {
-      // Địa chỉ chưa được sử dụng
-      return {
-        totalLovelace: 0n,
-        totalAda: 0n,
-      };
-    }
-
-    // Nếu là lỗi khác, log và ném lỗi
-    console.error('Error fetching total ADA:', error);
-    throw error;
+    // Địa chỉ chưa được sử dụng
+    return {
+      totalLovelace: 0n,
+      totalAda: 0n,
+    };
   }
 };
 

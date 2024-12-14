@@ -1,6 +1,6 @@
-import React, { ReactNode } from 'react';
-import ModalContext from '../components/ModalContext';
 import useModal from '@/hooks/useModal';
+import { ReactNode } from 'react';
+import ModalContext from '../components/ModalContext';
 
 type Props = {
   children: ReactNode;

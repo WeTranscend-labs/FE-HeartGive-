@@ -3,13 +3,13 @@ import { NetworkType } from '@/types/GenericType';
 const networks: NetworkType[] = [
   {
     networkName: 'Mainnet',
-    url: import.meta.env.VITE_BLOCKFROST_RPC_URL_MAINNET,
-    apiKey: import.meta.env.VITE_BLOCKFROST_PROJECT_API_KEY_MAINNET,
+    url: import.meta?.env.VITE_BLOCKFROST_RPC_URL_MAINNET || '',
+    apiKey: import.meta?.env.VITE_BLOCKFROST_PROJECT_API_KEY_MAINNET,
   },
   {
     networkName: 'Preprod',
-    url: import.meta.env.VITE_BLOCKFROST_RPC_URL_PREPROD,
-    apiKey: import.meta.env.VITE_BLOCKFROST_PROJECT_API_KEY_PREPROD,
+    url: import.meta?.env.VITE_BLOCKFROST_RPC_URL_PREPROD,
+    apiKey: import.meta?.env.VITE_BLOCKFROST_PROJECT_API_KEY_PREPROD,
   },
   {
     networkName: 'Preview',

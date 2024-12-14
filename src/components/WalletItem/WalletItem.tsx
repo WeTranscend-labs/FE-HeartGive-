@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react';
+import WalletContext from '@/contexts/components/WalletContext';
 import { WalletType } from '@/types/GenericType';
 import { WalletContextType } from '@/types/contexts/WalletContextType';
-import WalletContext from '@/contexts/components/WalletContext';
+import { useContext, useEffect, useState } from 'react';
 
 type Props = {
   wallet: WalletType;
@@ -19,7 +19,7 @@ const WalletItem = function ({ wallet, accept }: Props) {
       api: wallet.api,
       name: wallet.name,
       image: wallet.image,
-      checkApi: wallet.checkApi,
+      // checkApi: wallet.checkApi,
     });
   };
 
@@ -44,7 +44,11 @@ const WalletItem = function ({ wallet, accept }: Props) {
         border-gray-100
         transition-all
         duration-200
-        ${accept ? 'cursor-pointer hover:border-primary-200 hover:bg-primary-50/30' : 'opacity-50 cursor-not-allowed'}
+        ${
+          accept
+            ? 'cursor-pointer hover:border-primary-200 hover:bg-primary-50/30'
+            : 'opacity-50 cursor-not-allowed'
+        }
       `}
     >
       <div className="flex items-center space-x-4">
@@ -61,9 +65,7 @@ const WalletItem = function ({ wallet, accept }: Props) {
             {wallet.name}
           </h3>
           {!isDownload && (
-            <p className="text-sm text-gray-500">
-              Not installed
-            </p>
+            <p className="text-sm text-gray-500">Not installed</p>
           )}
         </div>
       </div>
@@ -96,8 +98,11 @@ const WalletItem = function ({ wallet, accept }: Props) {
 
         {isDownload && (
           <svg
-            className={`w-5 h-5 transition-transform duration-200 ${accept ? 'text-primary-500 group-hover:translate-x-1' : 'text-gray-300'
-              }`}
+            className={`w-5 h-5 transition-transform duration-200 ${
+              accept
+                ? 'text-primary-500 group-hover:translate-x-1'
+                : 'text-gray-300'
+            }`}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"

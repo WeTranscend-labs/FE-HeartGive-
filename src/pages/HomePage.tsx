@@ -1,5 +1,6 @@
 import { RoundStatsContainer } from '@/components/Round/RoundStatsContainer';
 import { getFunds, getFundTransactions } from '@/services/blockfrost.service';
+import { calculateRoundStats } from '@/utils/stats';
 import {
   ArrowPathIcon,
   ChartBarIcon,
@@ -15,8 +16,6 @@ import { Breadcrumbs } from '../components/Breadcrumbs';
 import { CategoryFilter } from '../components/CategoryFilter';
 import { FundCard } from '../components/FundCard';
 import { Fund, FundCategory } from '../types/fund';
-import { RoundStats } from '@/components/Round/RoundStats';
-import { calculateRoundStats } from '@/utils/stats';
 
 type FundStatus = 'active' | 'completed' | 'all';
 

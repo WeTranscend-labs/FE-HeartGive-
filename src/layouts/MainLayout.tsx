@@ -1,12 +1,11 @@
-import { ReactNode } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import { Navbar } from '@/components/Navbar';
 import { ScrollProgress } from '@/components/ScrollProgress';
 import WalletModalRoot from '@/components/wallet/WalletModalRoot';
 import { cn } from '@/lib/utils';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ReactNode } from 'react';
 import { Toaster } from 'react-hot-toast';
-import ConnectWallet from '@/components/ConnectWallet';
 
 interface MainLayoutProps {
   children: ReactNode;

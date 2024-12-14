@@ -1,9 +1,10 @@
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useFundStore } from '../store/useFundStore';
 import { motion } from 'framer-motion';
 import { useContext } from 'react';
+import { useForm } from 'react-hook-form';
 
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -14,19 +15,17 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import LucidContext from '@/contexts/components/LucidContext';
+import SmartContractContext from '@/contexts/components/SmartContractContext';
+import WalletContext from '@/contexts/components/WalletContext';
+import { useToast } from '@/hooks/use-toast';
+import { LucidContextType } from '@/types/contexts/LucidContextType';
+import { SmartContractContextType } from '@/types/contexts/SmartContractContextType';
+import { WalletContextType } from '@/types/contexts/WalletContextType';
 import {
   transactionFormSchema,
   type TransactionFormData,
 } from '../schemas/transactionFormSchema';
-import { useToast } from '@/hooks/use-toast';
-import { SmartContractContextType } from '@/types/contexts/SmartContractContextType';
-import { LucidContextType } from '@/types/contexts/LucidContextType';
-import SmartContractContext from '@/contexts/components/SmartContractContext';
-import LucidContext from '@/contexts/components/LucidContext';
-import WalletContext from '@/contexts/components/WalletContext';
-import { WalletContextType } from '@/types/contexts/WalletContextType';
 
 interface TransactionFormProps {
   fundAddress: string;
@@ -62,8 +61,7 @@ export function TransactionForm({
 
       console.log(adaAmount);
 
-      // Gọi hàm contribute
-      const txHash = await contribute({
+      await contribute({
         fundAddress,
         contributionAmount: lovelaceAmount,
         fundOwner: wallet.publicKeyHash,
