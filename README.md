@@ -6,6 +6,7 @@ HEARTGIVE is a fundraising platform that integrates blockchain technology with t
 
 - [Project Overview](#project-overview)
 - [Features](#features)
+- [Deployment](#deployment)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
@@ -28,6 +29,14 @@ Our goal is to revolutionize charitable giving by eliminating intermediaries, in
 - **Low Transaction Fees:** Cardano’s efficient blockchain helps minimize transaction fees, maximizing the amount that reaches the cause.
 - **Secure Platform:** Built with industry-standard security protocols, ensuring that both donors and recipients are protected.
 - **Decentralized Governance:** Donors and charitable organizations can vote on key decisions via decentralized voting mechanisms.
+
+## Deployment
+
+The HEARTGIVE platform is live and can be accessed at:
+
+**Deployment Link:** [https://heart-give.vercel.app/](https://heart-give.vercel.app/)
+
+You can explore the platform, browse charitable causes, and make donations directly through the deployed web application.
 
 ## Getting Started
 
