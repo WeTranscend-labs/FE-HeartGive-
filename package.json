@@ -1,6 +1,9 @@
 {
   "name": "volunteer-fund-platform",
   "private": true,
+  "engine": {
+    "node": "20.11.0"
+  },
   "version": "0.0.0",
   "type": "module",
   "scripts": {
