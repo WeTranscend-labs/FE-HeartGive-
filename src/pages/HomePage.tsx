@@ -64,8 +64,8 @@ export default function HomePage() {
       (status === 'completed'
         ? fund.currentAmount >= fund.targetAmount
         : status === 'active'
-          ? fund.currentAmount < fund.targetAmount
-          : true);
+        ? fund.currentAmount < fund.targetAmount
+        : true);
 
     return matchesCategory && matchesSearch && matchesStatus;
   });
@@ -108,7 +108,8 @@ export default function HomePage() {
                 Explore Volunteer Funds
               </h1>
               <p className="text-xl text-primary-100 mb-8">
-                Find and support meaningful projects that create positive change in communities
+                Find and support meaningful projects that create positive change
+                in communities
               </p>
               <div className="relative">
                 <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -158,7 +159,7 @@ export default function HomePage() {
                 to="/register"
                 className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors shadow-sm"
               >
-               Start Fundraising
+                Start Fundraising
               </Link>
             </div>
 
@@ -166,30 +167,33 @@ export default function HomePage() {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setStatus('active')}
-                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${status === 'active'
+                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  status === 'active'
                     ? 'bg-primary-100 text-primary-800'
                     : 'text-gray-600 hover:bg-gray-100'
-                  }`}
+                }`}
               >
                 <ClockIcon className="w-5 h-5 mr-2" />
                 Fundraising
               </button>
               <button
                 onClick={() => setStatus('completed')}
-                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${status === 'completed'
+                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  status === 'completed'
                     ? 'bg-green-100 text-green-800'
                     : 'text-gray-600 hover:bg-gray-100'
-                  }`}
+                }`}
               >
                 <CheckCircleIcon className="w-5 h-5 mr-2" />
                 Completed
               </button>
               <button
                 onClick={() => setStatus('all')}
-                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${status === 'all'
+                className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  status === 'all'
                     ? 'bg-gray-100 text-gray-800'
                     : 'text-gray-600 hover:bg-gray-100'
-                  }`}
+                }`}
               >
                 All
               </button>
@@ -210,7 +214,8 @@ export default function HomePage() {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-gray-900">
               {filteredFunds?.length}{' '}
-              {filteredFunds?.length === 1 ? 'Fund' : 'Fund'} matching your search
+              {filteredFunds?.length === 1 ? 'Fund' : 'Fund'} matching your
+              search
             </h2>
             <button
               onClick={() => {
@@ -234,7 +239,7 @@ export default function HomePage() {
           >
             {filteredFunds?.map((fund) => (
               <motion.div
-                key={fund?.txHash}
+                key={fund.txHash}
                 variants={itemVariants}
                 transition={{ duration: 0.5 }}
               >
