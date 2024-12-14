@@ -1,40 +1,26 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
-import path from 'path';
-
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+// vite.config.ts
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
+import path from "path";
+// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    nodePolyfills({
-      include: ['stream'],
-      protocolImports: true,
-    }),
-  ],
+  plugins: [react(), topLevelAwait(), wasm()],
+
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      stream: 'stream-browserify',
-      'node:stream': 'stream-browserify',
+      "@": path.resolve(__dirname, "./src"),
+      "node-fetch": "node-fetch-polyfill",
     },
   },
   optimizeDeps: {
-    include: ['lucid-cardano', 'stream-browserify'],
     esbuildOptions: {
-      target: 'es2020',
+      target: "es2020",
     },
-  },
-  define: {
-    global: {},
-    'process.env': {},
+    exclude: ["lucid-cardano", "lucide-react"],
   },
   build: {
-    commonjsOptions: {
-      transformMixedEsModules: true,
-      include: [/node_modules/],
-    },
-    rollupOptions: {
-      plugins: [],
-    },
+    target: "es2020",
   },
 });
