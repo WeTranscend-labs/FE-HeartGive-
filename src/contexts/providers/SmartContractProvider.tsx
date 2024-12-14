@@ -1,8 +1,5 @@
 import { FundDatum, FundManagementDatum } from '@/constants/datum';
-import {
-  createFund,
-  verifyFund,
-} from '@/types/contexts/SmartContractContextType';
+import { createFund } from '@/types/contexts/SmartContractContextType';
 import readValidators, { Validators } from '@/utils/readValidators';
 import {
   applyDoubleCborEncoding,
@@ -35,7 +32,7 @@ const SmartContractProvider = function ({ children }: Props) {
   const [fundManagementAddress, setFundManagementAddress] = useState<string>(
     null!
   );
-  const [fundVerifiedAddress, setFundVerifiedAddress] = useState<string>(null!);
+  // const [fundVerifiedAddress, setFundVerifiedAddress] = useState<string>(null!);
 
   useEffect(() => {
     const validators = readValidators();
@@ -43,9 +40,9 @@ const SmartContractProvider = function ({ children }: Props) {
     setFundManagementAddress(
       lucid?.utils.validatorToAddress(validators.fundManagement)
     );
-    setFundVerifiedAddress(
-      lucid?.utils.validatorToAddress(validators.fundVerified)
-    );
+    // setFundVerifiedAddress(
+    //   lucid?.utils.validatorToAddress(validators.fundVerified)
+    // );
   }, [lucid]);
 
   const createFund: createFund = async ({ fundOwner, fundMetadata }) => {
@@ -82,7 +79,7 @@ const SmartContractProvider = function ({ children }: Props) {
       //   { lovelace: 1_000_000n }
       // )
       .payToContract(
-        fundVerifiedAddress,
+        fundManagementAddress,
         { inline: fundManagementDatum },
         { lovelace: 5_000_000n }
       )
@@ -155,78 +152,78 @@ const SmartContractProvider = function ({ children }: Props) {
     }
   };
 
-  const verifyFund: verifyFund = async ({
-    txHash,
-    fundOwner,
-    fundMetadata,
-  }: {
-    txHash: string;
-    fundOwner: string;
-    fundMetadata: any;
-  }) => {
-    try {
-      const validators: Validators = readValidators();
-      const fundVerifiedValidator = validators.fundVerified;
+  // const verifyFund: verifyFund = async ({
+  //   txHash,
+  //   fundOwner,
+  //   fundMetadata,
+  // }: {
+  //   txHash: string;
+  //   fundOwner: string;
+  //   fundMetadata: any;
+  // }) => {
+  //   try {
+  //     const validators: Validators = readValidators();
+  //     const fundVerifiedValidator = validators.fundVerified;
 
-      // Tìm UTXOs tại địa chỉ quỹ đã được xác minh
-      const utxos = await lucid.utxosAt(fundVerifiedAddress);
+  //     // Tìm UTXOs tại địa chỉ quỹ đã được xác minh
+  //     const utxos = await lucid.utxosAt(fundVerifiedAddress);
 
-      // Tìm UTXO cụ thể dựa trên transaction hash
-      const targetUtxo: UTxO | undefined = utxos.find(
-        (utxo) => utxo.txHash === txHash
-      );
+  //     // Tìm UTXO cụ thể dựa trên transaction hash
+  //     const targetUtxo: UTxO | undefined = utxos.find(
+  //       (utxo) => utxo.txHash === txHash
+  //     );
 
-      const fundMetadata = await getMetadataFromUtxo(targetUtxo);
+  //     const fundMetadata = await getMetadataFromUtxo(targetUtxo);
 
-      console.log('metadata: {}', fundMetadata);
+  //     console.log('metadata: {}', fundMetadata);
 
-      if (!targetUtxo) {
-        throw new Error('UTXO not found for the given transaction hash');
-      }
+  //     if (!targetUtxo) {
+  //       throw new Error('UTXO not found for the given transaction hash');
+  //     }
 
-      // Tạo datum cho fundManagement
-      const fundManagementDatum = Data.to(
-        {
-          fundAddress: fromText(fundMetadata.fundAddress),
-        },
-        FundManagementDatum
-      );
+  //     // Tạo datum cho fundManagement
+  //     const fundManagementDatum = Data.to(
+  //       {
+  //         fundAddress: fromText(fundMetadata.fundAddress),
+  //       },
+  //       FundManagementDatum
+  //     );
 
-      // Xây dựng transaction để verify fund
-      const tx = await lucid
-        .newTx()
-        .collectFrom([targetUtxo], Data.void())
-        .attachSpendingValidator(fundVerifiedValidator)
-        .payToContract(
-          fundManagementAddress,
-          { inline: fundManagementDatum },
-          { lovelace: 5_000_000n }
-        )
-        .attachMetadata(1, {
-          2: {
-            data: encode(JSON.stringify(fundMetadata)),
-          },
-        })
-        .complete();
+  //     // Xây dựng transaction để verify fund
+  //     const tx = await lucid
+  //       .newTx()
+  //       .collectFrom([targetUtxo], Data.void())
+  //       .attachSpendingValidator(fundVerifiedValidator)
+  //       .payToContract(
+  //         fundManagementAddress,
+  //         { inline: fundManagementDatum },
+  //         { lovelace: 5_000_000n }
+  //       )
+  //       .attachMetadata(1, {
+  //         2: {
+  //           data: encode(JSON.stringify(fundMetadata)),
+  //         },
+  //       })
+  //       .complete();
 
-      // Ký và submit transaction
-      const signedTx = await tx.sign().complete();
-      const verifyTxHash = await signedTx.submit();
+  //     // Ký và submit transaction
+  //     const signedTx = await tx.sign().complete();
+  //     const verifyTxHash = await signedTx.submit();
 
-      // Chờ xác nhận transaction
-      const success = await lucid.awaitTx(verifyTxHash);
+  //     // Chờ xác nhận transaction
+  //     const success = await lucid.awaitTx(verifyTxHash);
 
-      if (success) {
-        console.log('Fund verified successfully. Tx Hash:', verifyTxHash);
-        return verifyTxHash;
-      } else {
-        throw new Error('Verification transaction failed to confirm');
-      }
-    } catch (error) {
-      console.error('Error verifying fund:', error);
-      throw error;
-    }
-  };
+  //     if (success) {
+  //       console.log('Fund verified successfully. Tx Hash:', verifyTxHash);
+  //       return verifyTxHash;
+  //     } else {
+  //       throw new Error('Verification transaction failed to confirm');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error verifying fund:', error);
+  //     throw error;
+  //   }
+  // };
 
   const contribute = async ({
     fundAddress,
@@ -247,7 +244,7 @@ const SmartContractProvider = function ({ children }: Props) {
         },
         FundDatum
       );
-    
+
       // Xây dựng transaction
       const tx = await lucid
         .newTx()
@@ -283,7 +280,7 @@ const SmartContractProvider = function ({ children }: Props) {
 
   return (
     <SmartContractContext.Provider
-      value={{ createFund, cancelFund, contribute, verifyFund }}
+      value={{ createFund, cancelFund, contribute }}
     >
       {children}
     </SmartContractContext.Provider>

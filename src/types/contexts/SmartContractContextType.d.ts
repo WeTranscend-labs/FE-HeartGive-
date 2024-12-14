@@ -16,15 +16,8 @@ export type contribute = (params: {
   fundOwner: string;
 }) => Promise<string>;
 
-export type verifyFund = (params: {
-  txHash: string;
-  fundOwner: string;
-  fundMetadata: any;
-}) => Promise<string>;
-
 export interface SmartContractContextType {
   createFund: createFund;
   cancelFund: cancelFund;
   contribute: contribute;
-  verifyFund: verifyFund;
 }

@@ -11,7 +11,7 @@ import {
 import { useFundStore } from '../store/useFundStore';
 import { FundCard } from '../components/FundCard';
 import { useEffect, useState } from 'react';
-import { getFunds, getVerifiedFunds } from '@/services/blockfrost.service';
+import { getFunds } from '@/services/blockfrost.service';
 import { Fund } from '@/types/fund';
 
 export function LandingPage() {
@@ -25,9 +25,7 @@ export function LandingPage() {
   }, []);
 
   const fetchFunds = async () => {
-
     const funds: Fund[] = (await getFunds({ page: 1, pageSize: 3 })).funds;
-
 
     setFunds(funds);
   };
@@ -104,7 +102,8 @@ export function LandingPage() {
               Featured Campaigns
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Discover and support projects making a positive impact in the community
+              Discover and support projects making a positive impact in the
+              community
             </p>
           </motion.div>
 
@@ -219,7 +218,6 @@ export function LandingPage() {
               { number: '50K+', label: 'Donors' },
               { number: '$1.2M+', label: 'Raised' },
               { number: '100+', label: 'Successful Projects' },
-
             ].map((stat, index) => (
               <motion.div
                 key={index}
@@ -272,7 +270,6 @@ export function LandingPage() {
             </Link>
           </motion.div>
         </div>
-
       </section>
     </div>
   );
