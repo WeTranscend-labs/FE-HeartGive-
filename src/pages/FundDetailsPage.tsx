@@ -195,7 +195,6 @@ export default function FundDetailsPage() {
                 </p>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex gap-6 pt-3">
                 <div className="w-[70%]">
                   <ContributeDialog
