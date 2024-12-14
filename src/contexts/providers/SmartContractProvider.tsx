@@ -1,27 +1,22 @@
 import { FundDatum, FundManagementDatum } from '@/constants/datum';
+import { FundRedeemer } from '@/constants/redeemer';
+import { LucidContextType } from '@/types/contexts/LucidContextType';
 import { createFund } from '@/types/contexts/SmartContractContextType';
+import { WalletContextType } from '@/types/contexts/WalletContextType';
+import { applyParams } from '@/utils/applyParams';
 import readValidators, { Validators } from '@/utils/readValidators';
+import { encode } from 'cbor-x';
 import {
   applyDoubleCborEncoding,
   Data,
   fromText,
-  Lucid,
-  Script,
   SpendingValidator,
-  toText,
-  UTxO,
 } from 'lucid-cardano';
 import { ReactNode, useContext, useEffect, useState } from 'react';
-import SmartContractContext from '../components/SmartContractContext';
-import { applyParams } from '@/utils/applyParams';
-import { LucidContextType } from '@/types/contexts/LucidContextType';
 import LucidContext from '../components/LucidContext';
-import { decode, encode } from 'cbor-x';
-import {
-  decodeMetadata,
-  getMetadataFromUtxo,
-} from '@/services/blockfrost.service';
-import { utxo } from '@/types/blockfrost';
+import SmartContractContext from '../components/SmartContractContext';
+import WalletContext from '../components/WalletContext';
+import { v4 as uuidv4 } from 'uuid';
 
 type Props = {
   children: ReactNode;
@@ -32,6 +27,7 @@ const SmartContractProvider = function ({ children }: Props) {
   const [fundManagementAddress, setFundManagementAddress] = useState<string>(
     null!
   );
+  const { wallet } = useContext<WalletContextType>(WalletContext);
   // const [fundVerifiedAddress, setFundVerifiedAddress] = useState<string>(null!);
 
   useEffect(() => {
@@ -47,7 +43,13 @@ const SmartContractProvider = function ({ children }: Props) {
 
   const createFund: createFund = async ({ fundOwner, fundMetadata }) => {
     const validators: Validators = readValidators();
-    const fundAppliedParams = applyParams({ validators, fundOwner, lucid });
+    const randomHashKey = uuidv4();
+    const fundAppliedParams = applyParams({
+      validators,
+      fundOwner,
+      lucid,
+      randomHashKey,
+    });
     const fundAddress = fundAppliedParams.fundAddress;
 
     const fundDatum = Data.to(
@@ -67,6 +69,7 @@ const SmartContractProvider = function ({ children }: Props) {
     fundMetadata = {
       ...fundMetadata,
       fundAddress: fundAddress,
+      randomHashKey: randomHashKey,
     };
 
     console.log(fundMetadata);
@@ -152,79 +155,6 @@ const SmartContractProvider = function ({ children }: Props) {
     }
   };
 
-  // const verifyFund: verifyFund = async ({
-  //   txHash,
-  //   fundOwner,
-  //   fundMetadata,
-  // }: {
-  //   txHash: string;
-  //   fundOwner: string;
-  //   fundMetadata: any;
-  // }) => {
-  //   try {
-  //     const validators: Validators = readValidators();
-  //     const fundVerifiedValidator = validators.fundVerified;
-
-  //     // Tìm UTXOs tại địa chỉ quỹ đã được xác minh
-  //     const utxos = await lucid.utxosAt(fundVerifiedAddress);
-
-  //     // Tìm UTXO cụ thể dựa trên transaction hash
-  //     const targetUtxo: UTxO | undefined = utxos.find(
-  //       (utxo) => utxo.txHash === txHash
-  //     );
-
-  //     const fundMetadata = await getMetadataFromUtxo(targetUtxo);
-
-  //     console.log('metadata: {}', fundMetadata);
-
-  //     if (!targetUtxo) {
-  //       throw new Error('UTXO not found for the given transaction hash');
-  //     }
-
-  //     // Tạo datum cho fundManagement
-  //     const fundManagementDatum = Data.to(
-  //       {
-  //         fundAddress: fromText(fundMetadata.fundAddress),
-  //       },
-  //       FundManagementDatum
-  //     );
-
-  //     // Xây dựng transaction để verify fund
-  //     const tx = await lucid
-  //       .newTx()
-  //       .collectFrom([targetUtxo], Data.void())
-  //       .attachSpendingValidator(fundVerifiedValidator)
-  //       .payToContract(
-  //         fundManagementAddress,
-  //         { inline: fundManagementDatum },
-  //         { lovelace: 5_000_000n }
-  //       )
-  //       .attachMetadata(1, {
-  //         2: {
-  //           data: encode(JSON.stringify(fundMetadata)),
-  //         },
-  //       })
-  //       .complete();
-
-  //     // Ký và submit transaction
-  //     const signedTx = await tx.sign().complete();
-  //     const verifyTxHash = await signedTx.submit();
-
-  //     // Chờ xác nhận transaction
-  //     const success = await lucid.awaitTx(verifyTxHash);
-
-  //     if (success) {
-  //       console.log('Fund verified successfully. Tx Hash:', verifyTxHash);
-  //       return verifyTxHash;
-  //     } else {
-  //       throw new Error('Verification transaction failed to confirm');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error verifying fund:', error);
-  //     throw error;
-  //   }
-  // };
-
   const contribute = async ({
     fundAddress,
     contributionAmount,
@@ -278,9 +208,80 @@ const SmartContractProvider = function ({ children }: Props) {
     }
   };
 
+  const withdrawFunds = async ({
+    fundAddress,
+    fundOwner,
+    withdrawAmount,
+    walletAddress,
+    randomHashKey,
+  }: {
+    fundAddress: string;
+    fundOwner: string;
+    withdrawAmount: bigint;
+    walletAddress: string;
+    randomHashKey: string;
+  }) => {
+    try {
+      const validators: Validators = readValidators();
+      const fundValidator = validators.fund;
+      const temp = applyParams({ validators, fundOwner, lucid, randomHashKey });
+
+      if (walletAddress !== wallet.address) return 'This Fund is owned by you';
+      // Tìm tất cả UTXOs tại địa chỉ quỹ
+      const utxos = await lucid.utxosAt(fundAddress);
+
+      const hash = await lucid.utils.getAddressDetails(walletAddress)
+        .paymentCredential?.hash;
+
+      // Tính tổng số ADA hiện có tại quỹ
+      const totalFundBalance = utxos.reduce(
+        (total, utxo) => total + utxo.assets.lovelace,
+        0n
+      );
+
+      // Kiểm tra số tiền rút có hợp lệ không
+      if (withdrawAmount > totalFundBalance) {
+        throw new Error('Withdrawal amount exceeds fund balance');
+      }
+
+      // Tạo redeemer chỉ với fundOwner
+      const withdrawRedeemer = Data.to(
+        {
+          fundOwner: fundOwner,
+        },
+        FundRedeemer
+      );
+
+      // Xây dựng transaction
+      const tx = await lucid
+        .newTx()
+        .collectFrom(utxos, withdrawRedeemer)
+        .attachSpendingValidator(temp.fund)
+        .payToAddress(walletAddress, { lovelace: totalFundBalance })
+        .complete();
+
+      // Ký và submit transaction
+      const signedTx = await tx.sign().complete();
+      const withdrawTxHash = await signedTx.submit();
+
+      // Chờ xác nhận transaction
+      const success = await lucid.awaitTx(withdrawTxHash);
+
+      if (success) {
+        console.log('Funds withdrawn successfully. Tx Hash:', withdrawTxHash);
+        return withdrawTxHash;
+      } else {
+        throw new Error('Withdrawal transaction failed to confirm');
+      }
+    } catch (error) {
+      console.error('Error withdrawing funds:', error);
+      throw error;
+    }
+  };
+
   return (
     <SmartContractContext.Provider
-      value={{ createFund, cancelFund, contribute }}
+      value={{ createFund, cancelFund, contribute, withdrawFunds }}
     >
       {children}
     </SmartContractContext.Provider>

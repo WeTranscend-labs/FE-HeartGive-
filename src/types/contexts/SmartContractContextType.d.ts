@@ -16,8 +16,17 @@ export type contribute = (params: {
   fundOwner: string;
 }) => Promise<string>;
 
+export type withdrawFunds = (params: {
+  fundAddress: string;
+  withdrawAmount: bigint;
+  fundOwner: string;
+  walletAddress: string;
+  randomHashKey: string;
+}) => Promise<string>;
+
 export interface SmartContractContextType {
   createFund: createFund;
   cancelFund: cancelFund;
   contribute: contribute;
+  withdrawFunds: withdrawFunds;
 }
